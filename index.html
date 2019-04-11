@@ -201,7 +201,7 @@
       <script src="javascripts/all.js"></script>
   </head>
 
-  <body class="index" data-languages="[&quot;shell&quot;,&quot;ruby&quot;,&quot;python&quot;,&quot;javascript&quot;]">
+  <body class="index" data-languages="[&quot;shell&quot;,&quot;ruby&quot;,&quot;python&quot;]">
     <a href="#" id="nav-button">
       <span>
         NAV
@@ -214,7 +214,6 @@
               <a href="#" data-language-name="shell">shell</a>
               <a href="#" data-language-name="ruby">ruby</a>
               <a href="#" data-language-name="python">python</a>
-              <a href="#" data-language-name="javascript">javascript</a>
         </div>
         <div class="search">
           <input type="text" class="search" id="input-search" placeholder="Search">
@@ -228,18 +227,21 @@
             <a href="#authentication" class="toc-h1 toc-link" data-title="Authentication">Authentication</a>
           </li>
           <li>
-            <a href="#kittens" class="toc-h1 toc-link" data-title="Kittens">Kittens</a>
+            <a href="#transactions" class="toc-h1 toc-link" data-title="Transactions">Transactions</a>
               <ul class="toc-list-h2">
                   <li>
-                    <a href="#get-all-kittens" class="toc-h2 toc-link" data-title="Get All Kittens">Get All Kittens</a>
+                    <a href="#create-a-new-transaction" class="toc-h2 toc-link" data-title="Create a new transaction">Create a new transaction</a>
                   </li>
                   <li>
-                    <a href="#get-a-specific-kitten" class="toc-h2 toc-link" data-title="Get a Specific Kitten">Get a Specific Kitten</a>
+                    <a href="#start-a-loan-transaction" class="toc-h2 toc-link" data-title="Start a loan transaction">Start a loan transaction</a>
                   </li>
                   <li>
                     <a href="#delete-a-specific-kitten" class="toc-h2 toc-link" data-title="Delete a Specific Kitten">Delete a Specific Kitten</a>
                   </li>
               </ul>
+          </li>
+          <li>
+            <a href="#transactionrequestbody" class="toc-h1 toc-link" data-title="TransactionRequestBody">TransactionRequestBody</a>
           </li>
           <li>
             <a href="#errors" class="toc-h1 toc-link" data-title="Errors">Errors</a>
@@ -254,80 +256,68 @@
       <div class="dark-box"></div>
       <div class="content">
         <h1 id='introduction'>Introduction</h1>
-<p>Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.</p>
+<p>Welcome to the Wisetack API. You can use our API to seamlessly integrate point-of-sale financing into your existing application. </p>
 
-<p>We have language bindings in Shell, Ruby, Python, and JavaScript! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.</p>
-
-<p>This example API documentation page was created with <a href="https://github.com/lord/slate">Slate</a>. Feel free to edit it and use it as a base for your own API&#39;s documentation.</p>
+<p>We have language bindings in Shell, Ruby, Python, and Java.  You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.</p>
 <h1 id='authentication'>Authentication</h1>
 <blockquote>
 <p>To authorize, use this code:</p>
 </blockquote>
-<pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
+<pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'wisetack'</span>
 
-<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
-</code></pre><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">kittn</span>
+<span class="n">api</span> <span class="o">=</span> <span class="no">Wisetack</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'yourkeyhere'</span><span class="p">)</span>
+</code></pre><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">wisetack</span> 
 
-<span class="n">api</span> <span class="o">=</span> <span class="n">kittn</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'meowmeowmeow'</span><span class="p">)</span>
+<span class="n">api</span> <span class="o">=</span> <span class="n">wisetack</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'yourkeyhere'</span><span class="p">)</span>
 </code></pre><pre class="highlight shell tab-shell"><code><span class="c"># With shell, you can just pass the correct header with each request</span>
 curl <span class="s2">"api_endpoint_here"</span>
-  -H <span class="s2">"Authorization: meowmeowmeow"</span>
-</code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">kittn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'kittn'</span><span class="p">);</span>
-
-<span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">kittn</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">);</span>
+  -H <span class="s2">"Authorization: yourkeyhere"</span>
 </code></pre>
 <blockquote>
-<p>Make sure to replace <code>meowmeowmeow</code> with your API key.</p>
+<p>Make sure to replace <code>yourkeyhere</code> with your API key.</p>
 </blockquote>
 
-<p>Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our <a href="http://example.com/developers">developer portal</a>.</p>
+<p>Wisetack uses API keys to allow access to the API. You can register a new Kittn API key at our <a href="http://example.com/developers">developer portal</a>.</p>
 
-<p>Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:</p>
+<p>Wisetack expects for the API key to be included in all API requests to the server in a header that looks like the following:</p>
 
-<p><code>Authorization: meowmeowmeow</code></p>
+<p><code>Authorization: yourkeyhere</code></p>
 
 <aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
+You must replace <code>yourkeyhere</code> with your personal API key.
 </aside>
-<h1 id='kittens'>Kittens</h1><h2 id='get-all-kittens'>Get All Kittens</h2><pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
+<h1 id='transactions'>Transactions</h1><h2 id='create-a-new-transaction'>Create a new transaction</h2><pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'wisetack'</span>
 
-<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="p">.</span><span class="nf">kittens</span><span class="p">.</span><span class="nf">get</span>
-</code></pre><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">kittn</span>
+<span class="n">api</span> <span class="o">=</span> <span class="no">Wisetack</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'yourkeyhere'</span><span class="p">)</span>
+<span class="n">api</span><span class="p">.</span><span class="nf">merchants</span><span class="p">(</span><span class="n">ae544181</span><span class="o">-</span><span class="mi">3</span><span class="n">cad</span><span class="o">-</span><span class="mi">4604</span><span class="o">-</span><span class="n">a629</span><span class="o">-</span><span class="mi">8141</span><span class="n">d74b9c31</span><span class="p">).</span><span class="nf">transactions</span><span class="p">.</span><span class="nf">post</span>
+</code></pre><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">wisetack</span> 
 
-<span class="n">api</span> <span class="o">=</span> <span class="n">kittn</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="o">.</span><span class="n">kittens</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-</code></pre><pre class="highlight shell tab-shell"><code>curl <span class="s2">"http://example.com/api/kittens"</span>
-  -H <span class="s2">"Authorization: meowmeowmeow"</span>
-</code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">kittn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'kittn'</span><span class="p">);</span>
-
-<span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">kittn</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">);</span>
-<span class="kd">let</span> <span class="nx">kittens</span> <span class="o">=</span> <span class="nx">api</span><span class="p">.</span><span class="nx">kittens</span><span class="p">.</span><span class="nx">get</span><span class="p">();</span>
+<span class="n">api</span> <span class="o">=</span> <span class="n">wisetack</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'yourkeyhere'</span><span class="p">)</span>
+<span class="n">api</span><span class="o">.</span><span class="n">merchants</span><span class="p">(</span><span class="n">ae544181</span><span class="o">-</span><span class="mi">3</span><span class="n">cad</span><span class="o">-</span><span class="mi">4604</span><span class="o">-</span><span class="n">a629</span><span class="o">-</span><span class="mi">8141</span><span class="n">d74b9c31</span><span class="p">)</span><span class="o">.</span><span class="n">transactions</span><span class="o">.</span><span class="n">post</span>
+</code></pre><pre class="highlight shell tab-shell"><code>curl <span class="s2">"http://api.wisetack.com/merchants/ae544181-3cad-4604-a629-8141d74b9c31/transactions"</span>
+  -H <span class="s2">"Authorization: yourkeyhere"</span>
 </code></pre>
 <blockquote>
-<p>The above command returns JSON structured like this:</p>
+<p>Here&#39;s an example of what a request to create a transaction looks like: </p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
-  </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Fluffums"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"breed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"calico"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"fluffiness"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"cuteness"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Max"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"breed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unknown"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"fluffiness"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"cuteness"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">]</span><span class="w">
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+   </span><span class="s2">"transactionAmount"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+   </span><span class="s2">"mobileNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">1235554567</span><span class="p">,</span><span class="w">
+   </span><span class="s2">"loanPurpose"</span><span class="p">:</span><span class="w"> </span><span class="s2">"landscape"</span><span class="p">,</span><span class="w">
+   </span><span class="s2">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Clark"</span><span class="p">,</span><span class="w">
+   </span><span class="s2">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Smith"</span><span class="p">,</span><span class="w">
+   </span><span class="s2">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"casmith@example.com"</span><span class="p">,</span><span class="w">
+   </span><span class="s2">"dob"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
+   </span><span class="s2">"ssn4"</span><span class="p">:</span><span class="w"> </span><span class="mi">3333</span><span class="p">,</span><span class="w">
+   </span><span class="s2">"zip"</span><span class="p">:</span><span class="w"> </span><span class="mi">95602</span><span class="p">,</span><span class="w">
+   </span><span class="s2">"annualIncomeBeforeTaxes"</span><span class="p">:</span><span class="w"> </span><span class="mi">120000</span><span class="p">,</span><span class="w">
+   </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"initiated"</span><span class="w">
+</span><span class="p">}</span><span class="w">
 </span></code></pre>
-<p>This endpoint retrieves all kittens.</p>
+<p>This resource initiates loan applications and manages the flow of loan authorization, settlement, and refunds.</p>
 <h3 id='http-request'>HTTP Request</h3>
-<p><code>GET http://example.com/api/kittens</code></p>
-<h3 id='query-parameters'>Query Parameters</h3>
+<p><code>POST /merchant/{merchantId}/transactions</code></p>
+<h3 id='path-parameter'>Path Parameter</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -336,44 +326,39 @@ You must replace <code>meowmeowmeow</code> with your personal API key.
 </tr>
 </thead><tbody>
 <tr>
-<td>include_cats</td>
-<td>false</td>
-<td>If set to true, the result will also include cats.</td>
-</tr>
-<tr>
-<td>available</td>
-<td>true</td>
-<td>If set to false, the result will include kittens that have already been adopted.</td>
+<td>{merchantId}</td>
+<td>required</td>
+<td>The merchant id initiating the transaction. This id was created during merchant creation.</td>
 </tr>
 </tbody></table>
+<h3 id='request-body'>Request Body</h3>
+<p><a href="#transaction-request-body">TransactionRequest Body</a></p>
+<h2 id='start-a-loan-transaction'>Start a loan transaction</h2><pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'wisetack'</span>
 
-<aside class="success">
-Remember — a happy kitten is an authenticated kitten!
-</aside>
-<h2 id='get-a-specific-kitten'>Get a Specific Kitten</h2><pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
+<span class="n">api</span> <span class="o">=</span> <span class="no">Wisetack</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'youkeyhere'</span><span class="p">)</span>
+<span class="n">api</span><span class="p">.</span><span class="nf">merchants</span><span class="p">(</span><span class="mi">12345</span><span class="p">).</span><span class="nf">transactions</span><span class="p">.</span><span class="nf">post</span>
+</code></pre><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">wisetack</span>
 
-<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="p">.</span><span class="nf">kittens</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</code></pre><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">kittn</span>
-
-<span class="n">api</span> <span class="o">=</span> <span class="n">kittn</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="o">.</span><span class="n">kittens</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</code></pre><pre class="highlight shell tab-shell"><code>curl <span class="s2">"http://example.com/api/kittens/2"</span>
-  -H <span class="s2">"Authorization: meowmeowmeow"</span>
-</code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">kittn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'kittn'</span><span class="p">);</span>
-
-<span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">kittn</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">);</span>
-<span class="kd">let</span> <span class="nx">max</span> <span class="o">=</span> <span class="nx">api</span><span class="p">.</span><span class="nx">kittens</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">api</span> <span class="o">=</span> <span class="n">wisetack</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'yourkeyhere'</span><span class="p">)</span>
+<span class="n">api</span><span class="o">.</span><span class="n">merchant</span><span class="p">(</span><span class="mi">123245</span><span class="p">)</span><span class="o">.</span><span class="n">transactions</span><span class="o">.</span><span class="n">post</span>
+</code></pre><pre class="highlight shell tab-shell"><code>curl -d <span class="s2">"http://api.wisetack.com/merchants/{merchantId}/transactions"</span>
+  -H <span class="s2">"Authorization: yourkeyhere"</span>
 </code></pre>
 <blockquote>
 <p>The above command returns JSON structured like this:</p>
 </blockquote>
 <pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Max"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"breed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unknown"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"fluffiness"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"cuteness"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="w">
+  </span><span class="s2">"transactionAmount"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"mobileNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">1235554567</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"loanPurpose"</span><span class="p">:</span><span class="w"> </span><span class="s2">"landscape"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Clark"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Smith"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"casmith@example.com"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"dob"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
+  </span><span class="s2">"ssn4"</span><span class="p">:</span><span class="w"> </span><span class="mi">3333</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"zip"</span><span class="p">:</span><span class="w"> </span><span class="mi">95602</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"annualIncomeBeforeTaxes"</span><span class="p">:</span><span class="w"> </span><span class="mi">120000</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"initiated"</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 <p>This endpoint retrieves a specific kitten.</p>
@@ -432,7 +417,59 @@ Remember — a happy kitten is an authenticated kitten!
 <td>The ID of the kitten to delete</td>
 </tr>
 </tbody></table>
-<h1 id='errors'>Errors</h1>
+<p><a name="transaction-request-body"</a></p>
+<h1 id='transactionrequestbody'>TransactionRequestBody</h1><pre class="highlight json tab-json"><code><span class="err">transactionAmount</span><span class="w">   </span><span class="err">string</span><span class="w">
+</span><span class="err">Required</span><span class="w"> </span><span class="err">for</span><span class="w"> </span><span class="err">POST.</span><span class="w"> </span><span class="err">Includes</span><span class="w"> </span><span class="err">two</span><span class="w"> </span><span class="err">decimal</span><span class="w"> </span><span class="err">points</span><span class="w"> </span><span class="err">but</span><span class="w"> </span><span class="err">no</span><span class="w"> </span><span class="err">dollar</span><span class="w"> </span><span class="err">symbol.</span><span class="w">
+
+</span><span class="err">mobileNumber</span><span class="w">    </span><span class="err">string</span><span class="w">
+</span><span class="err">Required</span><span class="w"> </span><span class="err">for</span><span class="w"> </span><span class="err">POST.</span><span class="w"> </span><span class="err">International</span><span class="w"> </span><span class="err">phone</span><span class="w"> </span><span class="err">numbers</span><span class="w"> </span><span class="err">are</span><span class="w"> </span><span class="err">supported.</span><span class="w"> </span><span class="err">No</span><span class="w"> </span><span class="err">formatted</span><span class="w"> </span><span class="err">should</span><span class="w"> </span><span class="err">be</span><span class="w"> </span><span class="err">included.</span><span class="w"> </span><span class="err">Just</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">digits.</span><span class="w">
+
+</span><span class="err">loanPurpose</span><span class="w"> </span><span class="err">string</span><span class="w">
+</span><span class="err">Required</span><span class="w"> </span><span class="err">for</span><span class="w"> </span><span class="err">POST.</span><span class="w"> </span><span class="err">Currently</span><span class="w"> </span><span class="err">this</span><span class="w"> </span><span class="err">is</span><span class="w"> </span><span class="err">freeform</span><span class="w"> </span><span class="err">but</span><span class="w"> </span><span class="err">will</span><span class="w"> </span><span class="err">be</span><span class="w"> </span><span class="err">enumerated</span><span class="w"> </span><span class="err">in</span><span class="w"> </span><span class="err">database</span><span class="w"> </span><span class="err">in</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">future.</span><span class="w">
+
+</span><span class="err">firstName</span><span class="w">   </span><span class="err">string</span><span class="w">
+</span><span class="err">optional</span><span class="w">
+
+</span><span class="err">lastName</span><span class="w">    </span><span class="err">string</span><span class="w">
+</span><span class="err">optional</span><span class="w">
+
+</span><span class="err">email</span><span class="w">   </span><span class="err">string</span><span class="w">
+</span><span class="err">optional</span><span class="w">
+
+</span><span class="err">dob</span><span class="w"> </span><span class="err">string</span><span class="w">
+</span><span class="err">Optional.</span><span class="w"> </span><span class="err">Format</span><span class="w"> </span><span class="err">is</span><span class="w"> </span><span class="err">YYYY-MM-DD.</span><span class="w"> </span><span class="err">Please</span><span class="w"> </span><span class="err">use</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">whole</span><span class="w"> </span><span class="err">format</span><span class="w"> </span><span class="err">as</span><span class="w"> </span><span class="err">shown</span><span class="w"> </span><span class="err">below</span><span class="w"> </span><span class="err">in</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">example.</span><span class="w">
+
+</span><span class="err">ssn</span><span class="mi">4</span><span class="w">    </span><span class="err">string</span><span class="w">
+</span><span class="err">ssn</span><span class="w"> </span><span class="err">string</span><span class="w">
+</span><span class="err">optional</span><span class="w">
+
+</span><span class="err">streetAddress</span><span class="mi">1</span><span class="w">  </span><span class="err">string</span><span class="w">
+</span><span class="err">optional</span><span class="w">
+
+</span><span class="err">streetAddress</span><span class="mi">2</span><span class="w">  </span><span class="err">string</span><span class="w">
+</span><span class="err">optional</span><span class="w">
+
+</span><span class="err">city</span><span class="w">    </span><span class="err">string</span><span class="w">
+</span><span class="err">optional</span><span class="w">
+
+</span><span class="err">stateCode</span><span class="w">   </span><span class="err">string</span><span class="w">
+</span><span class="err">optional</span><span class="w">
+
+</span><span class="err">zip</span><span class="w"> </span><span class="err">string</span><span class="w">
+</span><span class="err">Optional.</span><span class="w"> </span><span class="err">Zip</span><span class="w"> </span><span class="err">code</span><span class="w"> </span><span class="err">can</span><span class="w"> </span><span class="err">be</span><span class="w"> </span><span class="err">either</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">full</span><span class="w"> </span><span class="err">nine</span><span class="w"> </span><span class="err">digits</span><span class="w"> </span><span class="err">(nnnnn-mmmm)</span><span class="w"> </span><span class="err">or</span><span class="w"> </span><span class="err">just</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">five</span><span class="w"> </span><span class="err">digit</span><span class="w"> </span><span class="err">delivery</span><span class="w"> </span><span class="err">area.</span><span class="w">
+
+</span><span class="err">employer</span><span class="w">    </span><span class="err">string</span><span class="w">
+</span><span class="err">optional</span><span class="w">
+
+</span><span class="err">annualIncomeBeforeTaxes</span><span class="w"> </span><span class="err">string</span><span class="w">
+</span><span class="err">Optional.</span><span class="w"> </span><span class="err">Includes</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">decimal</span><span class="w"> </span><span class="err">point</span><span class="w"> </span><span class="err">but</span><span class="w"> </span><span class="err">no</span><span class="w"> </span><span class="err">dollar</span><span class="w"> </span><span class="err">sign.</span><span class="w">
+
+</span><span class="err">coborrowerMobileNumber</span><span class="w">  </span><span class="err">string</span><span class="w">
+</span><span class="err">Optional.</span><span class="w"> </span><span class="err">Coborrower</span><span class="w"> </span><span class="err">mobile</span><span class="w"> </span><span class="err">number.</span><span class="w"> </span><span class="err">International</span><span class="w"> </span><span class="err">phone</span><span class="w"> </span><span class="err">numbers</span><span class="w"> </span><span class="err">are</span><span class="w"> </span><span class="err">supported.</span><span class="w"> </span><span class="err">No</span><span class="w"> </span><span class="err">formatted</span><span class="w"> </span><span class="err">should</span><span class="w"> </span><span class="err">be</span><span class="w"> </span><span class="err">included.</span><span class="w"> </span><span class="err">Just</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">digits.</span><span class="w">
+
+</span><span class="err">transactionLineItems</span><span class="w">    </span><span class="p">[</span><span class="err">...</span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre><h1 id='errors'>Errors</h1>
 <aside class="notice">
 This error section is stored in a separate file in <code>includes/_errors.md</code>. Slate allows you to optionally separate out your docs into many files...just save them to the <code>includes</code> folder and add them to the top of your <code>index.md</code>'s frontmatter. Files are included in the order listed.
 </aside>
@@ -497,7 +534,6 @@ This error section is stored in a separate file in <code>includes/_errors.md</co
                 <a href="#" data-language-name="shell">shell</a>
                 <a href="#" data-language-name="ruby">ruby</a>
                 <a href="#" data-language-name="python">python</a>
-                <a href="#" data-language-name="javascript">javascript</a>
           </div>
       </div>
     </div>

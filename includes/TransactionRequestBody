@@ -1,0 +1,53 @@
+<p><a name="transaction-request-body"</a></p>
+<h1 id='transactionrequestbody'>TransactionRequestBody</h1><pre class="highlight json tab-json"><code><span class="err">transactionAmount</span><span class="w">   </span><span class="err">string</span><span class="w">
+</span><span class="err">Required</span><span class="w"> </span><span class="err">for</span><span class="w"> </span><span class="err">POST.</span><span class="w"> </span><span class="err">Includes</span><span class="w"> </span><span class="err">two</span><span class="w"> </span><span class="err">decimal</span><span class="w"> </span><span class="err">points</span><span class="w"> </span><span class="err">but</span><span class="w"> </span><span class="err">no</span><span class="w"> </span><span class="err">dollar</span><span class="w"> </span><span class="err">symbol.</span><span class="w">
+
+</span><span class="err">mobileNumber</span><span class="w">    </span><span class="err">string</span><span class="w">
+</span><span class="err">Required</span><span class="w"> </span><span class="err">for</span><span class="w"> </span><span class="err">POST.</span><span class="w"> </span><span class="err">International</span><span class="w"> </span><span class="err">phone</span><span class="w"> </span><span class="err">numbers</span><span class="w"> </span><span class="err">are</span><span class="w"> </span><span class="err">supported.</span><span class="w"> </span><span class="err">No</span><span class="w"> </span><span class="err">formatted</span><span class="w"> </span><span class="err">should</span><span class="w"> </span><span class="err">be</span><span class="w"> </span><span class="err">included.</span><span class="w"> </span><span class="err">Just</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">digits.</span><span class="w">
+
+</span><span class="err">loanPurpose</span><span class="w"> </span><span class="err">string</span><span class="w">
+</span><span class="err">Required</span><span class="w"> </span><span class="err">for</span><span class="w"> </span><span class="err">POST.</span><span class="w"> </span><span class="err">Currently</span><span class="w"> </span><span class="err">this</span><span class="w"> </span><span class="err">is</span><span class="w"> </span><span class="err">freeform</span><span class="w"> </span><span class="err">but</span><span class="w"> </span><span class="err">will</span><span class="w"> </span><span class="err">be</span><span class="w"> </span><span class="err">enumerated</span><span class="w"> </span><span class="err">in</span><span class="w"> </span><span class="err">database</span><span class="w"> </span><span class="err">in</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">future.</span><span class="w">
+
+</span><span class="err">firstName</span><span class="w">   </span><span class="err">string</span><span class="w">
+</span><span class="err">optional</span><span class="w">
+
+</span><span class="err">lastName</span><span class="w">    </span><span class="err">string</span><span class="w">
+</span><span class="err">optional</span><span class="w">
+
+</span><span class="err">email</span><span class="w">   </span><span class="err">string</span><span class="w">
+</span><span class="err">optional</span><span class="w">
+
+</span><span class="err">dob</span><span class="w"> </span><span class="err">string</span><span class="w">
+</span><span class="err">Optional.</span><span class="w"> </span><span class="err">Format</span><span class="w"> </span><span class="err">is</span><span class="w"> </span><span class="err">YYYY-MM-DD.</span><span class="w"> </span><span class="err">Please</span><span class="w"> </span><span class="err">use</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">whole</span><span class="w"> </span><span class="err">format</span><span class="w"> </span><span class="err">as</span><span class="w"> </span><span class="err">shown</span><span class="w"> </span><span class="err">below</span><span class="w"> </span><span class="err">in</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">example.</span><span class="w">
+
+</span><span class="err">ssn</span><span class="mi">4</span><span class="w">    </span><span class="err">string</span><span class="w">
+</span><span class="err">ssn</span><span class="w"> </span><span class="err">string</span><span class="w">
+</span><span class="err">optional</span><span class="w">
+
+</span><span class="err">streetAddress</span><span class="mi">1</span><span class="w">  </span><span class="err">string</span><span class="w">
+</span><span class="err">optional</span><span class="w">
+
+</span><span class="err">streetAddress</span><span class="mi">2</span><span class="w">  </span><span class="err">string</span><span class="w">
+</span><span class="err">optional</span><span class="w">
+
+</span><span class="err">city</span><span class="w">    </span><span class="err">string</span><span class="w">
+</span><span class="err">optional</span><span class="w">
+
+</span><span class="err">stateCode</span><span class="w">   </span><span class="err">string</span><span class="w">
+</span><span class="err">optional</span><span class="w">
+
+</span><span class="err">zip</span><span class="w"> </span><span class="err">string</span><span class="w">
+</span><span class="err">Optional.</span><span class="w"> </span><span class="err">Zip</span><span class="w"> </span><span class="err">code</span><span class="w"> </span><span class="err">can</span><span class="w"> </span><span class="err">be</span><span class="w"> </span><span class="err">either</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">full</span><span class="w"> </span><span class="err">nine</span><span class="w"> </span><span class="err">digits</span><span class="w"> </span><span class="err">(nnnnn-mmmm)</span><span class="w"> </span><span class="err">or</span><span class="w"> </span><span class="err">just</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">five</span><span class="w"> </span><span class="err">digit</span><span class="w"> </span><span class="err">delivery</span><span class="w"> </span><span class="err">area.</span><span class="w">
+
+</span><span class="err">employer</span><span class="w">    </span><span class="err">string</span><span class="w">
+</span><span class="err">optional</span><span class="w">
+
+</span><span class="err">annualIncomeBeforeTaxes</span><span class="w"> </span><span class="err">string</span><span class="w">
+</span><span class="err">Optional.</span><span class="w"> </span><span class="err">Includes</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">decimal</span><span class="w"> </span><span class="err">point</span><span class="w"> </span><span class="err">but</span><span class="w"> </span><span class="err">no</span><span class="w"> </span><span class="err">dollar</span><span class="w"> </span><span class="err">sign.</span><span class="w">
+
+</span><span class="err">coborrowerMobileNumber</span><span class="w">  </span><span class="err">string</span><span class="w">
+</span><span class="err">Optional.</span><span class="w"> </span><span class="err">Coborrower</span><span class="w"> </span><span class="err">mobile</span><span class="w"> </span><span class="err">number.</span><span class="w"> </span><span class="err">International</span><span class="w"> </span><span class="err">phone</span><span class="w"> </span><span class="err">numbers</span><span class="w"> </span><span class="err">are</span><span class="w"> </span><span class="err">supported.</span><span class="w"> </span><span class="err">No</span><span class="w"> </span><span class="err">formatted</span><span class="w"> </span><span class="err">should</span><span class="w"> </span><span class="err">be</span><span class="w"> </span><span class="err">included.</span><span class="w"> </span><span class="err">Just</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">digits.</span><span class="w">
+
+</span><span class="err">transactionLineItems</span><span class="w">    </span><span class="p">[</span><span class="err">...</span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
