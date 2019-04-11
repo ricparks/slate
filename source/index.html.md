@@ -5,13 +5,13 @@ language_tabs: # must be one of https://git.io/vQNgJ
   - shell
   - ruby
   - python
-  - javascript
 
 toc_footers:
   - <a href='#'>Sign Up for a Developer Key</a>
   - <a href='https://github.com/lord/slate'>Documentation Powered by Slate</a>
 
 includes:
+  - TransactionRequestBody
   - errors
 
 search: true
@@ -19,157 +19,140 @@ search: true
 
 # Introduction
 
-Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.
+Welcome to the Wisetack API. You can use our API to seamlessly integrate point-of-sale financing into your existing application. 
 
-We have language bindings in Shell, Ruby, Python, and JavaScript! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
+We have language bindings in Shell, Ruby, Python, and Java.  You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
 
-This example API documentation page was created with [Slate](https://github.com/lord/slate). Feel free to edit it and use it as a base for your own API's documentation.
+
 
 # Authentication
 
 > To authorize, use this code:
 
 ```ruby
-require 'kittn'
+require 'wisetack'
 
-api = Kittn::APIClient.authorize!('meowmeowmeow')
+api = Wisetack::APIClient.authorize!('yourkeyhere')
 ```
 
 ```python
-import kittn
+import wisetack 
 
-api = kittn.authorize('meowmeowmeow')
+api = wisetack.authorize('yourkeyhere')
 ```
 
 ```shell
 # With shell, you can just pass the correct header with each request
 curl "api_endpoint_here"
-  -H "Authorization: meowmeowmeow"
+  -H "Authorization: yourkeyhere"
 ```
 
-```javascript
-const kittn = require('kittn');
+> Make sure to replace `yourkeyhere` with your API key.
 
-let api = kittn.authorize('meowmeowmeow');
-```
+Wisetack uses API keys to allow access to the API. You can register a new Kittn API key at our [developer portal](http://example.com/developers).
 
-> Make sure to replace `meowmeowmeow` with your API key.
+Wisetack expects for the API key to be included in all API requests to the server in a header that looks like the following:
 
-Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our [developer portal](http://example.com/developers).
-
-Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:
-
-`Authorization: meowmeowmeow`
+`Authorization: yourkeyhere`
 
 <aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
+You must replace <code>yourkeyhere</code> with your personal API key.
 </aside>
 
-# Kittens
+# Transactions 
 
-## Get All Kittens
+## Create a new transaction 
 
 ```ruby
-require 'kittn'
+require 'wisetack'
 
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get
+api = Wisetack::APIClient.authorize!('yourkeyhere')
+api.merchants(ae544181-3cad-4604-a629-8141d74b9c31).transactions.post
 ```
 
 ```python
-import kittn
+import wisetack 
 
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get()
+api = wisetack.authorize('yourkeyhere')
+api.merchants(ae544181-3cad-4604-a629-8141d74b9c31).transactions.post
 ```
 
 ```shell
-curl "http://example.com/api/kittens"
-  -H "Authorization: meowmeowmeow"
+curl "http://api.wisetack.com/merchants/ae544181-3cad-4604-a629-8141d74b9c31/transactions"
+  -H "Authorization: yourkeyhere"
 ```
 
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-let kittens = api.kittens.get();
-```
-
-> The above command returns JSON structured like this:
+>  Here's an example of what a request to create a transaction looks like: 
 
 ```json
-[
-  {
-    "id": 1,
-    "name": "Fluffums",
-    "breed": "calico",
-    "fluffiness": 6,
-    "cuteness": 7
-  },
-  {
-    "id": 2,
-    "name": "Max",
-    "breed": "unknown",
-    "fluffiness": 5,
-    "cuteness": 10
-  }
-]
+{
+   "transactionAmount": 1000,
+   "mobileNumber": 1235554567,
+   "loanPurpose": "landscape",
+   "firstName": "Clark",
+   "lastName": "Smith",
+   "email": "casmith@example.com",
+   "dob": {},
+   "ssn4": 3333,
+   "zip": 95602,
+   "annualIncomeBeforeTaxes": 120000,
+   "status": "initiated"
+}
 ```
 
-This endpoint retrieves all kittens.
+This resource initiates loan applications and manages the flow of loan authorization, settlement, and refunds.
 
 ### HTTP Request
 
-`GET http://example.com/api/kittens`
+`POST /merchant/{merchantId}/transactions`
 
-### Query Parameters
+### Path Parameter
 
 Parameter | Default | Description
 --------- | ------- | -----------
-include_cats | false | If set to true, the result will also include cats.
-available | true | If set to false, the result will include kittens that have already been adopted.
+{merchantId} | required | The merchant id initiating the transaction. This id was created during merchant creation.
 
-<aside class="success">
-Remember — a happy kitten is an authenticated kitten!
-</aside>
+### Request Body
+[TransactionRequest Body](#transaction-request-body)
 
-## Get a Specific Kitten
+
+## Start a loan transaction
 
 ```ruby
-require 'kittn'
+require 'wisetack'
 
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get(2)
+api = Wisetack::APIClient.authorize!('youkeyhere')
+api.merchants(12345).transactions.post
 ```
 
 ```python
-import kittn
+import wisetack
 
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get(2)
+api = wisetack.authorize('yourkeyhere')
+api.merchant(123245).transactions.post
 ```
 
 ```shell
-curl "http://example.com/api/kittens/2"
-  -H "Authorization: meowmeowmeow"
+curl -d "http://api.wisetack.com/merchants/{merchantId}/transactions"
+  -H "Authorization: yourkeyhere"
 ```
 
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-let max = api.kittens.get(2);
-```
 
 > The above command returns JSON structured like this:
 
 ```json
 {
-  "id": 2,
-  "name": "Max",
-  "breed": "unknown",
-  "fluffiness": 5,
-  "cuteness": 10
+  "transactionAmount": 1000,
+  "mobileNumber": 1235554567,
+  "loanPurpose": "landscape",
+  "firstName": "Clark",
+  "lastName": "Smith",
+  "email": "casmith@example.com",
+  "dob": {},
+  "ssn4": 3333,
+  "zip": 95602,
+  "annualIncomeBeforeTaxes": 120000,
+  "status": "initiated"
 }
 ```
 
@@ -236,4 +219,6 @@ This endpoint deletes a specific kitten.
 Parameter | Description
 --------- | -----------
 ID | The ID of the kitten to delete
+
+
 
