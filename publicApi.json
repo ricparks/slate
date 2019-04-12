@@ -1,0 +1,2012 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "Wisetack API",
+    "version" : "1.0.0",
+    "description" : "## Introduction\nWelcome to the Wisetack API. The APIs documented on this page will enable you to seamlessly integrate point-of-sale financing\nwith your existing system.  Here's a brief overview of the APIs:\n\n* **CreateLinks** allow you to create an HTML link that can be embedded in an invoice. This link will initiate a lending session\nspecific for that invoice.\n\n* **Transactions** allow you to intiate a loan for a specific merchant for a borrower based only on amount and phone number.\nFurthermore, transactions allow you to track and update the flow of the loan through authorization and settlement.\n\n* **Merchants** allow you to onboard merchants into the system as well as list your existing merchants based on\ndate and status filters, get information on a merchant, and remove merchants from your system.\n\n* **Users** Allow you to add users for merchants. Each merchant can have multiple users for the Wisetack system. The Users resource allows you\nto add and manage users and their roles and priveleges in the system.\n\n## Authentication\nWisetack uses HTTP Basic Authentication with both an application token and a secret key. When you initially create\na Wisetack account, you'll be given an application token and a secret key for both the production system\nand a test system.  You'll be able to distinguish between the two keys easily by their prefix. Production keys\nstart with ws_prod_ and the test system keys are prefixed by ws_test_.\nIf you use one of our language SDK's you don't need to worry about the specifics of authentication but if you\nwant to build authentication in to your own RESTful calls, you simply add the keys to the header like this:\n\n1. Concatenate the application token and secret key separated by a colon.\n\n2. Base64 encode the resulting string.\n\n3. Pass the result in the authorization header, prefixed with the word Basic.\n\nThis process will result in a header that looks something like this: \\\n**Authorization: Basic ZHBERDZ6NG9sT1NJN040Zk1Dc0FsS2pGYTdyZUJZaHU6b0ptM25pUVgxUGR5NRNDU=**\n"
+  },
+  "security" : [ {
+    "BasicAuth" : [ ]
+  } ],
+  "tags" : [ {
+    "name" : "Transactions",
+    "description" : "The Transaction resource initiates loan applications and manages the flow of loan authorization, settlement, and refunds.\n"
+  }, {
+    "name" : "Merchants",
+    "description" : "The Merchant resource allows you to onboard merchants over time, to delete merchants from your system,\nto list all merchants, and to get information on individual merchants.\n\nThere are two very different types of data in the MerchantObject.\n\n* **Flag Fields** are essentially flags\nindicating to the client which fields need to be collected from the merchant. These flag fields are in\nMerchantOptionalInformation and MerchantDataRequired schemas. Their presence indicates that they\nmust be collected.\n\n* **Data Fields** are string fields where the data collected in response to the Flag Fields above\ncan be sent back to the server. These fields are in the MerchantUpdateObject.\n\nAdditionally, there are four different flag field sections. Where a flag field is found (if at all)\nindicated how the client should behave regarding that field.\n\n* **optionalInformation** indicates that this information has not been collected. It is not required\nbut could be helpful in future dealings with this merchant.\n\n* **currentlyDue** are the fields the merchant must supply to start or continue to provide\nlending services.\n\n* **eventuallyDue** are the fields the merchant must supply to have the full range of lending\ncapabilities he is eligible for.\n\n* **pastDue** are the field the merchant must supply to continue or restore their lending\ncapabilities.\n"
+  }, {
+    "name" : "Users",
+    "description" : "The Users resource allows you to support multiple users, each with their own roles and privileges in the\nWisetack system. This feature allows merchants to add and manage employees and other types\nof subusers.\n"
+  } ],
+  "x-cors-options" : {
+    "options" : {
+      "summary" : "CORS support",
+      "description" : "Enable CORS by returning correct headers",
+      "tags" : [ "CORS" ],
+      "x-amazon-apigateway-integration" : {
+        "type" : "mock",
+        "requestTemplates" : {
+          "application/json" : "{\n  \"statusCode\" : 200\n}\n"
+        },
+        "responses" : {
+          "default" : {
+            "statusCode" : "200",
+            "responseParameters" : {
+              "method.response.header.Access-Control-Allow-Headers" : "'Content-Type,X-Amz-Date,Authorization'",
+              "method.response.header.Access-Control-Allow-Methods" : "'GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE, PATCH'",
+              "method.response.header.Access-Control-Allow-Origin" : "'*'"
+            }
+          }
+        }
+      },
+      "responses" : {
+        "200" : {
+          "description" : "Default responnse for CORS method",
+          "headers" : {
+            "Access-Control-Allow-Headers" : {
+              "content" : {
+                "application/json" : {
+                  "schema" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            },
+            "Access-Control-Allow-Methods" : {
+              "content" : {
+                "application/json" : {
+                  "schema" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            },
+            "Access-Control-Allow-Origin" : {
+              "content" : {
+                "application/json" : {
+                  "schema" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-api-request-template" : {
+    "application/json" : "#set($allParams = $input.params()) {\"apiContext\":{\"apiId\":\"$context.apiId\", \"method\":\"$context.httpMethod\", \"sourceIp\":\"$context.identity.sourceIp\", \"userAgent\":\"$context.identity.userAgent\", \"path\":\"$context.path\", \"protocol\":\"$context.protocol\", \"requestId\":\"$context.requestId\", \"stage\":\"$context.stage\"}, #foreach($type in $allParams.keySet()) #set($params = $allParams.get($type)) \"$type\" : { \"parameterMap\" : { #foreach($paramName in $params.keySet()) \"$paramName\" : \"$util.escapeJavaScript($params.get($paramName))\" #if($foreach.hasNext), #end #end}}, #end \"body\" : $input.json('$')}"
+  },
+  "x-api-standard-setup" : {
+    "passthroughBehavior" : "when_no_match",
+    "httpMethod" : "POST",
+    "requestTemplates" : {
+      "application/json" : "#set($allParams = $input.params()) {\"apiContext\":{\"apiId\":\"$context.apiId\", \"method\":\"$context.httpMethod\", \"sourceIp\":\"$context.identity.sourceIp\", \"userAgent\":\"$context.identity.userAgent\", \"path\":\"$context.path\", \"protocol\":\"$context.protocol\", \"requestId\":\"$context.requestId\", \"stage\":\"$context.stage\"}, #foreach($type in $allParams.keySet()) #set($params = $allParams.get($type)) \"$type\" : { \"parameterMap\" : { #foreach($paramName in $params.keySet()) \"$paramName\" : \"$util.escapeJavaScript($params.get($paramName))\" #if($foreach.hasNext), #end #end}}, #end \"body\" : $input.json('$')}"
+    },
+    "responses" : {
+      "default" : {
+        "statusCode" : "200",
+        "responseParameters" : {
+          "method.response.header.Access-Control-Allow-Headers" : "'Content-Type,X-Amz-Date,Authorization'",
+          "method.response.header.Access-Control-Allow-Methods" : "'*'",
+          "method.response.header.Access-Control-Allow-Origin" : "'*'"
+        }
+      }
+    },
+    "type" : "aws"
+  },
+  "x-api-setup-with-standard-errors" : {
+    "httpMethod" : "POST",
+    "requestTemplates" : {
+      "application/json" : "#set($allParams = $input.params()) {\"apiContext\":{\"apiId\":\"$context.apiId\", \"method\":\"$context.httpMethod\", \"sourceIp\":\"$context.identity.sourceIp\", \"userAgent\":\"$context.identity.userAgent\", \"path\":\"$context.path\", \"protocol\":\"$context.protocol\", \"requestId\":\"$context.requestId\", \"stage\":\"$context.stage\"}, #foreach($type in $allParams.keySet()) #set($params = $allParams.get($type)) \"$type\" : { \"parameterMap\" : { #foreach($paramName in $params.keySet()) \"$paramName\" : \"$util.escapeJavaScript($params.get($paramName))\" #if($foreach.hasNext), #end #end}}, #end \"body\" : $input.json('$')}"
+    },
+    "responses" : {
+      "default" : {
+        "statusCode" : "200",
+        "responseParameters" : {
+          "method.response.header.Access-Control-Allow-Headers" : "'Content-Type,X-Amz-Date,Authorization'",
+          "method.response.header.Access-Control-Allow-Methods" : "'*'",
+          "method.response.header.Access-Control-Allow-Origin" : "'*'"
+        }
+      },
+      ".*httpStatus\\\":404.*" : {
+        "statusCode" : "404",
+        "responseTemplates" : {
+          "application/json" : "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ($bodyObj = $util.parseJson($input.body))\n{\n  \"type\" : \"$errorMessageObj.errorType\",\n  \"message\" : \"$errorMessageObj.message\",\n  \"request-id\" : \"$errorMessageObj.requestId\"\n}"
+        }
+      },
+      ".*httpStatus\\\":400.*" : {
+        "statusCode" : "400",
+        "responseTemplates" : {
+          "application/json" : "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ($bodyObj = $util.parseJson($input.body))\n{\n  \"type\" : \"$errorMessageObj.errorType\",\n  \"message\" : \"$errorMessageObj.message\",\n  \"request-id\" : \"$errorMessageObj.requestId\"\n}"
+        }
+      }
+    },
+    "type" : "aws"
+  },
+  "x-standard-headers" : {
+    "headers" : {
+      "Access-Control-Allow-Headers" : {
+        "$ref" : "#/components/headers/accessControl"
+      },
+      "Access-Control-Allow-Methods" : {
+        "$ref" : "#/components/headers/accessControl"
+      },
+      "Access-Control-Allow-Origin" : {
+        "$ref" : "#/components/headers/accessControl"
+      }
+    }
+  },
+  "x-standard-error-responses" : {
+    "404" : {
+      "description" : "Resource not found.",
+      "content" : {
+        "application/json" : {
+          "schema" : {
+            "$ref" : "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    "400" : {
+      "description" : "Bad request.",
+      "content" : {
+        "application/json" : {
+          "schema" : {
+            "$ref" : "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    "403" : {
+      "description" : "Forbidden.",
+      "content" : {
+        "application/json" : {
+          "schema" : {
+            "$ref" : "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    "401" : {
+      "description" : "Unauthorized.",
+      "content" : {
+        "application/json" : {
+          "schema" : {
+            "$ref" : "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    "409" : {
+      "description" : "Conflict.",
+      "content" : {
+        "application/json" : {
+          "schema" : {
+            "$ref" : "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    "500" : {
+      "description" : "Internal server error.",
+      "content" : {
+        "application/json" : {
+          "schema" : {
+            "$ref" : "#/components/schemas/Error"
+          }
+        }
+      }
+    }
+  },
+  "paths" : {
+    "/merchant/{merchantId}/createLink" : {
+      "summary" : "Provides a link that can be embedded in an invoice.",
+      "description" : "You can use the createLink resource to create links that can be embedded in invoices or other materials where\nyou might want to offer a loan to a specific customer. The createLink allows you to register information that will\nexpedite the borrowing process for your merchant's existing customers. By sending information when creating this link,\nWisetack can more easily pre-fill information and make the borrower's experience as smooth as possible.\n",
+      "post" : {
+        "summary" : "POST creates a link to be embedded in an invoice.",
+        "description" : "You can use the createLink resource to create links that can be embedded in invoices or other materials where\nyou might want to offer a loan to a specific customer. The createLink allows you to register information that will\nexpedite the borrowing process for your merchant's existing customers. By sending information when creating this link,\nWisetack can more easily pre-fill information and make the borrower's experience as smooth as possible.\n\nCreation of a link requires a transaction amount and loan purpose.  Optional fields such as customer address, dob,\nand ssn as well as optional line item information is also supported.. The POST returns a link that is specific for\nthat customer, merchant, and line items. When the customer clicks the link, they will proceed to a lending flow specifically for\nthem. A unique link will be created on each create. The link expires after 90 days.\n",
+        "tags" : [ "CreateLink" ],
+        "parameters" : [ {
+          "name" : "merchantId",
+          "in" : "path",
+          "description" : "Id for the merchant originating the transaction",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateLinkObject"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Ok",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CreateLinkObject"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Resource not found.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal server error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/merchant/{merchantId}/transactions" : {
+      "summary" : "Initiates a loan process.",
+      "description" : "The Transaction resource initiates loan applications and manages the flow of loan authorization, settlement, and refunds.",
+      "post" : {
+        "summary" : "POST initiates a loan process.",
+        "description" : "The Wisetack lending system starts by sending a text message link from a merchant to a prospective borrower. The\nmerchant must enter the mobile number of the borrower, a transaction amount, and the purpose of the loan and the\ntext message is sent. Once the consumer clicks the link on their mobile phone, they will proceed to the\nWisetack lending process.\n\nNote that the POST can also include an array of line items to describe the services or products provided as\nwell as other optional items described in the TransactionObject. These line items\nare optional.\nThe following values are required for the POST:\n\n* status must be set to 'initiated'.\n\n* a United States domestic mobile phone number is required.\n\n* a transaction amount is required.\n\n* a loan purpose is required.\n",
+        "tags" : [ "Transactions" ],
+        "parameters" : [ {
+          "name" : "merchantId",
+          "in" : "path",
+          "description" : "Id for the merchant originating the transaction.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TransactionObject"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Ok",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TransactionObject"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Resource not found.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal server error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get" : {
+        "summary" : "GET returns a list of transactions for this merchant.",
+        "description" : "Returns a list of all the transactions for this merchant.\nA filter can be supplied using a query string to limit the list to a date range, status, or number of items.\n",
+        "tags" : [ "Transactions" ],
+        "parameters" : [ {
+          "name" : "merchantId",
+          "in" : "path",
+          "description" : "Id for the merchant originating the transaction.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "startingAfter",
+          "in" : "query",
+          "description" : "List only transactions that were initiated after this date.",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "endingBefore",
+          "in" : "query",
+          "description" : "List only transactions that were initiated before this date.",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Limit the number of transactions returned to this number.",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "status",
+          "in" : "query",
+          "description" : "List only transactions with this status code.",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Ok",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "object",
+                    "properties" : {
+                      "transactionResourceURL" : {
+                        "description" : "URL pointing to each applicable resource."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Resource not found.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal server error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transactions/{transactionId}" : {
+      "description" : "Tracks the progress of and allows updating of the transaction.",
+      "parameters" : [ {
+        "name" : "transactionId",
+        "in" : "path",
+        "description" : "UUID Id for the transaction. Acquired during the POST to create the transaction.",
+        "required" : true,
+        "schema" : {
+          "type" : "string"
+        }
+      } ],
+      "get" : {
+        "summary" : "GET retrieves information, including the status, on a specific transaction.",
+        "tags" : [ "Transactions" ],
+        "responses" : {
+          "200" : {
+            "description" : "Ok",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TransactionObject"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch" : {
+        "summary" : "PATCH allows status update for loan initiation and provides for full or partial refunds.",
+        "tags" : [ "Transactions" ],
+        "description" : "Supported statuses for transactions:\n* Initiated: The loan process has been started for a customer but has not yet proceeded through authorization.\n* Authorized: Wisetack has authorized the loan for this customer. The loan will not be made until the transaction status has been set to 'settled.' An authorized transaction can either be 'settled' or 'canceled'. An authorized transaction will expire after 30 days if it has not been settled.\n* Settled: Once the loan is settled, Wisetack will begin the loan and pay the merchant via ACH. Once a loan is settled, it can be either partially or completely refunded.\n* Refunded:  The full amount of the loan has been refunded.\n* Expired: The transaction was not authorized or settled under the specified time limit. A transaction can never be removed from an expired state.\n* Declined: The transaction was declined.\n",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/MerchantObject"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Ok",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TransactionObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/merchants" : {
+      "description" : "Resource for merchant onboarding and management.",
+      "post" : {
+        "summary" : "POST creates a merchant and returns a newly created merchant id.",
+        "description" : "POST creates a new merchant entry. To onboard a merchant, please see the Merchant PATCH operation.\n\nIf there is already a unique merchant entry for this merchant, a 201 error is returned with a link to the resource.\nUsing just a cell  phone number, an account is created or retrieved. The state of the application verification process\nis indicated in three main sections: information currently due, due soon, and overdue.\n",
+        "tags" : [ "Merchants" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/MerchantObject"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Ok",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "object",
+                    "properties" : {
+                      "merchantResourceURL" : {
+                        "description" : "URL pointing to each applicable merchant resource.",
+                        "type" : "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Resource not found.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal server error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get" : {
+        "summary" : "GET retrieves a list of merchants.",
+        "description" : "Lists all merchants on your Wisetack account. You can filter this list based on date and if their lending has or has not been enabled.\n",
+        "tags" : [ "Merchants" ],
+        "parameters" : [ {
+          "name" : "startingAfter",
+          "in" : "query",
+          "description" : "List only merchants who initiated their onboard after this date.",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "endingBefore",
+          "in" : "query",
+          "description" : "List only merchants who initiated their onboarding before this date.",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "lendingEnabled",
+          "in" : "query",
+          "description" : "Set to true or false.",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Ok",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MerchantObject"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Resource not found.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal server error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/merchants/{merchantId}" : {
+      "description" : "Resource for handling merchant onboarding and management.",
+      "parameters" : [ {
+        "name" : "merchantId",
+        "in" : "path",
+        "description" : "The merchant id as stored during merchant onboarding.",
+        "required" : true,
+        "schema" : {
+          "type" : "string"
+        }
+      } ],
+      "get" : {
+        "summary" : "GET retrieves merchant information based on merchant id.",
+        "description" : "Get a merchant's information.\n",
+        "tags" : [ "Merchants" ],
+        "responses" : {
+          "200" : {
+            "description" : "Ok",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MerchantObject"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Resource not found.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal server error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch" : {
+        "summary" : "PATCH onboards a merchant and updates merchant information.",
+        "description" : "The PATCH (update) is the merchant identification process. The application can request required information from the\nmerchant and submit additional information using a PATCH request to the merchantId. Any additional required information\nis returned as a response to the PATCH. This process can continue until all required information is gathered.\n\nPlease see the overview for Merchants for a more detailed explanation for this process.\n",
+        "tags" : [ "Merchants" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/MerchantObject"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Ok",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MerchantObject"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "summary" : "DELETE removes a merchant from the system.",
+        "description" : "Remove this merchant from your system.\n",
+        "tags" : [ "Merchants" ],
+        "responses" : {
+          "200" : {
+            "description" : "Ok",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "merchantId" : {
+                      "description" : "The id of the merchant deleted.",
+                      "type" : "string"
+                    },
+                    "deleted" : {
+                      "description" : "True if successful.",
+                      "type" : "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/merchant/{merchantId}/users" : {
+      "description" : "Merchants will have employees (users) who will use the merchant account. Each of these users can offer POS financing.",
+      "parameters" : [ {
+        "name" : "merchantId",
+        "in" : "path",
+        "description" : "The merchant id as stored during merchant onboarding.",
+        "required" : true,
+        "schema" : {
+          "type" : "string"
+        }
+      } ],
+      "post" : {
+        "summary" : "POST creates a new user.",
+        "description" : "POST creates a new user based on the user's phone number. If the mobile phone number is already associated\nwith the merchant then the user's already existing id is returned in the response.\n",
+        "tags" : [ "Users" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UserObject"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Ok",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserObject"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Resource not found.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal server error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get" : {
+        "summary" : "GET retrieves a list of users.",
+        "description" : "List all users for the merchant with {merchantId}.\n",
+        "tags" : [ "Users" ],
+        "responses" : {
+          "200" : {
+            "description" : "Ok",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "object",
+                    "properties" : {
+                      "userResourceURL" : {
+                        "description" : "URL pointing to each applicable user resource."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Resource not found.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal server error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}" : {
+      "parameters" : [ {
+        "name" : "userId",
+        "in" : "path",
+        "description" : "The unique UUID representing this user.",
+        "required" : true,
+        "schema" : {
+          "type" : "string"
+        }
+      } ],
+      "get" : {
+        "summary" : "GET retrieves any available information for the user.",
+        "description" : "Get any available information for the user.",
+        "tags" : [ "Users" ],
+        "responses" : {
+          "200" : {
+            "description" : "Ok",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserObject"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "summary" : "PUT updates the information for an existing user.",
+        "description" : "Update the information for an existing user.",
+        "tags" : [ "Users" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UserObject"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Ok",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserObject"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Resource not found.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal server error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "summary" : "DELETE removes a user.",
+        "description" : "Permanently deletes a user from the system.",
+        "tags" : [ "Users" ],
+        "responses" : {
+          "200" : {
+            "description" : "Ok",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "userId" : {
+                      "description" : "The id of the user deleted.",
+                      "type" : "string"
+                    },
+                    "deleted" : {
+                      "description" : "True if successful.",
+                      "type" : "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Resource not found.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal server error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/subscribe" : {
+      "post" : {
+        "summary" : "POST subscribes to all Wisetack callbacks.",
+        "description" : "Wisetack provides callbacks to let you know when the status of a transaction has changed.",
+        "tags" : [ "Webhooks" ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "callbackURL" : {
+                    "type" : "string",
+                    "format" : "uri",
+                    "example" : "https://wisetack.yourcompany.com/callback"
+                  }
+                },
+                "required" : [ "callbackURL" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Webhook created."
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "securitySchemes" : {
+      "BasicAuth" : {
+        "type" : "http",
+        "scheme" : "basic"
+      }
+    },
+    "headers" : {
+      "accessControl" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : "string"
+            }
+          }
+        }
+      }
+    },
+    "schemas" : {
+      "MerchantObject" : {
+        "properties" : {
+          "merchantId" : {
+            "description" : "A UUID unique to the newly created merchant.",
+            "type" : "string"
+          },
+          "onboardingDate" : {
+            "description" : "Date this merchant was initially onboarded in YYYY-MM-DD format.",
+            "type" : "string"
+          },
+          "lendingEnabled" : {
+            "description" : "Has this merchant been fully onboarded and are now able to make loans.",
+            "type" : "boolean"
+          },
+          "merchantSecretToken" : {
+            "description" : "An token used for authenticiation from the partner's backend to the Wisetack backend."
+          },
+          "optionalInformation" : {
+            "$ref" : "#/components/schemas/MerchantOptionalInformation"
+          },
+          "currentlyDue" : {
+            "$ref" : "#/components/schemas/MerchantDataRequired"
+          },
+          "eventuallyDue" : {
+            "$ref" : "#/components/schemas/MerchantDataRequired"
+          },
+          "pastDue" : {
+            "$ref" : "#/components/schemas/MerchantDataRequired"
+          },
+          "disabledReason" : {
+            "description" : "If the merchant has been disabled and cannot make further loans, that information is listed here.",
+            "type" : "string"
+          },
+          "merchantInformation" : {
+            "$ref" : "#/components/schemas/MerchantUpdateObject"
+          }
+        }
+      },
+      "MerchantOptionalInformation" : {
+        "properties" : {
+          "companyDescription" : {
+            "description" : "Freeform description of the business."
+          },
+          "companyURL" : {
+            "description" : "The main url for the business."
+          },
+          "dba" : {
+            "description" : "Any doing-business-as names that would apply."
+          },
+          "companyEmail" : {
+            "description" : "Email address for main contact at the company."
+          },
+          "annualRevenue" : {
+            "description" : "Total annual revenue for the business. Includes two decimal points but no dollar symbol."
+          },
+          "averageOrderValue" : {
+            "description" : "The typical order value for this business. Includes two decimal points but no dollar symbol."
+          },
+          "industry" : {
+            "description" : "A list of industries will be provided and this field will be validated."
+          },
+          "dateEstablished" : {
+            "description" : "The date the company was started in YYYY-MM-DD format."
+          },
+          "supportPhone" : {
+            "description" : "Business phone number for customer support."
+          },
+          "annualChargeBackAmount" : {
+            "description" : "Total amount of chargebacks for the prior year."
+          },
+          "annualRefundsAmount" : {
+            "description" : "Total amount of refunds for the prior year."
+          },
+          "otherServiceLinks" : {
+            "description" : "Future feature. This section will request access to external services, such as Quicken, to facilitate onboarding.\n",
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "serviceName" : {
+                  "description" : "The name of the company providing the service. Quicken, for example.",
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "ownerInformation" : {
+            "description" : "Optional information for each owner.",
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "driversLicenseNumber" : {
+                  "description" : "Driver's license number."
+                },
+                "driversLicenseState" : {
+                  "description" : "State where driver's license was issued."
+                },
+                "ownerDocuments" : {
+                  "description" : "Scanned in documents to supplement and verify information.",
+                  "type" : "array",
+                  "items" : {
+                    "type" : "object",
+                    "properties" : {
+                      "documentType" : {
+                        "description" : "Enum describing type of document requested or required."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "MerchantDataRequired" : {
+        "properties" : {
+          "deadline" : {
+            "type" : "string",
+            "description" : "The date information is the section is due in YYYY-MM-DD format."
+          },
+          "companyEIN" : {
+            "description" : "The company's Employer Identification Number."
+          },
+          "companyLegalOperatingName" : {
+            "description" : "The official name of the company as listed with the tax authority."
+          },
+          "companyPhoneNumber" : {
+            "description" : "Main contact number for the company."
+          },
+          "companyStreetAddress1" : {
+            "description" : "Address of the business."
+          },
+          "companyStreetAddress2" : {
+            "description" : "Address of the business."
+          },
+          "companyCity" : {
+            "description" : "City of the business."
+          },
+          "companyStateCode" : {
+            "description" : "Two-character code for the state in which the business is based."
+          },
+          "companyZip" : {
+            "description" : "Zip code for business location. Zip code can be either the full nine digits (nnnnn-mmmm) or just the five digit delivery area."
+          },
+          "companyType" : {
+            "description" : "A list of business types will be provided and this field will be validated.",
+            "enum" : [ "partnership", "LLC", "corporation" ]
+          },
+          "tosAcceptanceDate" : {
+            "description" : "Date terms of service were accepted. Format is YYYY-MM-DD."
+          },
+          "tosAcceptanceIPAddress" : {
+            "description" : "IP address used when terms of service were accepted."
+          },
+          "ownerInformation" : {
+            "description" : "Required information for each owner.",
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "isOwnerPrimary" : {
+                  "description" : "Indicates whether this owner is the primary business owner."
+                },
+                "ownerDOB" : {
+                  "description" : "Date-of-birth of the company owner. Format is YYYY-MM-DD."
+                },
+                "ownerFirstName" : {
+                  "description" : "First name of the owner."
+                },
+                "ownerLastName" : {
+                  "description" : "Last name of the owner."
+                },
+                "ownerLast4ssn" : {
+                  "description" : "Social security number of the owner."
+                }
+              }
+            }
+          }
+        }
+      },
+      "MerchantUpdateObject" : {
+        "properties" : {
+          "companyEIN" : {
+            "description" : "The company's Employer Identification Number.",
+            "type" : "string"
+          },
+          "companyLegalOperatingName" : {
+            "description" : "The official name of the company as listed with the tax authority.",
+            "type" : "string"
+          },
+          "companyPhoneNumber" : {
+            "description" : "Main contact number for the company.",
+            "type" : "string"
+          },
+          "companyStreetAddress1" : {
+            "description" : "Address of the business.",
+            "type" : "string"
+          },
+          "companyStreetAddress2" : {
+            "description" : "Address of the business.",
+            "type" : "string"
+          },
+          "companyCity" : {
+            "description" : "City of the business.",
+            "type" : "string"
+          },
+          "companyStateCode" : {
+            "description" : "Two-character code for the state in which the business is based.",
+            "type" : "string"
+          },
+          "companyZip" : {
+            "description" : "Zip code for business location. Zip code can be either the full nine digits (nnnnn-mmmm) or just the five digit delivery area.",
+            "type" : "string"
+          },
+          "companyType" : {
+            "description" : "A list of business types will be provided and this field will be validated.",
+            "enum" : [ "partnership", "LLC", "corporation" ]
+          },
+          "tosAcceptanceDate" : {
+            "description" : "Date terms of service were accepted. Format is YYYY-MM-DD.",
+            "type" : "string"
+          },
+          "tosAcceptanceIPAddress" : {
+            "description" : "IP address used when terms of service were accepted.",
+            "type" : "string"
+          },
+          "commpanyDescription" : {
+            "description" : "Freeform description of the business.",
+            "type" : "string"
+          },
+          "companyURL" : {
+            "description" : "The main url for the business.",
+            "type" : "string"
+          },
+          "dba" : {
+            "description" : "Any doing-business-as names that would apply.",
+            "type" : "string"
+          },
+          "companyEmail" : {
+            "description" : "Email address for main contact at the company.",
+            "type" : "string"
+          },
+          "annualRevenue" : {
+            "description" : "Total annual revenue for the business. Includes two decimal points but no dollar symbol.",
+            "type" : "string"
+          },
+          "averageOrderValue" : {
+            "description" : "The typical order value for this business. Includes two decimal points but no dollar symbol.",
+            "type" : "string"
+          },
+          "industry" : {
+            "description" : "A list of industries will be provided and this field will be validated.",
+            "type" : "string"
+          },
+          "dateEstablished" : {
+            "description" : "The date the company was started in YYYY-MM-DD format.",
+            "type" : "string"
+          },
+          "supportPhone" : {
+            "description" : "Business phone number for customer support.",
+            "type" : "string"
+          },
+          "annualChargeBackAmount" : {
+            "description" : "Total amount of chargebacks for the prior year.",
+            "type" : "string"
+          },
+          "annualRefundsAmount" : {
+            "description" : "Total amount of refunds for the prior year.",
+            "type" : "string"
+          },
+          "otherServiceLinks" : {
+            "description" : "Future feature. This section will allow other services, such as Quicken, to facilitate onboarding.\n",
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "serviceName" : {
+                  "description" : "The name of the company providing the service. Quicken, for example."
+                },
+                "serviceURL" : {
+                  "description" : "The url for the support page for the service."
+                },
+                "serviceToken" : {
+                  "description" : "Customer token needed to access the service."
+                }
+              }
+            }
+          },
+          "ownerInformation" : {
+            "description" : "Optional information for each owner.",
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "driversLicenseNumber" : {
+                  "description" : "Driver's license number.",
+                  "type" : "string"
+                },
+                "driversLicenseState" : {
+                  "description" : "State where driver's license was issued.",
+                  "type" : "string"
+                },
+                "ownerDocuments" : {
+                  "description" : "Scanned in documents to supplement and verify information.",
+                  "type" : "array",
+                  "items" : {
+                    "type" : "object",
+                    "properties" : {
+                      "documentType" : {
+                        "description" : "Enum describing type of document requested or required.",
+                        "type" : "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "CreateLinkObject" : {
+        "properties" : {
+          "transactionAmount" : {
+            "type" : "string",
+            "description" : "Required for POST. Includes two decimal points but no dollar symbol."
+          },
+          "mobileNumber" : {
+            "type" : "string",
+            "description" : "Optional. International phone numbers are supported. No formatted should be included. Just the digits."
+          },
+          "loanPurpose" : {
+            "type" : "string",
+            "description" : "Required for POST. Currently this is freeform but will be enumerated in database in the future."
+          },
+          "firstName" : {
+            "type" : "string",
+            "description" : "Optional"
+          },
+          "lastName" : {
+            "type" : "string",
+            "description" : "Optional"
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "Optional"
+          },
+          "dob" : {
+            "type" : "string",
+            "description" : "Optional. Format is YYYY-MM-DD. Please use the whole format as shown below in the example."
+          },
+          "ssn4" : {
+            "type" : "string",
+            "description" : "Optional."
+          },
+          "ssn" : {
+            "type" : "string",
+            "description" : "optional"
+          },
+          "streetAddress1" : {
+            "type" : "string",
+            "description" : "optional"
+          },
+          "streetAddress2" : {
+            "type" : "string",
+            "description" : "optional"
+          },
+          "city" : {
+            "type" : "string",
+            "description" : "optional"
+          },
+          "stateCode" : {
+            "type" : "string",
+            "description" : "optional"
+          },
+          "zip" : {
+            "type" : "string",
+            "description" : "Optional. Zip code can be either the full nine digits (nnnnn-mmmm) or just the five digit delivery area."
+          },
+          "employer" : {
+            "type" : "string",
+            "description" : "optional"
+          },
+          "annualIncomeBeforeTaxes" : {
+            "type" : "string",
+            "description" : "Optional. Includes the decimal point but no dollar sign."
+          },
+          "coborrowerMobileNumber" : {
+            "type" : "string",
+            "description" : "Optional. Coborrower mobile number. International phone numbers are supported. No formatted should be included. Just the digits."
+          },
+          "transactionLineItems" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CreateLinkLineItems"
+            }
+          }
+        },
+        "example" : {
+          "transactionAmount" : "1000.00",
+          "mobileNumber" : 1235554567,
+          "loanPurpose" : "landscape",
+          "firstName" : "Clark",
+          "lastName" : "Smith",
+          "email" : "casmith@example.com",
+          "dob" : -535420800000,
+          "ssn4" : 3333,
+          "streetAddress" : "123 Ashton Street",
+          "streetAddress2" : "Suite 13",
+          "city" : "Auburn",
+          "state" : "CA",
+          "zip" : 95602,
+          "annualIncomeBeforeTaxes" : "950000.00",
+          "coborrowerMobileNumber" : 5555556767
+        }
+      },
+      "CreateLinkLineItems" : {
+        "properties" : {
+          "productDescription" : {
+            "type" : "string"
+          },
+          "SKU" : {
+            "type" : "string"
+          },
+          "pricePerUnit" : {
+            "type" : "string",
+            "description" : "Includes the decimal point but no dollar sign."
+          },
+          "tax" : {
+            "type" : "string",
+            "description" : "Includes the decimal point but no dollar sign."
+          },
+          "discount" : {
+            "type" : "string",
+            "description" : "Includes the decimal point but no dollar sign."
+          },
+          "totalAmount" : {
+            "type" : "string",
+            "description" : "Includes the decimal point but no dollar sign."
+          },
+          "photo" : {
+            "type" : "string",
+            "description" : "To be fixed to use media attachment later."
+          }
+        },
+        "example" : {
+          "productDescription" : "labor",
+          "SKU" : "none",
+          "pricePerUnit" : "50000.00",
+          "tax" : "na",
+          "discount" : "5000.00",
+          "totalAmount" : "55000.00"
+        }
+      },
+      "TransactionObject" : {
+        "properties" : {
+          "status" : {
+            "description" : "Indicates the current state of the transaction: initiated, authorized, settled, refunded, expired, or decined.",
+            "type" : "string",
+            "enum" : [ "initiated", "authorized", "settled", "refunded", "expired", "declined" ]
+          },
+          "transactionAmount" : {
+            "type" : "string",
+            "description" : "Required for POST. Includes two decimal points but no dollar symbol."
+          },
+          "mobileNumber" : {
+            "type" : "string",
+            "description" : "Required for POST. International phone numbers are supported. No formatted should be included. Just the digits."
+          },
+          "loanPurpose" : {
+            "type" : "string",
+            "description" : "Required for POST. Currently this is freeform but will be enumerated in database in the future."
+          },
+          "firstName" : {
+            "type" : "string",
+            "description" : "optional"
+          },
+          "lastName" : {
+            "type" : "string",
+            "description" : "optional"
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "optional"
+          },
+          "dob" : {
+            "type" : "string",
+            "description" : "Optional. Format is YYYY-MM-DD. Please use the whole format as shown below in the example."
+          },
+          "ssn4" : {
+            "type" : "string",
+            "description" : "Optional."
+          },
+          "ssn" : {
+            "type" : "string",
+            "description" : "optional"
+          },
+          "streetAddress1" : {
+            "type" : "string",
+            "description" : "optional"
+          },
+          "streetAddress2" : {
+            "type" : "string",
+            "description" : "optional"
+          },
+          "city" : {
+            "type" : "string",
+            "description" : "optional"
+          },
+          "stateCode" : {
+            "type" : "string",
+            "description" : "optional"
+          },
+          "zip" : {
+            "type" : "string",
+            "description" : "Optional. Zip code can be either the full nine digits (nnnnn-mmmm) or just the five digit delivery area."
+          },
+          "employer" : {
+            "type" : "string",
+            "description" : "optional"
+          },
+          "annualIncomeBeforeTaxes" : {
+            "type" : "string",
+            "description" : "Optional. Includes the decimal point but no dollar sign."
+          },
+          "coborrowerMobileNumber" : {
+            "type" : "string",
+            "description" : "Optional. Coborrower mobile number. International phone numbers are supported. No formatted should be included. Just the digits."
+          },
+          "transactionLineItems" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/TransactionLineItems"
+            }
+          }
+        },
+        "example" : {
+          "status" : "initiated",
+          "transactionAmount" : "1000.00",
+          "mobileNumber" : 1235554567,
+          "loanPurpose" : "landscape",
+          "firstName" : "Clark",
+          "lastName" : "Smith",
+          "email" : "casmith@example.com",
+          "dob" : -535420800000,
+          "ssn4" : 3333,
+          "streetAddress" : "123 Ashton Street",
+          "streetAddress2" : "Suite 13",
+          "city" : "Auburn",
+          "state" : "CA",
+          "zip" : 95602,
+          "annualIncomeBeforeTaxes" : "950000.00",
+          "coborrowerMobileNumber" : 5555556767
+        }
+      },
+      "TransactionLineItems" : {
+        "properties" : {
+          "productDescription" : {
+            "type" : "string"
+          },
+          "SKU" : {
+            "type" : "string"
+          },
+          "pricePerUnit" : {
+            "type" : "string",
+            "description" : "Includes the decimal point but no dollar sign."
+          },
+          "tax" : {
+            "type" : "string",
+            "description" : "Includes the decimal point but no dollar sign."
+          },
+          "discount" : {
+            "type" : "string",
+            "description" : "Includes the decimal point but no dollar sign."
+          },
+          "totalAmount" : {
+            "type" : "string",
+            "description" : "Includes the decimal point but no dollar sign."
+          },
+          "photo" : {
+            "type" : "string",
+            "description" : "To be fixed to use media attachment later."
+          }
+        },
+        "example" : {
+          "productDescription" : "labor",
+          "SKU" : "none",
+          "pricePerUnit" : "50000.00",
+          "tax" : "na",
+          "discount" : "5000.00",
+          "totalAmount" : "55000.00"
+        }
+      },
+      "UserObject" : {
+        "properties" : {
+          "userId" : {
+            "description" : "UUID uniquely identifying the user.",
+            "type" : "string"
+          },
+          "firstName" : {
+            "description" : "The first name of the user.",
+            "type" : "string"
+          },
+          "lastName" : {
+            "description" : "The last name of the user.",
+            "type" : "string"
+          },
+          "email" : {
+            "description" : "Email address of the user.",
+            "type" : "string"
+          },
+          "mobilePhone" : {
+            "description" : "The user's cell phone number.",
+            "type" : "string"
+          },
+          "userName" : {
+            "description" : "A log in name for the user.",
+            "type" : "string"
+          },
+          "password" : {
+            "description" : "SHA-256 encrypted string representing the password.",
+            "type" : "string"
+          },
+          "role" : {
+            "description" : "Role for user.",
+            "type" : "string",
+            "enum" : [ "admin", "employee", "reviewer" ]
+          },
+          "group" : {
+            "description" : "Users can be assigned to a group and will inherit the rights and priveleges assigned to that group.",
+            "type" : "string"
+          }
+        },
+        "example" : {
+          "userId" : "6f6c4bf4-ab58-4a1b-833e-0e665dc65400",
+          "firstName" : "Hugh",
+          "lastName" : "Cave",
+          "email" : "hugh@akhouse.com",
+          "mobilePhone" : 5556669999,
+          "userName" : "hughb",
+          "password" : "sample",
+          "role" : "admin",
+          "group" : "na"
+        }
+      },
+      "Error" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "request-id" : {
+            "type" : "string"
+          }
+        }
+      }
+    }
+  }
+}
