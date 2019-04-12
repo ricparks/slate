@@ -1,0 +1,205 @@
+# Introduction
+
+Welcome to the Wisetack API. You can use our API to seamlessly integrate point-of-sale financing into your existing application. 
+
+We have language bindings in Shell, Ruby, Python, and Java.  You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
+
+
+
+# Authentication
+
+> To authorize, use this code:
+
+```ruby
+require 'wisetack'
+
+api = Wisetack::APIClient.authorize!('yourkeyhere')
+```
+
+```python
+import wisetack 
+
+api = wisetack.authorize('yourkeyhere')
+```
+
+```shell
+# With shell, you can just pass the correct header with each request
+curl "api_endpoint_here"
+  -H "Authorization: yourkeyhere"
+```
+
+> Make sure to replace `yourkeyhere` with your API key.
+
+Wisetack uses API keys to allow access to the API. You can register a new Kittn API key at our [developer portal](http://example.com/developers).
+
+Wisetack expects for the API key to be included in all API requests to the server in a header that looks like the following:
+
+`Authorization: yourkeyhere`
+
+<aside class="notice">
+You must replace <code>yourkeyhere</code> with your personal API key.
+</aside>
+
+# Transactions 
+
+## Create a new transaction 
+
+```ruby
+require 'wisetack'
+
+api = Wisetack::APIClient.authorize!('yourkeyhere')
+api.merchants(ae544181-3cad-4604-a629-8141d74b9c31).transactions.post
+```
+
+```python
+import wisetack 
+
+api = wisetack.authorize('yourkeyhere')
+api.merchants(ae544181-3cad-4604-a629-8141d74b9c31).transactions.post
+```
+
+```shell
+curl "http://api.wisetack.com/merchants/ae544181-3cad-4604-a629-8141d74b9c31/transactions"
+  -H "Authorization: yourkeyhere"
+```
+
+>  Here's an example of what a request to create a transaction looks like: 
+
+```json
+{
+   "transactionAmount": 1000,
+   "mobileNumber": 1235554567,
+   "loanPurpose": "landscape",
+   "firstName": "Clark",
+   "lastName": "Smith",
+   "email": "casmith@example.com",
+   "dob": {},
+   "ssn4": 3333,
+   "zip": 95602,
+   "annualIncomeBeforeTaxes": 120000,
+   "status": "initiated"
+}
+```
+
+This resource initiates loan applications and manages the flow of loan authorization, settlement, and refunds.
+
+### HTTP Request
+
+`POST /merchant/{merchantId}/transactions`
+
+### Path Parameter
+
+Parameter | Default | Description
+--------- | ------- | -----------
+{merchantId} | required | The merchant id initiating the transaction. This id was created during merchant creation.
+
+### Request Body
+[TransactionRequest Body](#transaction-request-body)
+
+
+## Start a loan transaction
+
+```ruby
+require 'wisetack'
+
+api = Wisetack::APIClient.authorize!('youkeyhere')
+api.merchants(12345).transactions.post
+```
+
+```python
+import wisetack
+
+api = wisetack.authorize('yourkeyhere')
+api.merchant(123245).transactions.post
+```
+
+```shell
+curl -d "http://api.wisetack.com/merchants/{merchantId}/transactions"
+  -H "Authorization: yourkeyhere"
+```
+
+
+> The above command returns JSON structured like this:
+
+```json
+{
+  "transactionAmount": 1000,
+  "mobileNumber": 1235554567,
+  "loanPurpose": "landscape",
+  "firstName": "Clark",
+  "lastName": "Smith",
+  "email": "casmith@example.com",
+  "dob": {},
+  "ssn4": 3333,
+  "zip": 95602,
+  "annualIncomeBeforeTaxes": 120000,
+  "status": "initiated"
+}
+```
+
+This endpoint retrieves a specific kitten.
+
+<aside class="warning">Inside HTML code blocks like this one, you can't use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside>
+
+### HTTP Request
+
+`GET http://example.com/kittens/<ID>`
+
+### URL Parameters
+
+Parameter | Description
+--------- | -----------
+ID | The ID of the kitten to retrieve
+
+## Delete a Specific Kitten
+
+```ruby
+require 'kittn'
+
+api = Kittn::APIClient.authorize!('meowmeowmeow')
+api.kittens.delete(2)
+```
+
+```python
+import kittn
+
+api = kittn.authorize('meowmeowmeow')
+api.kittens.delete(2)
+```
+
+```shell
+curl "http://example.com/api/kittens/2"
+  -X DELETE
+  -H "Authorization: meowmeowmeow"
+```
+
+```javascript
+const kittn = require('kittn');
+
+let api = kittn.authorize('meowmeowmeow');
+let max = api.kittens.delete(2);
+```
+
+> The above command returns JSON structured like this:
+
+```json
+{
+  "id": 2,
+  "deleted" : ":("
+}
+```
+
+This endpoint deletes a specific kitten.
+
+### HTTP Request
+
+`DELETE http://example.com/kittens/<ID>`
+
+### URL Parameters
+
+Parameter | Description
+--------- | -----------
+ID | The ID of the kitten to delete
+
+
+
