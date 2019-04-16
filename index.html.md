@@ -10,7 +10,7 @@ headingLevel: 2
 
 ---
 
-<h1 id="wisetack-api">Wisetack API v1.0.0</h1>
+<h1 id="wisetack-api">Wisetack API v1.1.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
 
@@ -21,8 +21,8 @@ with your existing system.  Here's a brief overview of the APIs:
 * **CreateLinks** allow you to create an HTML link that can be embedded in an invoice. This link will initiate a lending session
 specific for that invoice.
 
-* **Transactions** allow you to intiate a loan for a specific merchant for a borrower based only on amount and phone number.
-Furthermore, transactions allow you to track and update the flow of the loan through authorization and settlement.
+* **Transactions** allow you to initiate a transaction for a specific merchant for a customer based only on amount and phone number.
+Furthermore, transactions allow you to track and update the flow of the transaction through authorization and settlement.
 
 * **Merchants** allow you to onboard merchants into the system as well as list your existing merchants based on
 date and status filters, get information on a merchant, and remove merchants from your system.
@@ -53,18 +53,18 @@ This process will result in a header that looks something like this: \
 
 <h1 id="wisetack-api-transactions">Transactions</h1>
 
-The Transaction resource initiates loan applications and manages the flow of loan authorization, settlement, and refunds.
+The Transaction resource initiates transactions and manages the flow of authorization, settlement, and refunds.
 
-## POST initiates a loan process.
+## POST initiates a transaction process.
 
 > Code samples
 
 `POST /merchant/{merchantId}/transactions`
 
-The Wisetack lending system starts by sending a text message link from a merchant to a prospective borrower. The
-merchant must enter the mobile number of the borrower, a transaction amount, and the purpose of the loan and the
-text message is sent. Once the consumer clicks the link on their mobile phone, they will proceed to the
-Wisetack lending process.
+The Wisetack system starts by sending a text message link from a merchant to a customer. The
+merchant must enter the mobile number of the customer, a transaction amount, and the purpose of the transaction and the
+text message is sent. Once the customer clicks the link on their mobile phone, they will proceed to the
+Wisetack transction process.
 
 Note that the POST can also include an array of line items to describe the services or products provided as
 well as other optional items described in the TransactionObject. These line items
@@ -77,7 +77,7 @@ The following values are required for the POST:
 
 * a transaction amount is required.
 
-* a loan purpose is required.
+* a transaction purpose is required.
 
 > Body parameter
 
@@ -86,7 +86,7 @@ The following values are required for the POST:
   "status": "initiated",
   "transactionAmount": "1000.00",
   "mobileNumber": 1235554567,
-  "loanPurpose": "landscape",
+  "transactionPurpose": "landscape",
   "firstName": "Clark",
   "lastName": "Smith",
   "email": "casmith@example.com",
@@ -102,7 +102,7 @@ The following values are required for the POST:
 }
 ```
 
-<h3 id="post-initiates-a-loan-process.-parameters">Parameters</h3>
+<h3 id="post-initiates-a-transaction-process.-parameters">Parameters</h3>
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
@@ -118,7 +118,7 @@ The following values are required for the POST:
   "status": "initiated",
   "transactionAmount": "1000.00",
   "mobileNumber": 1235554567,
-  "loanPurpose": "landscape",
+  "transactionPurpose": "landscape",
   "firstName": "Clark",
   "lastName": "Smith",
   "email": "casmith@example.com",
@@ -134,7 +134,7 @@ The following values are required for the POST:
 }
 ```
 
-<h3 id="post-initiates-a-loan-process.-responses">Responses</h3>
+<h3 id="post-initiates-a-transaction-process.-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
@@ -228,7 +228,7 @@ BasicAuth
   "status": "initiated",
   "transactionAmount": "1000.00",
   "mobileNumber": 1235554567,
-  "loanPurpose": "landscape",
+  "transactionPurpose": "landscape",
   "firstName": "Clark",
   "lastName": "Smith",
   "email": "casmith@example.com",
@@ -255,17 +255,17 @@ To perform this operation, you must be authenticated by means of one of the foll
 BasicAuth
 </aside>
 
-## PATCH allows status update for loan initiation and provides for full or partial refunds.
+## PATCH allows status update for transaction initiation and provides for full or partial refunds.
 
 > Code samples
 
 `PATCH /transactions/{transactionId}`
 
 Supported statuses for transactions:
-* Initiated: The loan process has been started for a customer but has not yet proceeded through authorization.
-* Authorized: Wisetack has authorized the loan for this customer. The loan will not be made until the transaction status has been set to 'settled.' An authorized transaction can either be 'settled' or 'canceled'. An authorized transaction will expire after 30 days if it has not been settled.
-* Settled: Once the loan is settled, Wisetack will begin the loan and pay the merchant via ACH. Once a loan is settled, it can be either partially or completely refunded.
-* Refunded:  The full amount of the loan has been refunded.
+* Initiated: The transaction process has been started for a customer but has not yet proceeded through authorization.
+* Authorized: Wisetack has authorized the transactionn for this customer. The transaction will not proceed until the transaction status has been set to 'settled.' An authorized transaction can either be 'settled' or 'canceled'. An authorized transaction will expire after 30 days if it has not been settled.
+* Settled: Once the transaction is settled, Wisetack will begin the transaction and pay the merchant via ACH. Once a transaction is settled, it can be either partially or completely refunded.
+* Refunded:  The full amount of the transaction has been refunded.
 * Expired: The transaction was not authorized or settled under the specified time limit. A transaction can never be removed from an expired state.
 * Declined: The transaction was declined.
 
@@ -421,7 +421,7 @@ Supported statuses for transactions:
 }
 ```
 
-<h3 id="patch-allows-status-update-for-loan-initiation-and-provides-for-full-or-partial-refunds.-parameters">Parameters</h3>
+<h3 id="patch-allows-status-update-for-transaction-initiation-and-provides-for-full-or-partial-refunds.-parameters">Parameters</h3>
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
@@ -437,7 +437,7 @@ Supported statuses for transactions:
   "status": "initiated",
   "transactionAmount": "1000.00",
   "mobileNumber": 1235554567,
-  "loanPurpose": "landscape",
+  "transactionPurpose": "landscape",
   "firstName": "Clark",
   "lastName": "Smith",
   "email": "casmith@example.com",
@@ -453,7 +453,7 @@ Supported statuses for transactions:
 }
 ```
 
-<h3 id="patch-allows-status-update-for-loan-initiation-and-provides-for-full-or-partial-refunds.-responses">Responses</h3>
+<h3 id="patch-allows-status-update-for-transaction-initiation-and-provides-for-full-or-partial-refunds.-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
@@ -480,18 +480,18 @@ must be collected.
 can be sent back to the server. These fields are in the MerchantUpdateObject.
 
 Additionally, there are four different flag field sections. Where a flag field is found (if at all)
-indicated how the client should behave regarding that field.
+indicates how the client should behave regarding that field.
 
 * **optionalInformation** indicates that this information has not been collected. It is not required
 but could be helpful in future dealings with this merchant.
 
-* **currentlyDue** are the fields the merchant must supply to start or continue to provide
-lending services.
+* **currentlyDue** are the fields the merchant must supply to start or continue to tranact
+services.
 
-* **eventuallyDue** are the fields the merchant must supply to have the full range of lending
-capabilities he is eligible for.
+* **eventuallyDue** are the fields the merchant must supply to have the full range of
+capabilities they are eligible for.
 
-* **pastDue** are the field the merchant must supply to continue or restore their lending
+* **pastDue** are the fields the merchant must supply to continue or restore their transaction
 capabilities.
 
 ## POST creates a merchant and returns a newly created merchant id.
@@ -1747,13 +1747,13 @@ BasicAuth
 `POST /merchant/{merchantId}/createLink`
 
 You can use the createLink resource to create links that can be embedded in invoices or other materials where
-you might want to offer a loan to a specific customer. The createLink allows you to register information that will
-expedite the borrowing process for your merchant's existing customers. By sending information when creating this link,
-Wisetack can more easily pre-fill information and make the borrower's experience as smooth as possible.
+you might want to offer a transaction to a specific customer. The createLink allows you to register information that will
+expedite the transaction for your merchant's existing customers. By sending information when creating this link,
+Wisetack can more easily pre-fill information and make the customer's experience as smooth as possible.
 
-Creation of a link requires a transaction amount and loan purpose.  Optional fields such as customer address, dob,
+Creation of a link requires a transaction amount and purpose.  Optional fields such as customer address, dob,
 and ssn as well as optional line item information is also supported.. The POST returns a link that is specific for
-that customer, merchant, and line items. When the customer clicks the link, they will proceed to a lending flow specifically for
+that customer, merchant, and line items. When the customer clicks the link, they will proceed to a transaction flow specifically for
 them. A unique link will be created on each create. The link expires after 90 days.
 
 > Body parameter
@@ -1762,7 +1762,7 @@ them. A unique link will be created on each create. The link expires after 90 da
 {
   "transactionAmount": "1000.00",
   "mobileNumber": 1235554567,
-  "loanPurpose": "landscape",
+  "transactionPurpose": "landscape",
   "firstName": "Clark",
   "lastName": "Smith",
   "email": "casmith@example.com",
@@ -1793,7 +1793,7 @@ them. A unique link will be created on each create. The link expires after 90 da
 {
   "transactionAmount": "1000.00",
   "mobileNumber": 1235554567,
-  "loanPurpose": "landscape",
+  "transactionPurpose": "landscape",
   "firstName": "Clark",
   "lastName": "Smith",
   "email": "casmith@example.com",
@@ -2025,13 +2025,13 @@ BasicAuth
 |---|---|---|---|---|
 |merchantId|string|false|none|A UUID unique to the newly created merchant.|
 |onboardingDate|string|false|none|Date this merchant was initially onboarded in YYYY-MM-DD format.|
-|lendingEnabled|boolean|false|none|Has this merchant been fully onboarded and are now able to make loans.|
+|lendingEnabled|boolean|false|none|Has this merchant been fully onboarded and are now able to initiate transactions.|
 |merchantSecretToken|any|false|none|An token used for authenticiation from the partner's backend to the Wisetack backend.|
 |optionalInformation|[MerchantOptionalInformation](#schemamerchantoptionalinformation)|false|none|none|
 |currentlyDue|[MerchantDataRequired](#schemamerchantdatarequired)|false|none|none|
 |eventuallyDue|[MerchantDataRequired](#schemamerchantdatarequired)|false|none|none|
 |pastDue|[MerchantDataRequired](#schemamerchantdatarequired)|false|none|none|
-|disabledReason|string|false|none|If the merchant has been disabled and cannot make further loans, that information is listed here.|
+|disabledReason|string|false|none|If the merchant has been disabled and cannot initiate further transactions, that information is listed here.|
 |merchantInformation|[MerchantUpdateObject](#schemamerchantupdateobject)|false|none|none|
 
 <h2 id="tocSmerchantoptionalinformation">MerchantOptionalInformation</h2>
@@ -2258,7 +2258,7 @@ BasicAuth
 {
   "transactionAmount": "1000.00",
   "mobileNumber": 1235554567,
-  "loanPurpose": "landscape",
+  "transactionPurpose": "landscape",
   "firstName": "Clark",
   "lastName": "Smith",
   "email": "casmith@example.com",
@@ -2281,7 +2281,7 @@ BasicAuth
 |---|---|---|---|---|
 |transactionAmount|string|false|none|Required for POST. Includes two decimal points but no dollar symbol.|
 |mobileNumber|string|false|none|Optional. International phone numbers are supported. No formatted should be included. Just the digits.|
-|loanPurpose|string|false|none|Required for POST. Currently this is freeform but will be enumerated in database in the future.|
+|transactionPurpose|string|false|none|Required for POST. Currently this is freeform but will be enumerated in database in the future.|
 |firstName|string|false|none|Optional|
 |lastName|string|false|none|Optional|
 |email|string|false|none|Optional|
@@ -2335,7 +2335,7 @@ BasicAuth
   "status": "initiated",
   "transactionAmount": "1000.00",
   "mobileNumber": 1235554567,
-  "loanPurpose": "landscape",
+  "transactionPurpose": "landscape",
   "firstName": "Clark",
   "lastName": "Smith",
   "email": "casmith@example.com",
@@ -2359,7 +2359,7 @@ BasicAuth
 |status|string|false|none|Indicates the current state of the transaction: initiated, authorized, settled, refunded, expired, or decined.|
 |transactionAmount|string|false|none|Required for POST. Includes two decimal points but no dollar symbol.|
 |mobileNumber|string|false|none|Required for POST. International phone numbers are supported. No formatted should be included. Just the digits.|
-|loanPurpose|string|false|none|Required for POST. Currently this is freeform but will be enumerated in database in the future.|
+|transactionPurpose|string|false|none|Required for POST. Currently this is freeform but will be enumerated in database in the future.|
 |firstName|string|false|none|optional|
 |lastName|string|false|none|optional|
 |email|string|false|none|optional|
