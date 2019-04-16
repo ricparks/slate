@@ -215,7 +215,7 @@
         </div>
       <ul id="toc" class="toc-list-h1">
           <li>
-            <a href="#wisetack-api" class="toc-h1 toc-link" data-title="Wisetack API v1.0.0">Wisetack API v1.0.0</a>
+            <a href="#wisetack-api" class="toc-h1 toc-link" data-title="Wisetack API v1.1.0">Wisetack API v1.1.0</a>
               <ul class="toc-list-h2">
                   <li>
                     <a href="#introduction" class="toc-h2 toc-link" data-title="Introduction">Introduction</a>
@@ -232,7 +232,7 @@
             <a href="#wisetack-api-transactions" class="toc-h1 toc-link" data-title="Transactions">Transactions</a>
               <ul class="toc-list-h2">
                   <li>
-                    <a href="#post-initiates-a-loan-process" class="toc-h2 toc-link" data-title="POST initiates a loan process.">POST initiates a loan process.</a>
+                    <a href="#post-initiates-a-transaction-process" class="toc-h2 toc-link" data-title="POST initiates a transaction process.">POST initiates a transaction process.</a>
                   </li>
                   <li>
                     <a href="#get-returns-a-list-of-transactions-for-this-merchant" class="toc-h2 toc-link" data-title="GET returns a list of transactions for this merchant.">GET returns a list of transactions for this merchant.</a>
@@ -241,7 +241,7 @@
                     <a href="#get-retrieves-information-including-the-status-on-a-specific-transaction" class="toc-h2 toc-link" data-title="GET retrieves information, including the status, on a specific transaction.">GET retrieves information, including the status, on a specific transaction.</a>
                   </li>
                   <li>
-                    <a href="#patch-allows-status-update-for-loan-initiation-and-provides-for-full-or-partial-refunds" class="toc-h2 toc-link" data-title="PATCH allows status update for loan initiation and provides for full or partial refunds.">PATCH allows status update for loan initiation and provides for full or partial refunds.</a>
+                    <a href="#patch-allows-status-update-for-transaction-initiation-and-provides-for-full-or-partial-refunds" class="toc-h2 toc-link" data-title="PATCH allows status update for transaction initiation and provides for full or partial refunds.">PATCH allows status update for transaction initiation and provides for full or partial refunds.</a>
                   </li>
               </ul>
           </li>
@@ -343,7 +343,7 @@
     <div class="page-wrapper">
       <div class="dark-box"></div>
       <div class="content">
-        <h1 id="wisetack-api">Wisetack API v1.0.0</h1>
+        <h1 id="wisetack-api">Wisetack API v1.1.0</h1>
 
 <blockquote>
 <p>Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.</p>
@@ -355,8 +355,8 @@ with your existing system.  Here&#39;s a brief overview of the APIs:</p>
 <ul>
 <li><p><strong>CreateLinks</strong> allow you to create an HTML link that can be embedded in an invoice. This link will initiate a lending session
 specific for that invoice.</p></li>
-<li><p><strong>Transactions</strong> allow you to intiate a loan for a specific merchant for a borrower based only on amount and phone number.
-Furthermore, transactions allow you to track and update the flow of the loan through authorization and settlement.</p></li>
+<li><p><strong>Transactions</strong> allow you to initiate a transaction for a specific merchant for a customer based only on amount and phone number.
+Furthermore, transactions allow you to track and update the flow of the transaction through authorization and settlement.</p></li>
 <li><p><strong>Merchants</strong> allow you to onboard merchants into the system as well as list your existing merchants based on
 date and status filters, get information on a merchant, and remove merchants from your system.</p></li>
 <li><p><strong>Users</strong> Allow you to add users for merchants. Each merchant can have multiple users for the Wisetack system. The Users resource allows you
@@ -385,18 +385,18 @@ want to build authentication in to your own RESTful calls, you simply add the ke
 
 <h1 id="wisetack-api-transactions">Transactions</h1>
 
-<p>The Transaction resource initiates loan applications and manages the flow of loan authorization, settlement, and refunds.</p>
-<h2 id='post-initiates-a-loan-process'>POST initiates a loan process.</h2>
+<p>The Transaction resource initiates transactions and manages the flow of authorization, settlement, and refunds.</p>
+<h2 id='post-initiates-a-transaction-process'>POST initiates a transaction process.</h2>
 <blockquote>
 <p>Code samples</p>
 </blockquote>
 
 <p><code>POST /merchant/{merchantId}/transactions</code></p>
 
-<p>The Wisetack lending system starts by sending a text message link from a merchant to a prospective borrower. The
-merchant must enter the mobile number of the borrower, a transaction amount, and the purpose of the loan and the
-text message is sent. Once the consumer clicks the link on their mobile phone, they will proceed to the
-Wisetack lending process.</p>
+<p>The Wisetack system starts by sending a text message link from a merchant to a customer. The
+merchant must enter the mobile number of the customer, a transaction amount, and the purpose of the transaction and the
+text message is sent. Once the customer clicks the link on their mobile phone, they will proceed to the
+Wisetack transction process.</p>
 
 <p>Note that the POST can also include an array of line items to describe the services or products provided as
 well as other optional items described in the TransactionObject. These line items
@@ -407,7 +407,7 @@ The following values are required for the POST:</p>
 <li><p>status must be set to &#39;initiated&#39;.</p></li>
 <li><p>a United States domestic mobile phone number is required.</p></li>
 <li><p>a transaction amount is required.</p></li>
-<li><p>a loan purpose is required.</p></li>
+<li><p>a transaction purpose is required.</p></li>
 </ul>
 
 <blockquote>
@@ -417,7 +417,7 @@ The following values are required for the POST:</p>
   </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"initiated"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"transactionAmount"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1000.00"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"mobileNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">1235554567</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"loanPurpose"</span><span class="p">:</span><span class="w"> </span><span class="s2">"landscape"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"transactionPurpose"</span><span class="p">:</span><span class="w"> </span><span class="s2">"landscape"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Clark"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Smith"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"casmith@example.com"</span><span class="p">,</span><span class="w">
@@ -432,7 +432,7 @@ The following values are required for the POST:</p>
   </span><span class="s2">"coborrowerMobileNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">5555556767</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-<h3 id="post-initiates-a-loan-process.-parameters">Parameters</h3>
+<h3 id="post-initiates-a-transaction-process.-parameters">Parameters</h3>
 
 <table><thead>
 <tr>
@@ -468,7 +468,7 @@ The following values are required for the POST:</p>
   </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"initiated"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"transactionAmount"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1000.00"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"mobileNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">1235554567</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"loanPurpose"</span><span class="p">:</span><span class="w"> </span><span class="s2">"landscape"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"transactionPurpose"</span><span class="p">:</span><span class="w"> </span><span class="s2">"landscape"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Clark"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Smith"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"casmith@example.com"</span><span class="p">,</span><span class="w">
@@ -483,7 +483,7 @@ The following values are required for the POST:</p>
   </span><span class="s2">"coborrowerMobileNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">5555556767</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-<h3 id="post-initiates-a-loan-process.-responses">Responses</h3>
+<h3 id="post-initiates-a-transaction-process.-responses">Responses</h3>
 
 <table><thead>
 <tr>
@@ -726,7 +726,7 @@ BasicAuth
   </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"initiated"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"transactionAmount"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1000.00"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"mobileNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">1235554567</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"loanPurpose"</span><span class="p">:</span><span class="w"> </span><span class="s2">"landscape"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"transactionPurpose"</span><span class="p">:</span><span class="w"> </span><span class="s2">"landscape"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Clark"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Smith"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"casmith@example.com"</span><span class="p">,</span><span class="w">
@@ -763,7 +763,7 @@ BasicAuth
 To perform this operation, you must be authenticated by means of one of the following methods:
 BasicAuth
 </aside>
-<h2 id='patch-allows-status-update-for-loan-initiation-and-provides-for-full-or-partial-refunds'>PATCH allows status update for loan initiation and provides for full or partial refunds.</h2>
+<h2 id='patch-allows-status-update-for-transaction-initiation-and-provides-for-full-or-partial-refunds'>PATCH allows status update for transaction initiation and provides for full or partial refunds.</h2>
 <blockquote>
 <p>Code samples</p>
 </blockquote>
@@ -771,10 +771,10 @@ BasicAuth
 <p><code>PATCH /transactions/{transactionId}</code></p>
 
 <p>Supported statuses for transactions:
-* Initiated: The loan process has been started for a customer but has not yet proceeded through authorization.
-* Authorized: Wisetack has authorized the loan for this customer. The loan will not be made until the transaction status has been set to &#39;settled.&#39; An authorized transaction can either be &#39;settled&#39; or &#39;canceled&#39;. An authorized transaction will expire after 30 days if it has not been settled.
-* Settled: Once the loan is settled, Wisetack will begin the loan and pay the merchant via ACH. Once a loan is settled, it can be either partially or completely refunded.
-* Refunded:  The full amount of the loan has been refunded.
+* Initiated: The transaction process has been started for a customer but has not yet proceeded through authorization.
+* Authorized: Wisetack has authorized the transactionn for this customer. The transaction will not proceed until the transaction status has been set to &#39;settled.&#39; An authorized transaction can either be &#39;settled&#39; or &#39;canceled&#39;. An authorized transaction will expire after 30 days if it has not been settled.
+* Settled: Once the transaction is settled, Wisetack will begin the transaction and pay the merchant via ACH. Once a transaction is settled, it can be either partially or completely refunded.
+* Refunded:  The full amount of the transaction has been refunded.
 * Expired: The transaction was not authorized or settled under the specified time limit. A transaction can never be removed from an expired state.
 * Declined: The transaction was declined.</p>
 
@@ -929,7 +929,7 @@ BasicAuth
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-<h3 id="patch-allows-status-update-for-loan-initiation-and-provides-for-full-or-partial-refunds.-parameters">Parameters</h3>
+<h3 id="patch-allows-status-update-for-transaction-initiation-and-provides-for-full-or-partial-refunds.-parameters">Parameters</h3>
 
 <table><thead>
 <tr>
@@ -965,7 +965,7 @@ BasicAuth
   </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"initiated"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"transactionAmount"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1000.00"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"mobileNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">1235554567</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"loanPurpose"</span><span class="p">:</span><span class="w"> </span><span class="s2">"landscape"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"transactionPurpose"</span><span class="p">:</span><span class="w"> </span><span class="s2">"landscape"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Clark"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Smith"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"casmith@example.com"</span><span class="p">,</span><span class="w">
@@ -980,7 +980,7 @@ BasicAuth
   </span><span class="s2">"coborrowerMobileNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">5555556767</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-<h3 id="patch-allows-status-update-for-loan-initiation-and-provides-for-full-or-partial-refunds.-responses">Responses</h3>
+<h3 id="patch-allows-status-update-for-transaction-initiation-and-provides-for-full-or-partial-refunds.-responses">Responses</h3>
 
 <table><thead>
 <tr>
@@ -1020,16 +1020,16 @@ can be sent back to the server. These fields are in the MerchantUpdateObject.</p
 </ul>
 
 <p>Additionally, there are four different flag field sections. Where a flag field is found (if at all)
-indicated how the client should behave regarding that field.</p>
+indicates how the client should behave regarding that field.</p>
 
 <ul>
 <li><p><strong>optionalInformation</strong> indicates that this information has not been collected. It is not required
 but could be helpful in future dealings with this merchant.</p></li>
-<li><p><strong>currentlyDue</strong> are the fields the merchant must supply to start or continue to provide
-lending services.</p></li>
-<li><p><strong>eventuallyDue</strong> are the fields the merchant must supply to have the full range of lending
-capabilities he is eligible for.</p></li>
-<li><p><strong>pastDue</strong> are the field the merchant must supply to continue or restore their lending
+<li><p><strong>currentlyDue</strong> are the fields the merchant must supply to start or continue to tranact
+services.</p></li>
+<li><p><strong>eventuallyDue</strong> are the fields the merchant must supply to have the full range of
+capabilities they are eligible for.</p></li>
+<li><p><strong>pastDue</strong> are the fields the merchant must supply to continue or restore their transaction
 capabilities.</p></li>
 </ul>
 <h2 id='post-creates-a-merchant-and-returns-a-newly-created-merchant-id'>POST creates a merchant and returns a newly created merchant id.</h2>
@@ -2840,13 +2840,13 @@ BasicAuth
 <p><code>POST /merchant/{merchantId}/createLink</code></p>
 
 <p>You can use the createLink resource to create links that can be embedded in invoices or other materials where
-you might want to offer a loan to a specific customer. The createLink allows you to register information that will
-expedite the borrowing process for your merchant&#39;s existing customers. By sending information when creating this link,
-Wisetack can more easily pre-fill information and make the borrower&#39;s experience as smooth as possible.</p>
+you might want to offer a transaction to a specific customer. The createLink allows you to register information that will
+expedite the transaction for your merchant&#39;s existing customers. By sending information when creating this link,
+Wisetack can more easily pre-fill information and make the customer&#39;s experience as smooth as possible.</p>
 
-<p>Creation of a link requires a transaction amount and loan purpose.  Optional fields such as customer address, dob,
+<p>Creation of a link requires a transaction amount and purpose.  Optional fields such as customer address, dob,
 and ssn as well as optional line item information is also supported.. The POST returns a link that is specific for
-that customer, merchant, and line items. When the customer clicks the link, they will proceed to a lending flow specifically for
+that customer, merchant, and line items. When the customer clicks the link, they will proceed to a transaction flow specifically for
 them. A unique link will be created on each create. The link expires after 90 days.</p>
 
 <blockquote>
@@ -2855,7 +2855,7 @@ them. A unique link will be created on each create. The link expires after 90 da
 <pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
   </span><span class="s2">"transactionAmount"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1000.00"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"mobileNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">1235554567</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"loanPurpose"</span><span class="p">:</span><span class="w"> </span><span class="s2">"landscape"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"transactionPurpose"</span><span class="p">:</span><span class="w"> </span><span class="s2">"landscape"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Clark"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Smith"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"casmith@example.com"</span><span class="p">,</span><span class="w">
@@ -2905,7 +2905,7 @@ them. A unique link will be created on each create. The link expires after 90 da
 <pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
   </span><span class="s2">"transactionAmount"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1000.00"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"mobileNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">1235554567</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"loanPurpose"</span><span class="p">:</span><span class="w"> </span><span class="s2">"landscape"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"transactionPurpose"</span><span class="p">:</span><span class="w"> </span><span class="s2">"landscape"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Clark"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Smith"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"casmith@example.com"</span><span class="p">,</span><span class="w">
@@ -3226,7 +3226,7 @@ BasicAuth
 <td>boolean</td>
 <td>false</td>
 <td>none</td>
-<td>Has this merchant been fully onboarded and are now able to make loans.</td>
+<td>Has this merchant been fully onboarded and are now able to initiate transactions.</td>
 </tr>
 <tr>
 <td>merchantSecretToken</td>
@@ -3268,7 +3268,7 @@ BasicAuth
 <td>string</td>
 <td>false</td>
 <td>none</td>
-<td>If the merchant has been disabled and cannot make further loans, that information is listed here.</td>
+<td>If the merchant has been disabled and cannot initiate further transactions, that information is listed here.</td>
 </tr>
 <tr>
 <td>merchantInformation</td>
@@ -3936,7 +3936,7 @@ BasicAuth
 <pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
   </span><span class="s2">"transactionAmount"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1000.00"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"mobileNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">1235554567</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"loanPurpose"</span><span class="p">:</span><span class="w"> </span><span class="s2">"landscape"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"transactionPurpose"</span><span class="p">:</span><span class="w"> </span><span class="s2">"landscape"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Clark"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Smith"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"casmith@example.com"</span><span class="p">,</span><span class="w">
@@ -3976,7 +3976,7 @@ BasicAuth
 <td>Optional. International phone numbers are supported. No formatted should be included. Just the digits.</td>
 </tr>
 <tr>
-<td>loanPurpose</td>
+<td>transactionPurpose</td>
 <td>string</td>
 <td>false</td>
 <td>none</td>
@@ -4169,7 +4169,7 @@ BasicAuth
   </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"initiated"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"transactionAmount"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1000.00"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"mobileNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">1235554567</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"loanPurpose"</span><span class="p">:</span><span class="w"> </span><span class="s2">"landscape"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"transactionPurpose"</span><span class="p">:</span><span class="w"> </span><span class="s2">"landscape"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Clark"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Smith"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"casmith@example.com"</span><span class="p">,</span><span class="w">
@@ -4216,7 +4216,7 @@ BasicAuth
 <td>Required for POST. International phone numbers are supported. No formatted should be included. Just the digits.</td>
 </tr>
 <tr>
-<td>loanPurpose</td>
+<td>transactionPurpose</td>
 <td>string</td>
 <td>false</td>
 <td>none</td>
