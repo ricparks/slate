@@ -3,7 +3,7 @@
   "info" : {
     "title" : "Wisetack API",
     "version" : "1.1.0",
-    "description" : "## Introduction\nWelcome to the Wisetack API. The APIs documented on this page will enable you to seamlessly integrate point-of-sale financing\nwith your existing system.  Here's a brief overview of the APIs:\n\n* **CreateLinks** allow you to create an HTML link that can be embedded in an invoice. This link will initiate a lending session\nspecific for that invoice.\n\n* **Transactions** allow you to initiate a transaction for a specific merchant for a customer based only on amount and phone number.\nFurthermore, transactions allow you to track and update the flow of the transaction through authorization and settlement.\n\n* **Merchants** allow you to onboard merchants into the system as well as list your existing merchants based on\ndate and status filters, get information on a merchant, and remove merchants from your system.\n\n* **Users** Allow you to add users for merchants. Each merchant can have multiple users for the Wisetack system. The Users resource allows you\nto add and manage users and their roles and priveleges in the system.\n\n## Authentication\nWisetack uses HTTP Basic Authentication with both an application token and a secret key. When you initially create\na Wisetack account, you'll be given an application token and a secret key for both the production system\nand a test system.  You'll be able to distinguish between the two keys easily by their prefix. Production keys\nstart with ws_prod_ and the test system keys are prefixed by ws_test_.\nIf you use one of our language SDK's you don't need to worry about the specifics of authentication but if you\nwant to build authentication in to your own RESTful calls, you simply add the keys to the header like this:\n\n1. Concatenate the application token and secret key separated by a colon.\n\n2. Base64 encode the resulting string.\n\n3. Pass the result in the authorization header, prefixed with the word Basic.\n\nThis process will result in a header that looks something like this: \\\n**Authorization: Basic ZHBERDZ6NG9sT1NJN040Zk1Dc0FsS2pGYTdyZUJZaHU6b0ptM25pUVgxUGR5NRNDU=**\n"
+    "description" : "## Introduction\nWelcome to the Wisetack API. The APIs documented on this page will enable you to seamlessly integrate point-of-sale financing\nwith your existing system.  Here's a brief overview of the APIs:\n\n* **CreateLinks** allow you to create an HTML link that can be embedded in an invoice. This link will initiate a transaction session\nspecific for that invoice.\n\n* **Transactions** allow you to initiate a transaction for a specific merchant for a customer based only on amount and phone number.\nFurthermore, transactions allow you to track and update the flow of the transaction through authorization and settlement.\n\n* **Merchants** allow you to onboard merchants into the system as well as list your existing merchants based on\ndate and status filters, get information on a merchant, and remove merchants from your system.\n\n* **Users** Allow you to add users for merchants. Each merchant can have multiple users for the Wisetack system. The Users resource allows you\nto add and manage users and their roles and priveleges in the system.\n\n## Authentication\nWisetack uses HTTP Basic Authentication with both an application token and a secret key. When you initially create\na Wisetack account, you'll be given an application token and a secret key for both the production system\nand a test system.  You'll be able to distinguish between the two keys easily by their prefix. Production keys\nstart with ws_prod_ and the test system keys are prefixed by ws_test_.\nIf you use one of our language SDK's you don't need to worry about the specifics of authentication but if you\nwant to build authentication in to your own RESTful calls, you simply add the keys to the header like this:\n\n1. Concatenate the application token and secret key separated by a colon.\n\n2. Base64 encode the resulting string.\n\n3. Pass the result in the authorization header, prefixed with the word Basic.\n\nThis process will result in a header that looks something like this: \\\n**Authorization: Basic ZHBERDZ6NG9sT1NJN040Zk1Dc0FsS2pGYTdyZUJZaHU6b0ptM25pUVgxUGR5NRNDU=**\n"
   },
   "security" : [ {
     "BasicAuth" : [ ]
@@ -203,7 +203,7 @@
   "paths" : {
     "/merchant/{merchantId}/createLink" : {
       "summary" : "Provides a link that can be embedded in an invoice.",
-      "description" : "You can use the createLink resource to create links that can be embedded in invoices or other materials where\nyou might want to offer a transaction to a specific customer. The createLink allows you to register information that will\nexpedite the borrowing process for your merchant's existing customers. By sending information when creating this link,\nWisetack can more easily pre-fill information and make the customers's experience as smooth as possible.\n",
+      "description" : "You can use the createLink resource to create links that can be embedded in invoices or other materials where\nyou might want to offer a transaction to a specific customer. The createLink allows you to register information that will\nexpedite the transaction process for your merchant's existing customers. By sending information when creating this link,\nWisetack can more easily pre-fill information and make the customers's experience as smooth as possible.\n",
       "post" : {
         "summary" : "POST creates a link to be embedded in an invoice.",
         "description" : "You can use the createLink resource to create links that can be embedded in invoices or other materials where\nyou might want to offer a transaction to a specific customer. The createLink allows you to register information that will\nexpedite the transaction for your merchant's existing customers. By sending information when creating this link,\nWisetack can more easily pre-fill information and make the customer's experience as smooth as possible.\n\nCreation of a link requires a transaction amount and purpose.  Optional fields such as customer address, dob,\nand ssn as well as optional line item information is also supported.. The POST returns a link that is specific for\nthat customer, merchant, and line items. When the customer clicks the link, they will proceed to a transaction flow specifically for\nthem. A unique link will be created on each create. The link expires after 90 days.\n",
@@ -674,7 +674,7 @@
       },
       "get" : {
         "summary" : "GET retrieves a list of merchants.",
-        "description" : "Lists all merchants on your Wisetack account. You can filter this list based on date and if their lending has or has not been enabled.\n",
+        "description" : "Lists all merchants on your Wisetack account. You can filter this list based on date and if their transaction initiation has or has not been enabled.\n",
         "tags" : [ "Merchants" ],
         "parameters" : [ {
           "name" : "startingAfter",
@@ -691,7 +691,7 @@
             "type" : "string"
           }
         }, {
-          "name" : "lendingEnabled",
+          "name" : "transactionsEnabled",
           "in" : "query",
           "description" : "Set to true or false.",
           "schema" : {
@@ -1358,7 +1358,7 @@
             "description" : "Date this merchant was initially onboarded in YYYY-MM-DD format.",
             "type" : "string"
           },
-          "lendingEnabled" : {
+          "transactionsEnabled" : {
             "description" : "Has this merchant been fully onboarded and are now able to initiate transactions.",
             "type" : "boolean"
           },

@@ -18,7 +18,7 @@ headingLevel: 2
 Welcome to the Wisetack API. The APIs documented on this page will enable you to seamlessly integrate point-of-sale financing
 with your existing system.  Here's a brief overview of the APIs:
 
-* **CreateLinks** allow you to create an HTML link that can be embedded in an invoice. This link will initiate a lending session
+* **CreateLinks** allow you to create an HTML link that can be embedded in an invoice. This link will initiate a transaction session
 specific for that invoice.
 
 * **Transactions** allow you to initiate a transaction for a specific merchant for a customer based only on amount and phone number.
@@ -275,7 +275,7 @@ Supported statuses for transactions:
 {
   "merchantId": "string",
   "onboardingDate": "string",
-  "lendingEnabled": true,
+  "transactionsEnabled": true,
   "merchantSecretToken": null,
   "optionalInformation": {
     "companyDescription": null,
@@ -512,7 +512,7 @@ is indicated in three main sections: information currently due, due soon, and ov
 {
   "merchantId": "string",
   "onboardingDate": "string",
-  "lendingEnabled": true,
+  "transactionsEnabled": true,
   "merchantSecretToken": null,
   "optionalInformation": {
     "companyDescription": null,
@@ -707,7 +707,7 @@ BasicAuth
 
 `GET /merchants`
 
-Lists all merchants on your Wisetack account. You can filter this list based on date and if their lending has or has not been enabled.
+Lists all merchants on your Wisetack account. You can filter this list based on date and if their transaction initiation has or has not been enabled.
 
 <h3 id="get-retrieves-a-list-of-merchants.-parameters">Parameters</h3>
 
@@ -715,7 +715,7 @@ Lists all merchants on your Wisetack account. You can filter this list based on 
 |---|---|---|---|---|
 |startingAfter|query|string|false|List only merchants who initiated their onboard after this date.|
 |endingBefore|query|string|false|List only merchants who initiated their onboarding before this date.|
-|lendingEnabled|query|string|false|Set to true or false.|
+|transactionsEnabled|query|string|false|Set to true or false.|
 
 > Example responses
 
@@ -725,7 +725,7 @@ Lists all merchants on your Wisetack account. You can filter this list based on 
 {
   "merchantId": "string",
   "onboardingDate": "string",
-  "lendingEnabled": true,
+  "transactionsEnabled": true,
   "merchantSecretToken": null,
   "optionalInformation": {
     "companyDescription": null,
@@ -910,7 +910,7 @@ Get a merchant's information.
 {
   "merchantId": "string",
   "onboardingDate": "string",
-  "lendingEnabled": true,
+  "transactionsEnabled": true,
   "merchantSecretToken": null,
   "optionalInformation": {
     "companyDescription": null,
@@ -1091,7 +1091,7 @@ Please see the overview for Merchants for a more detailed explanation for this p
 {
   "merchantId": "string",
   "onboardingDate": "string",
-  "lendingEnabled": true,
+  "transactionsEnabled": true,
   "merchantSecretToken": null,
   "optionalInformation": {
     "companyDescription": null,
@@ -1252,7 +1252,7 @@ Please see the overview for Merchants for a more detailed explanation for this p
 {
   "merchantId": "string",
   "onboardingDate": "string",
-  "lendingEnabled": true,
+  "transactionsEnabled": true,
   "merchantSecretToken": null,
   "optionalInformation": {
     "companyDescription": null,
@@ -1872,7 +1872,7 @@ BasicAuth
 {
   "merchantId": "string",
   "onboardingDate": "string",
-  "lendingEnabled": true,
+  "transactionsEnabled": true,
   "merchantSecretToken": null,
   "optionalInformation": {
     "companyDescription": null,
@@ -2025,7 +2025,7 @@ BasicAuth
 |---|---|---|---|---|
 |merchantId|string|false|none|A UUID unique to the newly created merchant.|
 |onboardingDate|string|false|none|Date this merchant was initially onboarded in YYYY-MM-DD format.|
-|lendingEnabled|boolean|false|none|Has this merchant been fully onboarded and are now able to initiate transactions.|
+|transactionsEnabled|boolean|false|none|Has this merchant been fully onboarded and are now able to initiate transactions.|
 |merchantSecretToken|any|false|none|An token used for authenticiation from the partner's backend to the Wisetack backend.|
 |optionalInformation|[MerchantOptionalInformation](#schemamerchantoptionalinformation)|false|none|none|
 |currentlyDue|[MerchantDataRequired](#schemamerchantdatarequired)|false|none|none|

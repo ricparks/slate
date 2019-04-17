@@ -7,7 +7,7 @@ info:
     Welcome to the Wisetack API. The APIs documented on this page will enable you to seamlessly integrate point-of-sale financing
     with your existing system.  Here's a brief overview of the APIs:
 
-    * **CreateLinks** allow you to create an HTML link that can be embedded in an invoice. This link will initiate a lending session
+    * **CreateLinks** allow you to create an HTML link that can be embedded in an invoice. This link will initiate a transaction session
     specific for that invoice.
 
     * **Transactions** allow you to initiate a transaction for a specific merchant for a customer based only on amount and phone number.
@@ -215,7 +215,7 @@ paths:
     description: |
       You can use the createLink resource to create links that can be embedded in invoices or other materials where
       you might want to offer a transaction to a specific customer. The createLink allows you to register information that will
-      expedite the borrowing process for your merchant's existing customers. By sending information when creating this link,
+      expedite the transaction process for your merchant's existing customers. By sending information when creating this link,
       Wisetack can more easily pre-fill information and make the customers's experience as smooth as possible.
     post:
       summary: POST creates a link to be embedded in an invoice.
@@ -425,7 +425,7 @@ paths:
     get:
       summary: GET retrieves a list of merchants.
       description: |
-        Lists all merchants on your Wisetack account. You can filter this list based on date and if their lending has or has not been enabled.
+        Lists all merchants on your Wisetack account. You can filter this list based on date and if their transaction initiation has or has not been enabled.
       tags:
         - Merchants
       parameters:
@@ -439,7 +439,7 @@ paths:
           description: List only merchants who initiated their onboarding before this date.
           schema:
             type: string
-        - name: lendingEnabled
+        - name: transactionsEnabled
           in: query
           description: Set to true or false.
           schema:
@@ -676,7 +676,7 @@ components:
         onboardingDate:
           description: Date this merchant was initially onboarded in YYYY-MM-DD format.
           type: string
-        lendingEnabled:
+        transactionsEnabled:
           description: Has this merchant been fully onboarded and are now able to initiate transactions.
           type: boolean
         merchantSecretToken:
