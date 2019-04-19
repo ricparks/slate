@@ -209,7 +209,7 @@
       </span>
     </a>
     <div class="toc-wrapper">
-      <img src="images/wisetackLogo.png" class="logo" alt="Wisetacklogo" />
+      <img src="images/Wisetack-black.png" class="logo" alt="Wisetack black" />
         <div class="lang-selector">
               <a href="#" data-language-name="curl">Curl</a>
         </div>
@@ -356,7 +356,7 @@ with your existing system.  Here&#39;s a brief overview of the APIs:</p>
 <li><p><strong>CreateLinks</strong> allow you to create an HTML link that can be embedded in an invoice. This link will initiate a transaction session
 specific for that invoice.</p></li>
 <li><p><strong>Transactions</strong> allow you to initiate a transaction for a specific merchant for a customer based only on amount and phone number.
-Furthermore, transactions allow you to track and update the flow of the transaction through authorization and settlement.</p></li>
+Furthermore, the Transaction resource allows you to track and update the flow of the transaction through authorization and settlement.</p></li>
 <li><p><strong>Merchants</strong> allow you to onboard merchants into the system as well as list your existing merchants based on
 date and status filters, get information on a merchant, and remove merchants from your system.</p></li>
 <li><p><strong>Users</strong> Allow you to add users for merchants. Each merchant can have multiple users for the Wisetack system. The Users resource allows you
@@ -393,10 +393,10 @@ want to build authentication in to your own RESTful calls, you simply add the ke
 
 <p><code>POST /merchant/{merchantId}/transactions</code></p>
 
-<p>The Wisetack system starts by sending a text message link from a merchant to a customer. The
+<p>A transaction is started by sending a text message link from a merchant to a customer. The
 merchant must enter the mobile number of the customer, a transaction amount, and the purpose of the transaction and the
 text message is sent. Once the customer clicks the link on their mobile phone, they will proceed to the
-Wisetack transction process.</p>
+Wisetack transaction process.</p>
 
 <p>Note that the POST can also include an array of line items to describe the services or products provided as
 well as other optional items described in the TransactionObject. These line items
@@ -770,13 +770,16 @@ BasicAuth
 
 <p><code>PATCH /transactions/{transactionId}</code></p>
 
-<p>Supported statuses for transactions:
-* Initiated: The transaction process has been started for a customer but has not yet proceeded through authorization.
-* Authorized: Wisetack has authorized the transactionn for this customer. The transaction will not proceed until the transaction status has been set to &#39;settled.&#39; An authorized transaction can either be &#39;settled&#39; or &#39;canceled&#39;. An authorized transaction will expire after 30 days if it has not been settled.
-* Settled: Once the transaction is settled, Wisetack will begin the transaction and pay the merchant via ACH. Once a transaction is settled, it can be either partially or completely refunded.
-* Refunded:  The full amount of the transaction has been refunded.
-* Expired: The transaction was not authorized or settled under the specified time limit. A transaction can never be removed from an expired state.
-* Declined: The transaction was declined.</p>
+<p>Supported statuses for transactions:</p>
+
+<ul>
+<li><p>Initiated: The transaction process has been started for a customer but has not yet proceeded through authorization.</p></li>
+<li><p>Authorized: Wisetack has authorized the transactionn for this customer. The transaction is not complete until the status is set to &#39;settled.&#39; An authorized transaction can either be &#39;settled&#39; or &#39;canceled&#39;. An authorized transaction will expire after 30 days if it has not been settled.</p></li>
+<li><p>Settled: Once the transaction is settled, funds are sent to the merchant. A settled transaction can be either partially or completely refunded.</p></li>
+<li><p>Refunded:  The full amount of the transaction has been refunded.</p></li>
+<li><p>Expired: The transaction was not authorized or settled within the specified time limit. A transaction can never be removed from an expired state.</p></li>
+<li><p>Declined: The transaction was declined.</p></li>
+</ul>
 
 <blockquote>
 <p>Body parameter</p>
@@ -831,6 +834,7 @@ BasicAuth
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="s2">"isOwnerPrimary"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDOB"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerFirstName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerLastName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -854,6 +858,7 @@ BasicAuth
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="s2">"isOwnerPrimary"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDOB"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerFirstName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerLastName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -877,6 +882,7 @@ BasicAuth
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="s2">"isOwnerPrimary"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDOB"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerFirstName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerLastName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -917,6 +923,7 @@ BasicAuth
     </span><span class="p">],</span><span class="w">
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"driversLicenseNumber"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"driversLicenseState"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDocuments"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
@@ -1005,14 +1012,14 @@ BasicAuth
 
 <h1 id="wisetack-api-merchants">Merchants</h1>
 
-<p>The Merchant resource allows you to onboard merchants over time, to delete merchants from your system,
+<p>The Merchant resource allows you to onboard merchants, to delete merchants from your system,
 to list all merchants, and to get information on individual merchants.</p>
 
-<p>There are two very different types of data in the MerchantObject.</p>
+<p>There are two different types of data in the MerchantObject.</p>
 
 <ul>
-<li><p><strong>Flag Fields</strong> are essentially flags
-indicating to the client which fields need to be collected from the merchant. These flag fields are in
+<li><p><strong>Flag Fields</strong>
+indicate which fields need to be collected from the merchant. These flag fields are in
 MerchantOptionalInformation and MerchantDataRequired schemas. Their presence indicates that they
 must be collected.</p></li>
 <li><p><strong>Data Fields</strong> are string fields where the data collected in response to the Flag Fields above
@@ -1025,8 +1032,7 @@ indicates how the client should behave regarding that field.</p>
 <ul>
 <li><p><strong>optionalInformation</strong> indicates that this information has not been collected. It is not required
 but could be helpful in future dealings with this merchant.</p></li>
-<li><p><strong>currentlyDue</strong> are the fields the merchant must supply to start or continue to tranact
-services.</p></li>
+<li><p><strong>currentlyDue</strong> are the fields the merchant must supply to transact.</p></li>
 <li><p><strong>eventuallyDue</strong> are the fields the merchant must supply to have the full range of
 capabilities they are eligible for.</p></li>
 <li><p><strong>pastDue</strong> are the fields the merchant must supply to continue or restore their transaction
@@ -1042,7 +1048,7 @@ capabilities.</p></li>
 <p>POST creates a new merchant entry. To onboard a merchant, please see the Merchant PATCH operation.</p>
 
 <p>If there is already a unique merchant entry for this merchant, a 201 error is returned with a link to the resource.
-Using just a cell  phone number, an account is created or retrieved. The state of the application verification process
+The state of the application verification process
 is indicated in three main sections: information currently due, due soon, and overdue.</p>
 
 <blockquote>
@@ -1098,6 +1104,7 @@ is indicated in three main sections: information currently due, due soon, and ov
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="s2">"isOwnerPrimary"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDOB"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerFirstName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerLastName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -1121,6 +1128,7 @@ is indicated in three main sections: information currently due, due soon, and ov
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="s2">"isOwnerPrimary"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDOB"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerFirstName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerLastName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -1144,6 +1152,7 @@ is indicated in three main sections: information currently due, due soon, and ov
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="s2">"isOwnerPrimary"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDOB"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerFirstName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerLastName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -1184,6 +1193,7 @@ is indicated in three main sections: information currently due, due soon, and ov
     </span><span class="p">],</span><span class="w">
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"driversLicenseNumber"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"driversLicenseState"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDocuments"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
@@ -1405,6 +1415,7 @@ BasicAuth
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="s2">"isOwnerPrimary"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDOB"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerFirstName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerLastName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -1428,6 +1439,7 @@ BasicAuth
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="s2">"isOwnerPrimary"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDOB"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerFirstName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerLastName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -1451,6 +1463,7 @@ BasicAuth
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="s2">"isOwnerPrimary"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDOB"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerFirstName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerLastName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -1491,6 +1504,7 @@ BasicAuth
     </span><span class="p">],</span><span class="w">
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"driversLicenseNumber"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"driversLicenseState"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDocuments"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
@@ -1645,6 +1659,7 @@ BasicAuth
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="s2">"isOwnerPrimary"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDOB"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerFirstName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerLastName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -1668,6 +1683,7 @@ BasicAuth
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="s2">"isOwnerPrimary"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDOB"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerFirstName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerLastName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -1691,6 +1707,7 @@ BasicAuth
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="s2">"isOwnerPrimary"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDOB"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerFirstName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerLastName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -1731,6 +1748,7 @@ BasicAuth
     </span><span class="p">],</span><span class="w">
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"driversLicenseNumber"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"driversLicenseState"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDocuments"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
@@ -1867,6 +1885,7 @@ is returned as a response to the PATCH. This process can continue until all requ
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="s2">"isOwnerPrimary"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDOB"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerFirstName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerLastName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -1890,6 +1909,7 @@ is returned as a response to the PATCH. This process can continue until all requ
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="s2">"isOwnerPrimary"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDOB"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerFirstName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerLastName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -1913,6 +1933,7 @@ is returned as a response to the PATCH. This process can continue until all requ
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="s2">"isOwnerPrimary"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDOB"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerFirstName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerLastName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -1953,6 +1974,7 @@ is returned as a response to the PATCH. This process can continue until all requ
     </span><span class="p">],</span><span class="w">
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"driversLicenseNumber"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"driversLicenseState"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDocuments"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
@@ -2047,6 +2069,7 @@ is returned as a response to the PATCH. This process can continue until all requ
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="s2">"isOwnerPrimary"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDOB"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerFirstName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerLastName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -2070,6 +2093,7 @@ is returned as a response to the PATCH. This process can continue until all requ
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="s2">"isOwnerPrimary"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDOB"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerFirstName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerLastName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -2093,6 +2117,7 @@ is returned as a response to the PATCH. This process can continue until all requ
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="s2">"isOwnerPrimary"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDOB"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerFirstName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerLastName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -2133,6 +2158,7 @@ is returned as a response to the PATCH. This process can continue until all requ
     </span><span class="p">],</span><span class="w">
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"driversLicenseNumber"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"driversLicenseState"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDocuments"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
@@ -3099,6 +3125,7 @@ BasicAuth
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="s2">"isOwnerPrimary"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDOB"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerFirstName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerLastName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -3122,6 +3149,7 @@ BasicAuth
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="s2">"isOwnerPrimary"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDOB"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerFirstName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerLastName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -3145,6 +3173,7 @@ BasicAuth
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
         </span><span class="s2">"isOwnerPrimary"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDOB"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerFirstName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerLastName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -3185,6 +3214,7 @@ BasicAuth
     </span><span class="p">],</span><span class="w">
     </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"driversLicenseNumber"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"driversLicenseState"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ownerDocuments"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
@@ -3469,6 +3499,7 @@ BasicAuth
   </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="p">{</span><span class="w">
       </span><span class="s2">"isOwnerPrimary"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
       </span><span class="s2">"ownerDOB"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
       </span><span class="s2">"ownerFirstName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
       </span><span class="s2">"ownerLastName"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -3586,6 +3617,13 @@ BasicAuth
 <td>Indicates whether this owner is the primary business owner.</td>
 </tr>
 <tr>
+<td>» ownerMobilePhoneNumber</td>
+<td>any</td>
+<td>false</td>
+<td>none</td>
+<td>Cell phone number of the company owner.</td>
+</tr>
+<tr>
 <td>» ownerDOB</td>
 <td>any</td>
 <td>false</td>
@@ -3670,6 +3708,7 @@ BasicAuth
   </span><span class="p">],</span><span class="w">
   </span><span class="s2">"ownerInformation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"ownerMobilePhoneNumber"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
       </span><span class="s2">"driversLicenseNumber"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
       </span><span class="s2">"driversLicenseState"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
       </span><span class="s2">"ownerDocuments"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
@@ -3879,6 +3918,13 @@ BasicAuth
 <td>false</td>
 <td>none</td>
 <td>Optional information for each owner.</td>
+</tr>
+<tr>
+<td>» ownerMobilePhoneNumber</td>
+<td>string</td>
+<td>false</td>
+<td>none</td>
+<td>The cell phone number of the merchant.</td>
 </tr>
 <tr>
 <td>» driversLicenseNumber</td>
