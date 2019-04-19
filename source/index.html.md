@@ -22,7 +22,7 @@ with your existing system.  Here's a brief overview of the APIs:
 specific for that invoice.
 
 * **Transactions** allow you to initiate a transaction for a specific merchant for a customer based only on amount and phone number.
-Furthermore, transactions allow you to track and update the flow of the transaction through authorization and settlement.
+Furthermore, the Transaction resource allows you to track and update the flow of the transaction through authorization and settlement.
 
 * **Merchants** allow you to onboard merchants into the system as well as list your existing merchants based on
 date and status filters, get information on a merchant, and remove merchants from your system.
@@ -61,10 +61,10 @@ The Transaction resource initiates transactions and manages the flow of authoriz
 
 `POST /merchant/{merchantId}/transactions`
 
-The Wisetack system starts by sending a text message link from a merchant to a customer. The
+A transaction is started by sending a text message link from a merchant to a customer. The
 merchant must enter the mobile number of the customer, a transaction amount, and the purpose of the transaction and the
 text message is sent. Once the customer clicks the link on their mobile phone, they will proceed to the
-Wisetack transction process.
+Wisetack transaction process.
 
 Note that the POST can also include an array of line items to describe the services or products provided as
 well as other optional items described in the TransactionObject. These line items
@@ -262,11 +262,17 @@ BasicAuth
 `PATCH /transactions/{transactionId}`
 
 Supported statuses for transactions:
+
 * Initiated: The transaction process has been started for a customer but has not yet proceeded through authorization.
-* Authorized: Wisetack has authorized the transactionn for this customer. The transaction will not proceed until the transaction status has been set to 'settled.' An authorized transaction can either be 'settled' or 'canceled'. An authorized transaction will expire after 30 days if it has not been settled.
-* Settled: Once the transaction is settled, Wisetack will begin the transaction and pay the merchant via ACH. Once a transaction is settled, it can be either partially or completely refunded.
+
+* Authorized: Wisetack has authorized the transactionn for this customer. The transaction is not complete until the status is set to 'settled.' An authorized transaction can either be 'settled' or 'canceled'. An authorized transaction will expire after 30 days if it has not been settled.
+
+* Settled: Once the transaction is settled, funds are sent to the merchant. A settled transaction can be either partially or completely refunded.
+
 * Refunded:  The full amount of the transaction has been refunded.
-* Expired: The transaction was not authorized or settled under the specified time limit. A transaction can never be removed from an expired state.
+
+* Expired: The transaction was not authorized or settled within the specified time limit. A transaction can never be removed from an expired state.
+
 * Declined: The transaction was declined.
 
 > Body parameter
@@ -322,6 +328,7 @@ Supported statuses for transactions:
     "ownerInformation": [
       {
         "isOwnerPrimary": null,
+        "ownerMobilePhoneNumber": null,
         "ownerDOB": null,
         "ownerFirstName": null,
         "ownerLastName": null,
@@ -345,6 +352,7 @@ Supported statuses for transactions:
     "ownerInformation": [
       {
         "isOwnerPrimary": null,
+        "ownerMobilePhoneNumber": null,
         "ownerDOB": null,
         "ownerFirstName": null,
         "ownerLastName": null,
@@ -368,6 +376,7 @@ Supported statuses for transactions:
     "ownerInformation": [
       {
         "isOwnerPrimary": null,
+        "ownerMobilePhoneNumber": null,
         "ownerDOB": null,
         "ownerFirstName": null,
         "ownerLastName": null,
@@ -408,6 +417,7 @@ Supported statuses for transactions:
     ],
     "ownerInformation": [
       {
+        "ownerMobilePhoneNumber": "string",
         "driversLicenseNumber": "string",
         "driversLicenseState": "string",
         "ownerDocuments": [
@@ -466,13 +476,13 @@ BasicAuth
 
 <h1 id="wisetack-api-merchants">Merchants</h1>
 
-The Merchant resource allows you to onboard merchants over time, to delete merchants from your system,
+The Merchant resource allows you to onboard merchants, to delete merchants from your system,
 to list all merchants, and to get information on individual merchants.
 
-There are two very different types of data in the MerchantObject.
+There are two different types of data in the MerchantObject.
 
-* **Flag Fields** are essentially flags
-indicating to the client which fields need to be collected from the merchant. These flag fields are in
+* **Flag Fields**
+indicate which fields need to be collected from the merchant. These flag fields are in
 MerchantOptionalInformation and MerchantDataRequired schemas. Their presence indicates that they
 must be collected.
 
@@ -485,8 +495,7 @@ indicates how the client should behave regarding that field.
 * **optionalInformation** indicates that this information has not been collected. It is not required
 but could be helpful in future dealings with this merchant.
 
-* **currentlyDue** are the fields the merchant must supply to start or continue to tranact
-services.
+* **currentlyDue** are the fields the merchant must supply to transact.
 
 * **eventuallyDue** are the fields the merchant must supply to have the full range of
 capabilities they are eligible for.
@@ -503,7 +512,7 @@ capabilities.
 POST creates a new merchant entry. To onboard a merchant, please see the Merchant PATCH operation.
 
 If there is already a unique merchant entry for this merchant, a 201 error is returned with a link to the resource.
-Using just a cell  phone number, an account is created or retrieved. The state of the application verification process
+The state of the application verification process
 is indicated in three main sections: information currently due, due soon, and overdue.
 
 > Body parameter
@@ -559,6 +568,7 @@ is indicated in three main sections: information currently due, due soon, and ov
     "ownerInformation": [
       {
         "isOwnerPrimary": null,
+        "ownerMobilePhoneNumber": null,
         "ownerDOB": null,
         "ownerFirstName": null,
         "ownerLastName": null,
@@ -582,6 +592,7 @@ is indicated in three main sections: information currently due, due soon, and ov
     "ownerInformation": [
       {
         "isOwnerPrimary": null,
+        "ownerMobilePhoneNumber": null,
         "ownerDOB": null,
         "ownerFirstName": null,
         "ownerLastName": null,
@@ -605,6 +616,7 @@ is indicated in three main sections: information currently due, due soon, and ov
     "ownerInformation": [
       {
         "isOwnerPrimary": null,
+        "ownerMobilePhoneNumber": null,
         "ownerDOB": null,
         "ownerFirstName": null,
         "ownerLastName": null,
@@ -645,6 +657,7 @@ is indicated in three main sections: information currently due, due soon, and ov
     ],
     "ownerInformation": [
       {
+        "ownerMobilePhoneNumber": "string",
         "driversLicenseNumber": "string",
         "driversLicenseState": "string",
         "ownerDocuments": [
@@ -772,6 +785,7 @@ Lists all merchants on your Wisetack account. You can filter this list based on 
     "ownerInformation": [
       {
         "isOwnerPrimary": null,
+        "ownerMobilePhoneNumber": null,
         "ownerDOB": null,
         "ownerFirstName": null,
         "ownerLastName": null,
@@ -795,6 +809,7 @@ Lists all merchants on your Wisetack account. You can filter this list based on 
     "ownerInformation": [
       {
         "isOwnerPrimary": null,
+        "ownerMobilePhoneNumber": null,
         "ownerDOB": null,
         "ownerFirstName": null,
         "ownerLastName": null,
@@ -818,6 +833,7 @@ Lists all merchants on your Wisetack account. You can filter this list based on 
     "ownerInformation": [
       {
         "isOwnerPrimary": null,
+        "ownerMobilePhoneNumber": null,
         "ownerDOB": null,
         "ownerFirstName": null,
         "ownerLastName": null,
@@ -858,6 +874,7 @@ Lists all merchants on your Wisetack account. You can filter this list based on 
     ],
     "ownerInformation": [
       {
+        "ownerMobilePhoneNumber": "string",
         "driversLicenseNumber": "string",
         "driversLicenseState": "string",
         "ownerDocuments": [
@@ -957,6 +974,7 @@ Get a merchant's information.
     "ownerInformation": [
       {
         "isOwnerPrimary": null,
+        "ownerMobilePhoneNumber": null,
         "ownerDOB": null,
         "ownerFirstName": null,
         "ownerLastName": null,
@@ -980,6 +998,7 @@ Get a merchant's information.
     "ownerInformation": [
       {
         "isOwnerPrimary": null,
+        "ownerMobilePhoneNumber": null,
         "ownerDOB": null,
         "ownerFirstName": null,
         "ownerLastName": null,
@@ -1003,6 +1022,7 @@ Get a merchant's information.
     "ownerInformation": [
       {
         "isOwnerPrimary": null,
+        "ownerMobilePhoneNumber": null,
         "ownerDOB": null,
         "ownerFirstName": null,
         "ownerLastName": null,
@@ -1043,6 +1063,7 @@ Get a merchant's information.
     ],
     "ownerInformation": [
       {
+        "ownerMobilePhoneNumber": "string",
         "driversLicenseNumber": "string",
         "driversLicenseState": "string",
         "ownerDocuments": [
@@ -1138,6 +1159,7 @@ Please see the overview for Merchants for a more detailed explanation for this p
     "ownerInformation": [
       {
         "isOwnerPrimary": null,
+        "ownerMobilePhoneNumber": null,
         "ownerDOB": null,
         "ownerFirstName": null,
         "ownerLastName": null,
@@ -1161,6 +1183,7 @@ Please see the overview for Merchants for a more detailed explanation for this p
     "ownerInformation": [
       {
         "isOwnerPrimary": null,
+        "ownerMobilePhoneNumber": null,
         "ownerDOB": null,
         "ownerFirstName": null,
         "ownerLastName": null,
@@ -1184,6 +1207,7 @@ Please see the overview for Merchants for a more detailed explanation for this p
     "ownerInformation": [
       {
         "isOwnerPrimary": null,
+        "ownerMobilePhoneNumber": null,
         "ownerDOB": null,
         "ownerFirstName": null,
         "ownerLastName": null,
@@ -1224,6 +1248,7 @@ Please see the overview for Merchants for a more detailed explanation for this p
     ],
     "ownerInformation": [
       {
+        "ownerMobilePhoneNumber": "string",
         "driversLicenseNumber": "string",
         "driversLicenseState": "string",
         "ownerDocuments": [
@@ -1299,6 +1324,7 @@ Please see the overview for Merchants for a more detailed explanation for this p
     "ownerInformation": [
       {
         "isOwnerPrimary": null,
+        "ownerMobilePhoneNumber": null,
         "ownerDOB": null,
         "ownerFirstName": null,
         "ownerLastName": null,
@@ -1322,6 +1348,7 @@ Please see the overview for Merchants for a more detailed explanation for this p
     "ownerInformation": [
       {
         "isOwnerPrimary": null,
+        "ownerMobilePhoneNumber": null,
         "ownerDOB": null,
         "ownerFirstName": null,
         "ownerLastName": null,
@@ -1345,6 +1372,7 @@ Please see the overview for Merchants for a more detailed explanation for this p
     "ownerInformation": [
       {
         "isOwnerPrimary": null,
+        "ownerMobilePhoneNumber": null,
         "ownerDOB": null,
         "ownerFirstName": null,
         "ownerLastName": null,
@@ -1385,6 +1413,7 @@ Please see the overview for Merchants for a more detailed explanation for this p
     ],
     "ownerInformation": [
       {
+        "ownerMobilePhoneNumber": "string",
         "driversLicenseNumber": "string",
         "driversLicenseState": "string",
         "ownerDocuments": [
@@ -1919,6 +1948,7 @@ BasicAuth
     "ownerInformation": [
       {
         "isOwnerPrimary": null,
+        "ownerMobilePhoneNumber": null,
         "ownerDOB": null,
         "ownerFirstName": null,
         "ownerLastName": null,
@@ -1942,6 +1972,7 @@ BasicAuth
     "ownerInformation": [
       {
         "isOwnerPrimary": null,
+        "ownerMobilePhoneNumber": null,
         "ownerDOB": null,
         "ownerFirstName": null,
         "ownerLastName": null,
@@ -1965,6 +1996,7 @@ BasicAuth
     "ownerInformation": [
       {
         "isOwnerPrimary": null,
+        "ownerMobilePhoneNumber": null,
         "ownerDOB": null,
         "ownerFirstName": null,
         "ownerLastName": null,
@@ -2005,6 +2037,7 @@ BasicAuth
     ],
     "ownerInformation": [
       {
+        "ownerMobilePhoneNumber": "string",
         "driversLicenseNumber": "string",
         "driversLicenseState": "string",
         "ownerDocuments": [
@@ -2115,6 +2148,7 @@ BasicAuth
   "ownerInformation": [
     {
       "isOwnerPrimary": null,
+      "ownerMobilePhoneNumber": null,
       "ownerDOB": null,
       "ownerFirstName": null,
       "ownerLastName": null,
@@ -2143,6 +2177,7 @@ BasicAuth
 |tosAcceptanceIPAddress|any|false|none|IP address used when terms of service were accepted.|
 |ownerInformation|[object]|false|none|Required information for each owner.|
 |» isOwnerPrimary|any|false|none|Indicates whether this owner is the primary business owner.|
+|» ownerMobilePhoneNumber|any|false|none|Cell phone number of the company owner.|
 |» ownerDOB|any|false|none|Date-of-birth of the company owner. Format is YYYY-MM-DD.|
 |» ownerFirstName|any|false|none|First name of the owner.|
 |» ownerLastName|any|false|none|Last name of the owner.|
@@ -2193,6 +2228,7 @@ BasicAuth
   ],
   "ownerInformation": [
     {
+      "ownerMobilePhoneNumber": "string",
       "driversLicenseNumber": "string",
       "driversLicenseState": "string",
       "ownerDocuments": [
@@ -2237,6 +2273,7 @@ BasicAuth
 |» serviceURL|any|false|none|The url for the support page for the service.|
 |» serviceToken|any|false|none|Customer token needed to access the service.|
 |ownerInformation|[object]|false|none|Optional information for each owner.|
+|» ownerMobilePhoneNumber|string|false|none|The cell phone number of the merchant.|
 |» driversLicenseNumber|string|false|none|Driver's license number.|
 |» driversLicenseState|string|false|none|State where driver's license was issued.|
 |» ownerDocuments|[object]|false|none|Scanned in documents to supplement and verify information.|
