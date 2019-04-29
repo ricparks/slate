@@ -10,25 +10,24 @@ headingLevel: 2
 
 ---
 
-<h1 id="wisetack-api">Wisetack API v1.1.0</h1>
+<h1 id="wisetack-api">Wisetack API v1.1.1</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
 
 ## Introduction
-Welcome to the Wisetack API. The APIs documented on this page will enable you to seamlessly integrate point-of-sale financing
-with your existing system.  Here's a brief overview of the APIs:
+With Wisetack customers can pay over time for a purchase, and a business gets paid upfront. The Wisetack APIs enable seamless integration of consumer financing options
+within another system serving businesses and their customers. Here's a brief overview of the APIs:
 
-* **CreateLinks** allow you to create an HTML link that can be embedded in an invoice. This link will initiate a transaction session
+* **CreateLinks** allows creating an HTML link that can be embedded in an invoice or payment flow. This link will initiate a transaction session
 specific for that invoice.
 
-* **Transactions** allow you to initiate a transaction for a specific merchant for a customer based only on amount and phone number.
-Furthermore, the Transaction resource allows you to track and update the flow of the transaction through authorization and settlement.
+* **Transactions** initiates a transaction between a specific business and a customer.
+The Transaction resource also allows tracking and updating the flow of the transaction through authorization and settlement.
 
-* **Merchants** allow you to onboard merchants into the system as well as list your existing merchants based on
-date and status filters, get information on a merchant, and remove merchants from your system.
+* **Merchants** allows enabling merchants to offer financing as a payment option, listing existing merchants based on
+date and status filters, getting information on a merchant, and removing merchants from the system.
 
-* **Users** Allow you to add users for merchants. Each merchant can have multiple users for the Wisetack system. The Users resource allows you
-to add and manage users and their roles and priveleges in the system.
+* **Users** Each merchant can have multiple users for the Wisetack system. The Users resource allows adding and managing users and their roles and priveleges in the system.
 
 ## Authentication
 Wisetack uses HTTP Basic Authentication with both an application token and a secret key. When you initially create
@@ -61,14 +60,11 @@ The Transaction resource initiates transactions and manages the flow of authoriz
 
 `POST /merchant/{merchantId}/transactions`
 
-A transaction is started by sending a text message link from a merchant to a customer. The
-merchant must enter the mobile number of the customer, a transaction amount, and the purpose of the transaction and the
-text message is sent. Once the customer clicks the link on their mobile phone, they will proceed to the
-Wisetack transaction process.
+When a transaction is initiated, the customer receives a text message with a link to their application. They can follow the link to complete a short, mobile-optimized flow. To start a transaction, the
+merchant must provide the mobile number of the customer, a transaction amount, and the purpose of the transaction.
 
-Note that the POST can also include an array of line items to describe the services or products provided as
-well as other optional items described in the TransactionObject. These line items
-are optional.
+The POST can also include an array of line items to describe the services or products provided as
+well as other optional data described in the TransactionObject. These are optional. We recommend including as much information as possible as the data helps create a better user experience, allows better transaction reporting and reconciliation for the business and customer.
 The following values are required for the POST:
 
 * status must be set to 'initiated'.
@@ -1775,15 +1771,13 @@ BasicAuth
 
 `POST /merchant/{merchantId}/createLink`
 
-You can use the createLink resource to create links that can be embedded in invoices or other materials where
-you might want to offer a transaction to a specific customer. The createLink allows you to register information that will
-expedite the transaction for your merchant's existing customers. By sending information when creating this link,
-Wisetack can more easily pre-fill information and make the customer's experience as smooth as possible.
+You can use the createLink resource to create links that can be embedded in invoices or payment flows. CreateLink allows sending data that will
+make it easier for the customer to complete the transaction. When you send additional information when creating a link,
+Wisetack uses it to pre-fill transaction information and make the customers experience easier.
 
-Creation of a link requires a transaction amount and purpose.  Optional fields such as customer address, dob,
+Creating a link requires a transaction amount and purpose.  Optional fields such as customer address, dob,
 and ssn as well as optional line item information is also supported.. The POST returns a link that is specific for
-that customer, merchant, and line items. When the customer clicks the link, they will proceed to a transaction flow specifically for
-them. A unique link will be created on each create. The link expires after 90 days.
+that customer, merchant, and line items. When the customer clicks the link, they will proceed to a transaction flow specific to that transaction. A unique link will be created on each create. The link expires after 90 days.
 
 > Body parameter
 
