@@ -215,7 +215,7 @@
         </div>
       <ul id="toc" class="toc-list-h1">
           <li>
-            <a href="#wisetack-api" class="toc-h1 toc-link" data-title="Wisetack API v1.1.0">Wisetack API v1.1.0</a>
+            <a href="#wisetack-api" class="toc-h1 toc-link" data-title="Wisetack API v1.1.1">Wisetack API v1.1.1</a>
               <ul class="toc-list-h2">
                   <li>
                     <a href="#introduction" class="toc-h2 toc-link" data-title="Introduction">Introduction</a>
@@ -343,24 +343,23 @@
     <div class="page-wrapper">
       <div class="dark-box"></div>
       <div class="content">
-        <h1 id="wisetack-api">Wisetack API v1.1.0</h1>
+        <h1 id="wisetack-api">Wisetack API v1.1.1</h1>
 
 <blockquote>
 <p>Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.</p>
 </blockquote>
 <h2 id='introduction'>Introduction</h2>
-<p>Welcome to the Wisetack API. The APIs documented on this page will enable you to seamlessly integrate point-of-sale financing
-with your existing system.  Here&#39;s a brief overview of the APIs:</p>
+<p>With Wisetack customers can pay over time for a purchase, and a business gets paid upfront. The Wisetack APIs enable seamless integration of consumer financing options
+within another system serving businesses and their customers. Here&#39;s a brief overview of the APIs:</p>
 
 <ul>
-<li><p><strong>CreateLinks</strong> allow you to create an HTML link that can be embedded in an invoice. This link will initiate a transaction session
+<li><p><strong>CreateLinks</strong> allows creating an HTML link that can be embedded in an invoice or payment flow. This link will initiate a transaction session
 specific for that invoice.</p></li>
-<li><p><strong>Transactions</strong> allow you to initiate a transaction for a specific merchant for a customer based only on amount and phone number.
-Furthermore, the Transaction resource allows you to track and update the flow of the transaction through authorization and settlement.</p></li>
-<li><p><strong>Merchants</strong> allow you to onboard merchants into the system as well as list your existing merchants based on
-date and status filters, get information on a merchant, and remove merchants from your system.</p></li>
-<li><p><strong>Users</strong> Allow you to add users for merchants. Each merchant can have multiple users for the Wisetack system. The Users resource allows you
-to add and manage users and their roles and priveleges in the system.</p></li>
+<li><p><strong>Transactions</strong> initiates a transaction between a specific business and a customer.
+The Transaction resource also allows tracking and updating the flow of the transaction through authorization and settlement.</p></li>
+<li><p><strong>Merchants</strong> allows enabling merchants to offer financing as a payment option, listing existing merchants based on
+date and status filters, getting information on a merchant, and removing merchants from the system.</p></li>
+<li><p><strong>Users</strong> Each merchant can have multiple users for the Wisetack system. The Users resource allows adding and managing users and their roles and priveleges in the system.</p></li>
 </ul>
 <h2 id='authentication'>Authentication</h2>
 <p>Wisetack uses HTTP Basic Authentication with both an application token and a secret key. When you initially create
@@ -393,14 +392,11 @@ want to build authentication in to your own RESTful calls, you simply add the ke
 
 <p><code>POST /merchant/{merchantId}/transactions</code></p>
 
-<p>A transaction is started by sending a text message link from a merchant to a customer. The
-merchant must enter the mobile number of the customer, a transaction amount, and the purpose of the transaction and the
-text message is sent. Once the customer clicks the link on their mobile phone, they will proceed to the
-Wisetack transaction process.</p>
+<p>When a transaction is initiated, the customer receives a text message with a link to their application. They can follow the link to complete a short, mobile-optimized flow. To start a transaction, the
+merchant must provide the mobile number of the customer, a transaction amount, and the purpose of the transaction.</p>
 
-<p>Note that the POST can also include an array of line items to describe the services or products provided as
-well as other optional items described in the TransactionObject. These line items
-are optional.
+<p>The POST can also include an array of line items to describe the services or products provided as
+well as other optional data described in the TransactionObject. These are optional. We recommend including as much information as possible as the data helps create a better user experience, allows better transaction reporting and reconciliation for the business and customer.
 The following values are required for the POST:</p>
 
 <ul>
@@ -2865,15 +2861,13 @@ BasicAuth
 
 <p><code>POST /merchant/{merchantId}/createLink</code></p>
 
-<p>You can use the createLink resource to create links that can be embedded in invoices or other materials where
-you might want to offer a transaction to a specific customer. The createLink allows you to register information that will
-expedite the transaction for your merchant&#39;s existing customers. By sending information when creating this link,
-Wisetack can more easily pre-fill information and make the customer&#39;s experience as smooth as possible.</p>
+<p>You can use the createLink resource to create links that can be embedded in invoices or payment flows. CreateLink allows sending data that will
+make it easier for the customer to complete the transaction. When you send additional information when creating a link,
+Wisetack uses it to pre-fill transaction information and make the customers experience easier.</p>
 
-<p>Creation of a link requires a transaction amount and purpose.  Optional fields such as customer address, dob,
+<p>Creating a link requires a transaction amount and purpose.  Optional fields such as customer address, dob,
 and ssn as well as optional line item information is also supported.. The POST returns a link that is specific for
-that customer, merchant, and line items. When the customer clicks the link, they will proceed to a transaction flow specifically for
-them. A unique link will be created on each create. The link expires after 90 days.</p>
+that customer, merchant, and line items. When the customer clicks the link, they will proceed to a transaction flow specific to that transaction. A unique link will be created on each create. The link expires after 90 days.</p>
 
 <blockquote>
 <p>Body parameter</p>
