@@ -18,11 +18,11 @@ headingLevel: 2
 With Wisetack customers can pay over time for a purchase, and a business gets paid upfront. The Wisetack APIs enable seamless integration of consumer financing options
 within another system serving businesses and their customers. Here's a brief overview of the APIs:
 
-* **CreateLinks** allows creating an HTML link that can be embedded in an invoice or payment flow. This link will initiate a transaction session
-specific for that invoice.
-
 * **Transactions** initiates a transaction between a specific business and a customer.
 The Transaction resource also allows tracking and updating the flow of the transaction through authorization and settlement.
+
+* **CreateLink** allows a specific type of transaction that starts from an HTML link embedded in an invoice or payment flow. This
+link will initiate a transaction that is session specific for that invoice.
 
 * **Merchants** allows enabling merchants to offer financing as a payment option, listing existing merchants based on
 date and status filters, getting information on a merchant, and removing merchants from the system.
@@ -464,6 +464,95 @@ Supported statuses for transactions:
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[TransactionObject](#schematransactionobject)|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+BasicAuth
+</aside>
+
+<h1 id="wisetack-api-createlink">CreateLink</h1>
+
+CreateLink allows a specific type of transaction that starts from an HTML link embedded in an invoice
+or payment flow. This link will initiate a transaction that is session specific for that invoice.
+
+## POST creates a link to be embedded in an invoice.
+
+> Code samples
+
+`POST /merchant/{merchantId}/createLink`
+
+You can use the createLink resource to create links that can be embedded in invoices or payment flows. CreateLink allows sending data that will
+make it easier for the customer to complete the transaction. When you send additional information when creating a link,
+Wisetack uses it to pre-fill transaction information and make the customer's experience easier.
+
+Creating a link requires a transaction amount and purpose.  Optional fields such as customer address, dob,
+and ssn as well as optional line item information is also supported. The POST returns a link that is specific for
+that customer, merchant, and line items. When the customer clicks the link, they will proceed to a transaction flow specific to that transaction. A unique link will be created on each create. The link expires after 90 days.
+
+> Body parameter
+
+```json
+{
+  "transactionAmount": "1000.00",
+  "mobileNumber": 1235554567,
+  "transactionPurpose": "landscape",
+  "firstName": "Clark",
+  "lastName": "Smith",
+  "email": "casmith@example.com",
+  "dob": -535420800000,
+  "ssn4": 3333,
+  "streetAddress": "123 Ashton Street",
+  "streetAddress2": "Suite 13",
+  "city": "Auburn",
+  "state": "CA",
+  "zip": 95602,
+  "annualIncomeBeforeTaxes": "950000.00",
+  "coborrowerMobileNumber": 5555556767
+}
+```
+
+<h3 id="post-creates-a-link-to-be-embedded-in-an-invoice.-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|merchantId|path|string|true|Id for the merchant originating the transaction|
+|body|body|[CreateLinkObject](#schemacreatelinkobject)|false|none|
+
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "transactionAmount": "1000.00",
+  "mobileNumber": 1235554567,
+  "transactionPurpose": "landscape",
+  "firstName": "Clark",
+  "lastName": "Smith",
+  "email": "casmith@example.com",
+  "dob": -535420800000,
+  "ssn4": 3333,
+  "streetAddress": "123 Ashton Street",
+  "streetAddress2": "Suite 13",
+  "city": "Auburn",
+  "state": "CA",
+  "zip": 95602,
+  "annualIncomeBeforeTaxes": "950000.00",
+  "coborrowerMobileNumber": 5555556767
+}
+```
+
+<h3 id="post-creates-a-link-to-be-embedded-in-an-invoice.-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[CreateLinkObject](#schemacreatelinkobject)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad request.|[Error](#schemaerror)|
+|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
+|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Resource not found.|[Error](#schemaerror)|
+|409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal server error.|[Error](#schemaerror)|
 
 <aside class="warning">
 To perform this operation, you must be authenticated by means of one of the following methods:
@@ -1757,92 +1846,6 @@ Status Code **200**
 |---|---|---|---|---|
 |» userId|string|false|none|The id of the user deleted.|
 |» deleted|boolean|false|none|True if successful.|
-
-<aside class="warning">
-To perform this operation, you must be authenticated by means of one of the following methods:
-BasicAuth
-</aside>
-
-<h1 id="wisetack-api-createlink">CreateLink</h1>
-
-## POST creates a link to be embedded in an invoice.
-
-> Code samples
-
-`POST /merchant/{merchantId}/createLink`
-
-You can use the createLink resource to create links that can be embedded in invoices or payment flows. CreateLink allows sending data that will
-make it easier for the customer to complete the transaction. When you send additional information when creating a link,
-Wisetack uses it to pre-fill transaction information and make the customers experience easier.
-
-Creating a link requires a transaction amount and purpose.  Optional fields such as customer address, dob,
-and ssn as well as optional line item information is also supported.. The POST returns a link that is specific for
-that customer, merchant, and line items. When the customer clicks the link, they will proceed to a transaction flow specific to that transaction. A unique link will be created on each create. The link expires after 90 days.
-
-> Body parameter
-
-```json
-{
-  "transactionAmount": "1000.00",
-  "mobileNumber": 1235554567,
-  "transactionPurpose": "landscape",
-  "firstName": "Clark",
-  "lastName": "Smith",
-  "email": "casmith@example.com",
-  "dob": -535420800000,
-  "ssn4": 3333,
-  "streetAddress": "123 Ashton Street",
-  "streetAddress2": "Suite 13",
-  "city": "Auburn",
-  "state": "CA",
-  "zip": 95602,
-  "annualIncomeBeforeTaxes": "950000.00",
-  "coborrowerMobileNumber": 5555556767
-}
-```
-
-<h3 id="post-creates-a-link-to-be-embedded-in-an-invoice.-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|merchantId|path|string|true|Id for the merchant originating the transaction|
-|body|body|[CreateLinkObject](#schemacreatelinkobject)|false|none|
-
-> Example responses
-
-> 200 Response
-
-```json
-{
-  "transactionAmount": "1000.00",
-  "mobileNumber": 1235554567,
-  "transactionPurpose": "landscape",
-  "firstName": "Clark",
-  "lastName": "Smith",
-  "email": "casmith@example.com",
-  "dob": -535420800000,
-  "ssn4": 3333,
-  "streetAddress": "123 Ashton Street",
-  "streetAddress2": "Suite 13",
-  "city": "Auburn",
-  "state": "CA",
-  "zip": 95602,
-  "annualIncomeBeforeTaxes": "950000.00",
-  "coborrowerMobileNumber": 5555556767
-}
-```
-
-<h3 id="post-creates-a-link-to-be-embedded-in-an-invoice.-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[CreateLinkObject](#schemacreatelinkobject)|
-|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad request.|[Error](#schemaerror)|
-|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
-|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
-|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Resource not found.|[Error](#schemaerror)|
-|409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
-|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal server error.|[Error](#schemaerror)|
 
 <aside class="warning">
 To perform this operation, you must be authenticated by means of one of the following methods:

@@ -3,7 +3,7 @@
   "info" : {
     "title" : "Wisetack API",
     "version" : "1.1.1",
-    "description" : "## Introduction\nWith Wisetack customers can pay over time for a purchase, and a business gets paid upfront. The Wisetack APIs enable seamless integration of consumer financing options\nwithin another system serving businesses and their customers. Here's a brief overview of the APIs:\n\n* **CreateLinks** allows creating an HTML link that can be embedded in an invoice or payment flow. This link will initiate a transaction session\nspecific for that invoice.\n\n* **Transactions** initiates a transaction between a specific business and a customer.\nThe Transaction resource also allows tracking and updating the flow of the transaction through authorization and settlement.\n\n* **Merchants** allows enabling merchants to offer financing as a payment option, listing existing merchants based on\ndate and status filters, getting information on a merchant, and removing merchants from the system.\n\n* **Users** Each merchant can have multiple users for the Wisetack system. The Users resource allows adding and managing users and their roles and priveleges in the system.\n\n## Authentication\nWisetack uses HTTP Basic Authentication with both an application token and a secret key. When you initially create\na Wisetack account, you'll be given an application token and a secret key for both the production system\nand a test system.  You'll be able to distinguish between the two keys easily by their prefix. Production keys\nstart with ws_prod_ and the test system keys are prefixed by ws_test_.\nIf you use one of our language SDK's you don't need to worry about the specifics of authentication but if you\nwant to build authentication in to your own RESTful calls, you simply add the keys to the header like this:\n\n1. Concatenate the application token and secret key separated by a colon.\n\n2. Base64 encode the resulting string.\n\n3. Pass the result in the authorization header, prefixed with the word Basic.\n\nThis process will result in a header that looks something like this: \\\n**Authorization: Basic ZHBERDZ6NG9sT1NJN040Zk1Dc0FsS2pGYTdyZUJZaHU6b0ptM25pUVgxUGR5NRNDU=**\n"
+    "description" : "## Introduction\nWith Wisetack customers can pay over time for a purchase, and a business gets paid upfront. The Wisetack APIs enable seamless integration of consumer financing options\nwithin another system serving businesses and their customers. Here's a brief overview of the APIs:\n\n* **Transactions** initiates a transaction between a specific business and a customer.\nThe Transaction resource also allows tracking and updating the flow of the transaction through authorization and settlement.\n\n* **CreateLink** allows a specific type of transaction that starts from an HTML link embedded in an invoice or payment flow. This\nlink will initiate a transaction that is session specific for that invoice.\n\n* **Merchants** allows enabling merchants to offer financing as a payment option, listing existing merchants based on\ndate and status filters, getting information on a merchant, and removing merchants from the system.\n\n* **Users** Each merchant can have multiple users for the Wisetack system. The Users resource allows adding and managing users and their roles and priveleges in the system.\n\n## Authentication\nWisetack uses HTTP Basic Authentication with both an application token and a secret key. When you initially create\na Wisetack account, you'll be given an application token and a secret key for both the production system\nand a test system.  You'll be able to distinguish between the two keys easily by their prefix. Production keys\nstart with ws_prod_ and the test system keys are prefixed by ws_test_.\nIf you use one of our language SDK's you don't need to worry about the specifics of authentication but if you\nwant to build authentication in to your own RESTful calls, you simply add the keys to the header like this:\n\n1. Concatenate the application token and secret key separated by a colon.\n\n2. Base64 encode the resulting string.\n\n3. Pass the result in the authorization header, prefixed with the word Basic.\n\nThis process will result in a header that looks something like this: \\\n**Authorization: Basic ZHBERDZ6NG9sT1NJN040Zk1Dc0FsS2pGYTdyZUJZaHU6b0ptM25pUVgxUGR5NRNDU=**\n"
   },
   "security" : [ {
     "BasicAuth" : [ ]
@@ -11,6 +11,9 @@
   "tags" : [ {
     "name" : "Transactions",
     "description" : "The Transaction resource initiates transactions and manages the flow of authorization, settlement, and refunds.\n"
+  }, {
+    "name" : "CreateLink",
+    "description" : "CreateLink allows a specific type of transaction that starts from an HTML link embedded in an invoice\nor payment flow. This link will initiate a transaction that is session specific for that invoice.\n"
   }, {
     "name" : "Merchants",
     "description" : "The Merchant resource allows you to onboard merchants, to delete merchants from your system,\nto list all merchants, and to get information on individual merchants.\n\nThere are two different types of data in the MerchantObject.\n\n* **Flag Fields**\nindicate which fields need to be collected from the merchant. These flag fields are in\nMerchantOptionalInformation and MerchantDataRequired schemas. Their presence indicates that they\nmust be collected.\n\n* **Data Fields** are string fields where the data collected in response to the Flag Fields above\ncan be sent back to the server. These fields are in the MerchantUpdateObject.\n\nAdditionally, there are four different flag field sections. Where a flag field is found (if at all)\nindicates how the client should behave regarding that field.\n\n* **optionalInformation** indicates that this information has not been collected. It is not required\nbut could be helpful in future dealings with this merchant.\n\n* **currentlyDue** are the fields the merchant must supply to transact.\n\n* **eventuallyDue** are the fields the merchant must supply to have the full range of\ncapabilities they are eligible for.\n\n* **pastDue** are the fields the merchant must supply to continue or restore their transaction\ncapabilities.\n"
@@ -201,105 +204,6 @@
     }
   },
   "paths" : {
-    "/merchant/{merchantId}/createLink" : {
-      "summary" : "Provides a link that can be embedded in an invoice.",
-      "description" : "You can use the createLink resource to create links that can be embedded in invoices or payment flows. CreateLink allows sending data that will\nmake it easier for the customer to complete the transaction. When you send additional information when creating a link,\nWisetack uses it to pre-fill transaction information and make the customers experience easier.\n",
-      "post" : {
-        "summary" : "POST creates a link to be embedded in an invoice.",
-        "description" : "You can use the createLink resource to create links that can be embedded in invoices or payment flows. CreateLink allows sending data that will\nmake it easier for the customer to complete the transaction. When you send additional information when creating a link,\nWisetack uses it to pre-fill transaction information and make the customers experience easier.\n\nCreating a link requires a transaction amount and purpose.  Optional fields such as customer address, dob,\nand ssn as well as optional line item information is also supported.. The POST returns a link that is specific for\nthat customer, merchant, and line items. When the customer clicks the link, they will proceed to a transaction flow specific to that transaction. A unique link will be created on each create. The link expires after 90 days.\n",
-        "tags" : [ "CreateLink" ],
-        "parameters" : [ {
-          "name" : "merchantId",
-          "in" : "path",
-          "description" : "Id for the merchant originating the transaction",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/CreateLinkObject"
-              }
-            }
-          }
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Ok",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/CreateLinkObject"
-                }
-              }
-            }
-          },
-          "404" : {
-            "description" : "Resource not found.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "Bad request.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Forbidden.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "409" : {
-            "description" : "Conflict.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Internal server error.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/merchant/{merchantId}/transactions" : {
       "summary" : "Initiates a transaction process.",
       "description" : "The Transaction resource initiates a transcation and manages the flow of authorization, settlement, and refunds.",
@@ -907,6 +811,105 @@
                       "type" : "boolean"
                     }
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/merchant/{merchantId}/createLink" : {
+      "summary" : "Provides a link that can be embedded in an invoice.",
+      "description" : "CreateLink allows a specific type of transaction that starts from an HTML link embedded in an invoice\nor payment flow. This link will initiate a transaction session specific for that invoice.\n",
+      "post" : {
+        "summary" : "POST creates a link to be embedded in an invoice.",
+        "description" : "You can use the createLink resource to create links that can be embedded in invoices or payment flows. CreateLink allows sending data that will\nmake it easier for the customer to complete the transaction. When you send additional information when creating a link,\nWisetack uses it to pre-fill transaction information and make the customer's experience easier.\n\nCreating a link requires a transaction amount and purpose.  Optional fields such as customer address, dob,\nand ssn as well as optional line item information is also supported. The POST returns a link that is specific for\nthat customer, merchant, and line items. When the customer clicks the link, they will proceed to a transaction flow specific to that transaction. A unique link will be created on each create. The link expires after 90 days.\n",
+        "tags" : [ "CreateLink" ],
+        "parameters" : [ {
+          "name" : "merchantId",
+          "in" : "path",
+          "description" : "Id for the merchant originating the transaction",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateLinkObject"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Ok",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CreateLinkObject"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Resource not found.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal server error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
                 }
               }
             }

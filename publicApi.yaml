@@ -7,11 +7,11 @@ info:
     With Wisetack customers can pay over time for a purchase, and a business gets paid upfront. The Wisetack APIs enable seamless integration of consumer financing options
     within another system serving businesses and their customers. Here's a brief overview of the APIs:
 
-    * **CreateLinks** allows creating an HTML link that can be embedded in an invoice or payment flow. This link will initiate a transaction session
-    specific for that invoice.
-
     * **Transactions** initiates a transaction between a specific business and a customer.
     The Transaction resource also allows tracking and updating the flow of the transaction through authorization and settlement.
+
+    * **CreateLink** allows a specific type of transaction that starts from an HTML link embedded in an invoice or payment flow. This
+    link will initiate a transaction that is session specific for that invoice.
 
     * **Merchants** allows enabling merchants to offer financing as a payment option, listing existing merchants based on
     date and status filters, getting information on a merchant, and removing merchants from the system.
@@ -42,6 +42,10 @@ tags:
   - name: Transactions
     description: |
       The Transaction resource initiates transactions and manages the flow of authorization, settlement, and refunds.
+  - name: CreateLink
+    description: |
+      CreateLink allows a specific type of transaction that starts from an HTML link embedded in an invoice
+      or payment flow. This link will initiate a transaction that is session specific for that invoice.
   - name: Merchants
     description: |
       The Merchant resource allows you to onboard merchants, to delete merchants from your system,
@@ -76,6 +80,7 @@ tags:
       The Users resource allows you to support multiple users, each with their own roles and privileges in the
       Wisetack system. This feature allows merchants to add and manage employees and other types
       of subusers.
+
 
 # Reusable code snippets are all below this line.
 
@@ -208,44 +213,6 @@ x-standard-error-responses: &stdErrResponses
 # End of reusable code snippets
 
 paths:
-  /merchant/{merchantId}/createLink:
-    summary: Provides a link that can be embedded in an invoice.
-    description: |
-      You can use the createLink resource to create links that can be embedded in invoices or payment flows. CreateLink allows sending data that will
-      make it easier for the customer to complete the transaction. When you send additional information when creating a link,
-      Wisetack uses it to pre-fill transaction information and make the customers experience easier.
-    post:
-      summary: POST creates a link to be embedded in an invoice.
-      description: |
-        You can use the createLink resource to create links that can be embedded in invoices or payment flows. CreateLink allows sending data that will
-        make it easier for the customer to complete the transaction. When you send additional information when creating a link,
-        Wisetack uses it to pre-fill transaction information and make the customers experience easier.
-
-        Creating a link requires a transaction amount and purpose.  Optional fields such as customer address, dob,
-        and ssn as well as optional line item information is also supported.. The POST returns a link that is specific for
-        that customer, merchant, and line items. When the customer clicks the link, they will proceed to a transaction flow specific to that transaction. A unique link will be created on each create. The link expires after 90 days.
-      tags:
-        - CreateLink
-      parameters:
-        - name: merchantId
-          in: path
-          description: Id for the merchant originating the transaction
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateLinkObject'
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CreateLinkObject'
-        <<: *stdErrResponses
 
   /merchant/{merchantId}/transactions:
     summary: Initiates a transaction process.
@@ -518,6 +485,43 @@ paths:
                     description: True if successful.
                     type: boolean
 
+  /merchant/{merchantId}/createLink:
+    summary: Provides a link that can be embedded in an invoice.
+    description: |
+      CreateLink allows a specific type of transaction that starts from an HTML link embedded in an invoice
+      or payment flow. This link will initiate a transaction session specific for that invoice.
+    post:
+      summary: POST creates a link to be embedded in an invoice.
+      description: |
+        You can use the createLink resource to create links that can be embedded in invoices or payment flows. CreateLink allows sending data that will
+        make it easier for the customer to complete the transaction. When you send additional information when creating a link,
+        Wisetack uses it to pre-fill transaction information and make the customer's experience easier.
+
+        Creating a link requires a transaction amount and purpose.  Optional fields such as customer address, dob,
+        and ssn as well as optional line item information is also supported. The POST returns a link that is specific for
+        that customer, merchant, and line items. When the customer clicks the link, they will proceed to a transaction flow specific to that transaction. A unique link will be created on each create. The link expires after 90 days.
+      tags:
+        - CreateLink
+      parameters:
+        - name: merchantId
+          in: path
+          description: Id for the merchant originating the transaction
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLinkObject'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateLinkObject'
+        <<: *stdErrResponses
 
   /merchant/{merchantId}/users:
     description: Merchants will have employees (users) who will use the merchant account. Each of these users can offer POS financing.
