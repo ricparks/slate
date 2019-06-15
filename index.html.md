@@ -2170,7 +2170,7 @@ BasicAuth
 |companyStateCode|any|false|none|Two-character code for the state in which the business is based.|
 |companyZip|any|false|none|Zip code for business location. Zip code can be either the full nine digits (nnnnn-mmmm) or just the five digit delivery area.|
 |companyType|any|false|none|A list of business types will be provided and this field will be validated.|
-|tosAcceptanceDate|any|false|none|Date terms of service were accepted. Format is YYYY-MM-DD.|
+|tosAcceptanceDate|any|false|none|Date the terms of service were accepted. Format is YYYY-MM-DD.|
 |tosAcceptanceIPAddress|any|false|none|IP address used when terms of service were accepted.|
 |ownerInformation|[object]|false|none|Required information for each owner.|
 |» isOwnerPrimary|any|false|none|Indicates whether this owner is the primary business owner.|

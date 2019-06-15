@@ -1501,7 +1501,7 @@
             "enum" : [ "partnership", "LLC", "corporation" ]
           },
           "tosAcceptanceDate" : {
-            "description" : "Date terms of service were accepted. Format is YYYY-MM-DD."
+            "description" : "Date the terms of service were accepted. Format is YYYY-MM-DD."
           },
           "tosAcceptanceIPAddress" : {
             "description" : "IP address used when terms of service were accepted."
