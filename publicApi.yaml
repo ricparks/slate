@@ -4,7 +4,7 @@ info:
   version: "1.1.1"
   description: |
     ## Introduction
-    Test: With Wisetack customers can pay over time for a purchase, and a business gets paid upfront. The Wisetack APIs enable seamless integration of consumer financing options
+    With Wisetack customers can pay over time for a purchase, and a business gets paid upfront. The Wisetack APIs enable seamless integration of consumer financing options
     within another system serving businesses and their customers. Here's a brief overview of the APIs:
 
     * **Transactions** initiates a transaction between a specific business and a customer.
