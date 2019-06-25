@@ -10,7 +10,7 @@ info:
     * **Transactions** initiates a transaction between a specific business and a customer.
     The Transaction resource also allows tracking and updating the flow of the transaction through authorization and settlement.
 
-    * **CreateLink** allows a specific type of transaction that starts from an HTML link embedded in an invoice or payment flow. This
+    * **PaymentLink** allows a specific type of transaction that starts from an HTML link embedded in an invoice or payment flow. This
     link will initiate a transaction that is session specific for that invoice.
 
     * **Merchants** allows enabling merchants to offer financing as a payment option, listing existing merchants based on
@@ -42,9 +42,9 @@ tags:
   - name: Transactions
     description: |
       The Transaction resource initiates transactions and manages the flow of authorization, settlement, and refunds.
-  - name: CreateLink
+  - name: PaymentLink
     description: |
-      CreateLink allows a specific type of transaction that starts from an HTML link embedded in an invoice
+      PaymentLink allows a specific type of transaction that starts from an HTML link embedded in an invoice
       or payment flow. This link will initiate a transaction that is session specific for that invoice.
   - name: Merchants
     description: |
@@ -485,23 +485,23 @@ paths:
                     description: True if successful.
                     type: boolean
 
-  /merchant/{merchantId}/createLink:
+  /merchant/{merchantId}/paymentLink:
     summary: Provides a link that can be embedded in an invoice.
     description: |
-      CreateLink allows a specific type of transaction that starts from an HTML link embedded in an invoice
+      PaymentLink allows a specific type of transaction that starts from an HTML link embedded in an invoice
       or payment flow. This link will initiate a transaction session specific for that invoice.
     post:
       summary: POST creates a link to be embedded in an invoice.
       description: |
-        You can use the createLink resource to create links that can be embedded in invoices or payment flows. CreateLink allows sending data that will
-        make it easier for the customer to complete the transaction. When you send additional information when creating a link,
+        You can use the paymentLink resource to create links that can be embedded in invoices or payment flows. PaymentLink allows sending data that will
+        make it easier for the customer to complete the transaction. When you send additional information when creating a payment link,
         Wisetack uses it to pre-fill transaction information and make the customer's experience easier.
 
-        Creating a link requires a transaction amount and purpose.  Optional fields such as customer address, dob,
+        Creating a payment link requires a transaction amount and purpose.  Optional fields such as customer address, dob,
         and ssn as well as optional line item information is also supported. The POST returns a link that is specific for
         that customer, merchant, and line items. When the customer clicks the link, they will proceed to a transaction flow specific to that transaction. A unique link will be created on each create. The link expires after 90 days.
       tags:
-        - CreateLink
+        - PaymentLink
       parameters:
         - name: merchantId
           in: path
@@ -513,14 +513,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateLinkObject'
+              $ref: '#/components/schemas/PaymentLinkObject'
       responses:
         '200':
           description: Ok
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateLinkObject'
+                $ref: '#/components/schemas/PaymentLinkObject'
         <<: *stdErrResponses
 
   /merchant/{merchantId}/users:
@@ -911,7 +911,7 @@ components:
                       description: Enum describing type of document requested or required.
                       type: string
 
-    CreateLinkObject:
+    PaymentLinkObject:
       properties:
         transactionAmount:
           type: string
@@ -967,7 +967,7 @@ components:
         transactionLineItems:
           type: array
           items:
-            $ref: '#/components/schemas/CreateLinkLineItems'
+            $ref: '#/components/schemas/PaymentLinkLineItems'
       example:
         transactionAmount: '1000.00'
         mobileNumber: 1235554567
@@ -986,7 +986,7 @@ components:
         coborrowerMobileNumber: 5555556767
 
 
-    CreateLinkLineItems:
+    PaymentLinkLineItems:
       properties:
         productDescription:
           type: string

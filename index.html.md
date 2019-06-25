@@ -21,7 +21,7 @@ within another system serving businesses and their customers. Here's a brief ove
 * **Transactions** initiates a transaction between a specific business and a customer.
 The Transaction resource also allows tracking and updating the flow of the transaction through authorization and settlement.
 
-* **CreateLink** allows a specific type of transaction that starts from an HTML link embedded in an invoice or payment flow. This
+* **PaymentLink** allows a specific type of transaction that starts from an HTML link embedded in an invoice or payment flow. This
 link will initiate a transaction that is session specific for that invoice.
 
 * **Merchants** allows enabling merchants to offer financing as a payment option, listing existing merchants based on
@@ -470,22 +470,22 @@ To perform this operation, you must be authenticated by means of one of the foll
 BasicAuth
 </aside>
 
-<h1 id="wisetack-api-createlink">CreateLink</h1>
+<h1 id="wisetack-api-paymentlink">PaymentLink</h1>
 
-CreateLink allows a specific type of transaction that starts from an HTML link embedded in an invoice
+PaymentLink allows a specific type of transaction that starts from an HTML link embedded in an invoice
 or payment flow. This link will initiate a transaction that is session specific for that invoice.
 
 ## POST creates a link to be embedded in an invoice.
 
 > Code samples
 
-`POST /merchant/{merchantId}/createLink`
+`POST /merchant/{merchantId}/paymentLink`
 
-You can use the createLink resource to create links that can be embedded in invoices or payment flows. CreateLink allows sending data that will
-make it easier for the customer to complete the transaction. When you send additional information when creating a link,
+You can use the paymentLink resource to create links that can be embedded in invoices or payment flows. PaymentLink allows sending data that will
+make it easier for the customer to complete the transaction. When you send additional information when creating a payment link,
 Wisetack uses it to pre-fill transaction information and make the customer's experience easier.
 
-Creating a link requires a transaction amount and purpose.  Optional fields such as customer address, dob,
+Creating a payment link requires a transaction amount and purpose.  Optional fields such as customer address, dob,
 and ssn as well as optional line item information is also supported. The POST returns a link that is specific for
 that customer, merchant, and line items. When the customer clicks the link, they will proceed to a transaction flow specific to that transaction. A unique link will be created on each create. The link expires after 90 days.
 
@@ -516,7 +516,7 @@ that customer, merchant, and line items. When the customer clicks the link, they
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
 |merchantId|path|string|true|Id for the merchant originating the transaction|
-|body|body|[CreateLinkObject](#schemacreatelinkobject)|false|none|
+|body|body|[PaymentLinkObject](#schemapaymentlinkobject)|false|none|
 
 > Example responses
 
@@ -546,7 +546,7 @@ that customer, merchant, and line items. When the customer clicks the link, they
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[CreateLinkObject](#schemacreatelinkobject)|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[PaymentLinkObject](#schemapaymentlinkobject)|
 |400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad request.|[Error](#schemaerror)|
 |401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
 |403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
@@ -2284,9 +2284,9 @@ BasicAuth
 |companyType|LLC|
 |companyType|corporation|
 
-<h2 id="tocScreatelinkobject">CreateLinkObject</h2>
+<h2 id="tocSpaymentlinkobject">PaymentLinkObject</h2>
 
-<a id="schemacreatelinkobject"></a>
+<a id="schemapaymentlinkobject"></a>
 
 ```json
 {
@@ -2330,11 +2330,11 @@ BasicAuth
 |employer|string|false|none|optional|
 |annualIncomeBeforeTaxes|string|false|none|Optional. Includes the decimal point but no dollar sign.|
 |coborrowerMobileNumber|string|false|none|Optional. Coborrower mobile number. International phone numbers are supported. No formatted should be included. Just the digits.|
-|transactionLineItems|[[CreateLinkLineItems](#schemacreatelinklineitems)]|false|none|none|
+|transactionLineItems|[[PaymentLinkLineItems](#schemapaymentlinklineitems)]|false|none|none|
 
-<h2 id="tocScreatelinklineitems">CreateLinkLineItems</h2>
+<h2 id="tocSpaymentlinklineitems">PaymentLinkLineItems</h2>
 
-<a id="schemacreatelinklineitems"></a>
+<a id="schemapaymentlinklineitems"></a>
 
 ```json
 {
