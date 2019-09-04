@@ -1862,7 +1862,7 @@ BasicAuth
 
 `POST /subscribe`
 
-Wisetack provides callbacks to let you know when the status of a transaction has changed.
+Wisetack provides callbacks to let you know when the status of a transaction has changed. Each time the status of a loan application changes, Wisetack will send a request to this URL. The request contains the new status, the loan application id, and a secret key provided to you by Wisetack. You should only accept incoming status changes after verifying the secret key.
 
 > Body parameter
 
