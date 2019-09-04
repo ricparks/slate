@@ -3,7 +3,7 @@
 
 echo "Copying publicApi.yaml to current directory."
 
-cp ../wisetack/aws/src/main/resources/publicApi.yaml publicApi.yaml
+cp ../wisetack-new/aws/src/main/resources/publicApi.yaml publicApi.yaml
 
 echo "Creating json file from yaml."
 

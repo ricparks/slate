@@ -1681,6 +1681,10 @@
       },
       "PaymentLinkObject" : {
         "properties" : {
+          "paymentLink" : {
+            "type" : "string",
+            "description" : "This link is created and can be embedded in invoices. When the customer clicks this link, they will proceed to a web page that will initiate a transaction for that customer."
+          },
           "transactionAmount" : {
             "type" : "string",
             "description" : "Required for POST. Includes two decimal points but no dollar symbol."
@@ -1757,6 +1761,7 @@
           }
         },
         "example" : {
+          "paymentLink" : "http://business.wisetack.us/loanApplicationId=80349125-3b0c-4fd6-b2ef-568a4844321d",
           "transactionAmount" : "1000.00",
           "mobileNumber" : 1235554567,
           "transactionPurpose" : "landscape",

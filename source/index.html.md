@@ -493,6 +493,7 @@ that customer, merchant, and line items. When the customer clicks the link, they
 
 ```json
 {
+  "paymentLink": "http://business.wisetack.us/loanApplicationId=80349125-3b0c-4fd6-b2ef-568a4844321d",
   "transactionAmount": "1000.00",
   "mobileNumber": 1235554567,
   "transactionPurpose": "landscape",
@@ -524,6 +525,7 @@ that customer, merchant, and line items. When the customer clicks the link, they
 
 ```json
 {
+  "paymentLink": "http://business.wisetack.us/loanApplicationId=80349125-3b0c-4fd6-b2ef-568a4844321d",
   "transactionAmount": "1000.00",
   "mobileNumber": 1235554567,
   "transactionPurpose": "landscape",
@@ -2290,6 +2292,7 @@ BasicAuth
 
 ```json
 {
+  "paymentLink": "http://business.wisetack.us/loanApplicationId=80349125-3b0c-4fd6-b2ef-568a4844321d",
   "transactionAmount": "1000.00",
   "mobileNumber": 1235554567,
   "transactionPurpose": "landscape",
@@ -2313,6 +2316,7 @@ BasicAuth
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
+|paymentLink|string|false|none|This link is created and can be embedded in invoices. When the customer clicks this link, they will proceed to a web page that will initiate a transaction for that customer.|
 |transactionAmount|string|false|none|Required for POST. Includes two decimal points but no dollar symbol.|
 |mobileNumber|string|false|none|Optional. International phone numbers are supported. No formatted should be included. Just the digits.|
 |transactionPurpose|string|false|none|Required for POST. Currently this is freeform but will be enumerated in database in the future.|
