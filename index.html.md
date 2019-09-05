@@ -2520,7 +2520,20 @@ BasicAuth
 ```json
 {
   "transactionId": "string",
-  "changedStatus": "initiated"
+  "changedStatus": "initiated",
+  "date": "string",
+  "loanAmountRequested": "string",
+  "approvedLoanAmount": "string",
+  "consumer": {
+    "fullName": "string",
+    "email": "string",
+    "phone": "string",
+    "zip": "string"
+  },
+  "loanPurpose": "string",
+  "serviceCompletedOn": "string",
+  "tilaAcceptedOn": "string",
+  "createdAt": "string"
 }
 
 ```
@@ -2531,6 +2544,18 @@ BasicAuth
 |---|---|---|---|---|
 |transactionId|string|false|none|UUID uniquely identifying the transaction with changed status.|
 |changedStatus|string|false|none|The new status of this loan application.|
+|date|string|false|none|Date that status changed.|
+|loanAmountRequested|string|false|none|The original loan amount requested by the customer.|
+|approvedLoanAmount|string|false|none|The loan amount approved for this user by Wisetack. Might be lower than originalLoanAmount in the event of a counter offer.|
+|consumer|object|false|none|none|
+|» fullName|string|false|none|Customer's first and last name.|
+|» email|string|false|none|Customer's email.|
+|» phone|string|false|none|Customer's phone.|
+|» zip|string|false|none|Customer's postal code.|
+|loanPurpose|string|false|none|Purpose of the loan as entered by merchant.|
+|serviceCompletedOn|string|false|none|The date by which the service should be completed.|
+|tilaAcceptedOn|string|false|none|The data the Truth In Lending document was accepted.|
+|createdAt|string|false|none|The date the transaction was initiated.|
 
 #### Enumerated Values
 

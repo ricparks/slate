@@ -1209,6 +1209,44 @@ components:
             - refunded
             - declined
             - expired
+        date:
+          description: Date that status changed.
+          type: string
+        loanAmountRequested:
+          description: The original loan amount requested by the customer.
+          type: string
+        approvedLoanAmount:
+          description: The loan amount approved for this user by Wisetack. Might be lower than originalLoanAmount
+            in the event of a counter offer.
+          type: string
+        consumer:
+          type: object
+          properties:
+            fullName:
+              description: Customer's first and last name.
+              type: string
+            email:
+              description: Customer's email.
+              type: string
+            phone:
+              description: Customer's phone.
+              type: string
+            zip:
+              description: Customer's postal code.
+              type: string
+        loanPurpose:
+          description: Purpose of the loan as entered by merchant.
+          type: string
+        serviceCompletedOn:
+          description: The date by which the service should be completed.
+          type: string
+        tilaAcceptedOn:
+          description: The data the Truth In Lending document was accepted.
+          type: string
+        createdAt:
+          description: The date the transaction was initiated.
+          type: string
+
 
     Error:
       type: object
