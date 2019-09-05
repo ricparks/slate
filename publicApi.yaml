@@ -16,7 +16,7 @@ info:
     * **Merchants** allows enabling merchants to offer financing as a payment option, listing existing merchants based on
     date and status filters, getting information on a merchant, and removing merchants from the system.
 
-    * **Users** Each merchant can have multiple users for the Wisetack system. The Users resource allows adding and managing users and their roles and priveleges in the system.
+    * **Users** Each merchant can have multiple users for the Wisetack system. The Users resource allows adding and managing users and their roles and privileges in the system.
 
     ## Authentication
     Wisetack uses HTTP Basic Authentication with both an application token and a secret key. When you initially create
@@ -634,10 +634,27 @@ paths:
   /subscribe:
     post:
       summary: POST subscribes to all Wisetack callbacks.
-      description: Wisetack provides callbacks to let you know when the status of a transaction has changed. Each time
+      description: |
+        Wisetack provides callbacks to let you know when the status of a transaction has changed. Each time
         the status of a loan application changes, Wisetack will send a request to this URL. The request contains
         the new status, the loan application id, and a secret key provided to you by Wisetack. You should only accept
-        incoming status changes after verifying the secret key.  
+        incoming status changes after verifying the secret key. When your webhook is called, it will receive
+        a StatusUpdateRequest.
+
+        Statuses:
+
+        * **Initiated:**  You sent a transaction to your customer but they have not submitted an application.
+
+        * **Authorized:**  We approved teh application but the customer has not accepted the loan documents.
+
+        * **Declined:** We were unable to approved the application.
+
+        * **Confirmed:** The customer has accepted the loan documents and confirmed the purchase.
+
+        * **Settled:** We've sent the funds to your bank account.
+
+        * **Refunded:** The customer requested and received a refund.
+
       tags:
         - Webhooks
       requestBody:
@@ -1028,7 +1045,7 @@ components:
         status:
           description: 'Indicates the current state of the transaction: initiated, authorized, settled, refunded, expired, or decined.'
           type: string
-          enum: [initiated, authorized, settled, refunded, expired, declined]
+          enum: [initiated, authorized, confirmed, settled, refunded, expired, declined]
         transactionAmount:
           type: string
           description: Required for POST. Includes two decimal points but no dollar symbol.
@@ -1163,7 +1180,7 @@ components:
             - employee
             - reviewer
         group:
-          description: Users can be assigned to a group and will inherit the rights and priveleges assigned to that group.
+          description: Users can be assigned to a group and will inherit the rights and privileges assigned to that group.
           type: string
       example:
         userId: 6f6c4bf4-ab58-4a1b-833e-0e665dc65400
@@ -1175,6 +1192,23 @@ components:
         password: sample
         role: admin
         group: na
+
+    StatusUpdateRequest:
+      properties:
+        transactionId:
+          description: UUID uniquely identifying the transaction with changed status.
+          type: string
+        changedStatus:
+          description: The new status of this loan application.
+          type: string
+          enum:
+            - initiated
+            - authorized
+            - confirmed
+            - settled
+            - refunded
+            - declined
+            - expired
 
     Error:
       type: object

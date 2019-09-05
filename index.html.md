@@ -27,7 +27,7 @@ link will initiate a transaction that is session specific for that invoice.
 * **Merchants** allows enabling merchants to offer financing as a payment option, listing existing merchants based on
 date and status filters, getting information on a merchant, and removing merchants from the system.
 
-* **Users** Each merchant can have multiple users for the Wisetack system. The Users resource allows adding and managing users and their roles and priveleges in the system.
+* **Users** Each merchant can have multiple users for the Wisetack system. The Users resource allows adding and managing users and their roles and privileges in the system.
 
 ## Authentication
 Wisetack uses HTTP Basic Authentication with both an application token and a secret key. When you initially create
@@ -1862,7 +1862,25 @@ BasicAuth
 
 `POST /subscribe`
 
-Wisetack provides callbacks to let you know when the status of a transaction has changed. Each time the status of a loan application changes, Wisetack will send a request to this URL. The request contains the new status, the loan application id, and a secret key provided to you by Wisetack. You should only accept incoming status changes after verifying the secret key.
+Wisetack provides callbacks to let you know when the status of a transaction has changed. Each time
+the status of a loan application changes, Wisetack will send a request to this URL. The request contains
+the new status, the loan application id, and a secret key provided to you by Wisetack. You should only accept
+incoming status changes after verifying the secret key. When your webhook is called, it will receive
+a StatusUpdateRequest.
+
+Statuses:
+
+* **Initiated:**  You sent a transaction to your customer but they have not submitted an application.
+
+* **Authorized:**  We approved teh application but the customer has not accepted the loan documents.
+
+* **Declined:** We were unable to approved the application.
+
+* **Confirmed:** The customer has accepted the loan documents and confirmed the purchase.
+
+* **Settled:** We've sent the funds to your bank account.
+
+* **Refunded:** The customer requested and received a refund.
 
 > Body parameter
 
@@ -2420,6 +2438,7 @@ BasicAuth
 |---|---|
 |status|initiated|
 |status|authorized|
+|status|confirmed|
 |status|settled|
 |status|refunded|
 |status|expired|
@@ -2484,7 +2503,7 @@ BasicAuth
 |userName|string|false|none|A log in name for the user.|
 |password|string|false|none|SHA-256 encrypted string representing the password.|
 |role|string|false|none|Role for user.|
-|group|string|false|none|Users can be assigned to a group and will inherit the rights and priveleges assigned to that group.|
+|group|string|false|none|Users can be assigned to a group and will inherit the rights and privileges assigned to that group.|
 
 #### Enumerated Values
 
@@ -2493,6 +2512,37 @@ BasicAuth
 |role|admin|
 |role|employee|
 |role|reviewer|
+
+<h2 id="tocSstatusupdaterequest">StatusUpdateRequest</h2>
+
+<a id="schemastatusupdaterequest"></a>
+
+```json
+{
+  "transactionId": "string",
+  "changedStatus": "initiated"
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|transactionId|string|false|none|UUID uniquely identifying the transaction with changed status.|
+|changedStatus|string|false|none|The new status of this loan application.|
+
+#### Enumerated Values
+
+|Property|Value|
+|---|---|
+|changedStatus|initiated|
+|changedStatus|authorized|
+|changedStatus|confirmed|
+|changedStatus|settled|
+|changedStatus|refunded|
+|changedStatus|declined|
+|changedStatus|expired|
 
 <h2 id="tocSerror">Error</h2>
 
