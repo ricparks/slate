@@ -1866,13 +1866,13 @@ Wisetack provides callbacks to let you know when the status of a transaction has
 the status of a loan application changes, Wisetack will send a request to this URL. The request contains
 the new status, the loan application id, and a secret key provided to you by Wisetack. You should only accept
 incoming status changes after verifying the secret key. When your webhook is called, it will receive
-a StatusUpdateRequest.
+a StatusUpdateRequest. Please see the StatusUpdateRequest in the Schema section below.
 
 Statuses:
 
 * **Initiated:**  You sent a transaction to your customer but they have not submitted an application.
 
-* **Authorized:**  We approved teh application but the customer has not accepted the loan documents.
+* **Authorized:**  We approved the application but the customer has not accepted the loan documents.
 
 * **Declined:** We were unable to approved the application.
 
@@ -1886,7 +1886,9 @@ Statuses:
 
 ```json
 {
-  "callbackURL": "https://wisetack.yourcompany.com/callback"
+  "callbackURL": "https://wisetack.yourcompany.com/callback",
+  "event": "transaction-status",
+  "secretKey": "c58459b9-5acc-4d8b-b6a5-4e3cd39fff9c"
 }
 ```
 
@@ -1894,14 +1896,31 @@ Statuses:
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|body|body|object|true|none|
-|» callbackURL|body|string(uri)|true|none|
+|body|body|[SubscribeObject](#schemasubscribeobject)|true|none|
+
+> Example responses
+
+> 400 Response
+
+```json
+{
+  "message": "string",
+  "type": "string",
+  "request-id": "string"
+}
+```
 
 <h3 id="post-subscribes-to-all-wisetack-callbacks.-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |201|[Created](https://tools.ietf.org/html/rfc7231#section-6.3.2)|Webhook created.|None|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad request.|[Error](#schemaerror)|
+|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
+|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Resource not found.|[Error](#schemaerror)|
+|409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal server error.|[Error](#schemaerror)|
 
 <aside class="warning">
 To perform this operation, you must be authenticated by means of one of the following methods:
@@ -2512,6 +2531,27 @@ BasicAuth
 |role|admin|
 |role|employee|
 |role|reviewer|
+
+<h2 id="tocSsubscribeobject">SubscribeObject</h2>
+
+<a id="schemasubscribeobject"></a>
+
+```json
+{
+  "callbackURL": "https://wisetack.yourcompany.com/callback",
+  "event": "transaction-status",
+  "secretKey": "c58459b9-5acc-4d8b-b6a5-4e3cd39fff9c"
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|callbackURL|string(uri)|false|none|The URL on your system for Wisetack to call when the request event triggers.|
+|event|string|false|none|The event you want to subscribe to. Presently only 'transaction-status' is available.|
+|secretKey|string|false|none|This value will be sent to you each time Wisetack calls your endpoint. You must must verify this value is in the request for security purposes.|
 
 <h2 id="tocSstatusupdaterequest">StatusUpdateRequest</h2>
 

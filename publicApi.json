@@ -1304,22 +1304,14 @@
     "/subscribe" : {
       "post" : {
         "summary" : "POST subscribes to all Wisetack callbacks.",
-        "description" : "Wisetack provides callbacks to let you know when the status of a transaction has changed. Each time\nthe status of a loan application changes, Wisetack will send a request to this URL. The request contains\nthe new status, the loan application id, and a secret key provided to you by Wisetack. You should only accept\nincoming status changes after verifying the secret key. When your webhook is called, it will receive\na StatusUpdateRequest.\n\nStatuses:\n\n* **Initiated:**  You sent a transaction to your customer but they have not submitted an application.\n\n* **Authorized:**  We approved teh application but the customer has not accepted the loan documents.\n\n* **Declined:** We were unable to approved the application.\n\n* **Confirmed:** The customer has accepted the loan documents and confirmed the purchase.\n\n* **Settled:** We've sent the funds to your bank account.\n\n* **Refunded:** The customer requested and received a refund.\n",
+        "description" : "Wisetack provides callbacks to let you know when the status of a transaction has changed. Each time\nthe status of a loan application changes, Wisetack will send a request to this URL. The request contains\nthe new status, the loan application id, and a secret key provided to you by Wisetack. You should only accept\nincoming status changes after verifying the secret key. When your webhook is called, it will receive\na StatusUpdateRequest. Please see the StatusUpdateRequest in the Schema section below.\n\nStatuses:\n\n* **Initiated:**  You sent a transaction to your customer but they have not submitted an application.\n\n* **Authorized:**  We approved the application but the customer has not accepted the loan documents.\n\n* **Declined:** We were unable to approved the application.\n\n* **Confirmed:** The customer has accepted the loan documents and confirmed the purchase.\n\n* **Settled:** We've sent the funds to your bank account.\n\n* **Refunded:** The customer requested and received a refund.\n",
         "tags" : [ "Webhooks" ],
         "requestBody" : {
           "required" : true,
           "content" : {
             "application/json" : {
               "schema" : {
-                "type" : "object",
-                "properties" : {
-                  "callbackURL" : {
-                    "type" : "string",
-                    "format" : "uri",
-                    "example" : "https://wisetack.yourcompany.com/callback"
-                  }
-                },
-                "required" : [ "callbackURL" ]
+                "$ref" : "#/components/schemas/SubscribeObject"
               }
             }
           }
@@ -1327,6 +1319,66 @@
         "responses" : {
           "201" : {
             "description" : "Webhook created."
+          },
+          "404" : {
+            "description" : "Resource not found.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal server error.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
@@ -2006,6 +2058,29 @@
           "password" : "sample",
           "role" : "admin",
           "group" : "na"
+        }
+      },
+      "SubscribeObject" : {
+        "properties" : {
+          "callbackURL" : {
+            "description" : "The URL on your system for Wisetack to call when the request event triggers.",
+            "type" : "string",
+            "required" : true,
+            "format" : "uri",
+            "example" : "https://wisetack.yourcompany.com/callback"
+          },
+          "event" : {
+            "description" : "The event you want to subscribe to. Presently only 'transaction-status' is available.",
+            "type" : "string",
+            "required" : true,
+            "example" : "transaction-status"
+          },
+          "secretKey" : {
+            "type" : "string",
+            "required" : true,
+            "description" : "This value will be sent to you each time Wisetack calls your endpoint. You must must verify this value is in the request for security purposes.",
+            "example" : "c58459b9-5acc-4d8b-b6a5-4e3cd39fff9c"
+          }
         }
       },
       "StatusUpdateRequest" : {
