@@ -27,8 +27,6 @@ link will initiate a transaction that is session specific for that invoice.
 * **Merchants** allows enabling merchants to offer financing as a payment option, listing existing merchants based on
 date and status filters, getting information on a merchant, and removing merchants from the system.
 
-* **Users** Each merchant can have multiple users for the Wisetack system. The Users resource allows adding and managing users and their roles and privileges in the system.
-
 ## Authentication
 Wisetack uses HTTP Basic Authentication with both an application token and a secret key. When you initially create
 a Wisetack account, you'll be given an application token and a secret key for both the production system
@@ -46,10 +44,6 @@ want to build authentication in to your own RESTful calls, you simply add the ke
 This process will result in a header that looks something like this: \
 **Authorization: Basic ZHBERDZ6NG9sT1NJN040Zk1Dc0FsS2pGYTdyZUJZaHU6b0ptM25pUVgxUGR5NRNDU=**
 
-# Authentication
-
-- HTTP Authentication, scheme: basic 
-
 <h1 id="wisetack-api-transactions">Transactions</h1>
 
 The Transaction resource initiates transactions and manages the flow of authorization, settlement, and refunds.
@@ -58,7 +52,7 @@ The Transaction resource initiates transactions and manages the flow of authoriz
 
 > Code samples
 
-`POST /merchant/{merchantId}/transactions`
+`POST /merchants/{merchantId}/transactions`
 
 When a transaction is initiated, the customer receives a text message with a link to their application. They can follow the link to complete a short, mobile-optimized flow. To start a transaction, the
 merchant must provide the mobile number of the customer, a transaction amount, and the purpose of the transaction.
@@ -67,34 +61,49 @@ The POST can also include an array of line items to describe the services or pro
 well as other optional data described in the TransactionObject. These are optional. We recommend including as much information as possible as the data helps create a better user experience, allows better transaction reporting and reconciliation for the business and customer.
 The following values are required for the POST:
 
-* status must be set to 'initiated'.
-
 * a United States domestic mobile phone number is required.
 
 * a transaction amount is required.
 
 * a transaction purpose is required.
 
+* the date on which the service is to be completed is required.
+
 > Body parameter
 
 ```json
 {
-  "status": "initiated",
-  "transactionAmount": "1000.00",
-  "mobileNumber": 1235554567,
-  "transactionPurpose": "landscape",
-  "firstName": "Clark",
-  "lastName": "Smith",
-  "email": "casmith@example.com",
-  "dob": -535420800000,
-  "ssn4": 3333,
-  "streetAddress": "123 Ashton Street",
-  "streetAddress2": "Suite 13",
-  "city": "Auburn",
-  "state": "CA",
-  "zip": 95602,
-  "annualIncomeBeforeTaxes": "950000.00",
-  "coborrowerMobileNumber": 5555556767
+  "transactionAmount": "string",
+  "mobileNumber": "string",
+  "loanPurpose": "string",
+  "serviceCompletedOn": "string",
+  "callBackURL": "string",
+  "selectedFinancialProduct": "string",
+  "firstName": "string",
+  "lastName": "string",
+  "email": "string",
+  "dob": "string",
+  "ssn4": "string",
+  "ssn": "string",
+  "streetAddress1": "string",
+  "streetAddress2": "string",
+  "city": "string",
+  "stateCode": "string",
+  "zip": "string",
+  "authPin": "string",
+  "employer": "string",
+  "annualIncomeBeforeTaxes": "string",
+  "coborrowerMobileNumber": "string",
+  "transactionLineItems": [
+    {
+      "productDescription": "labor",
+      "SKU": "none",
+      "pricePerUnit": "50000.00",
+      "tax": "na",
+      "discount": "5000.00",
+      "totalAmount": "55000.00"
+    }
+  ]
 }
 ```
 
@@ -102,8 +111,8 @@ The following values are required for the POST:
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|merchantId|path|string|true|Id for the merchant originating the transaction.|
-|body|body|[TransactionObject](#schematransactionobject)|false|none|
+|body|body|[TransactionRequest](#schematransactionrequest)|true|none|
+|merchantId|path|string|true|none|
 
 > Example responses
 
@@ -111,22 +120,7 @@ The following values are required for the POST:
 
 ```json
 {
-  "status": "initiated",
-  "transactionAmount": "1000.00",
-  "mobileNumber": 1235554567,
-  "transactionPurpose": "landscape",
-  "firstName": "Clark",
-  "lastName": "Smith",
-  "email": "casmith@example.com",
-  "dob": -535420800000,
-  "ssn4": 3333,
-  "streetAddress": "123 Ashton Street",
-  "streetAddress2": "Suite 13",
-  "city": "Auburn",
-  "state": "CA",
-  "zip": 95602,
-  "annualIncomeBeforeTaxes": "950000.00",
-  "coborrowerMobileNumber": 5555556767
+  "loanApplicationId": "39f11e30-0b2c-499e-9180-0c2ed29ad11d"
 }
 ```
 
@@ -134,17 +128,43 @@ The following values are required for the POST:
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[TransactionObject](#schematransactionobject)|
-|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad request.|[Error](#schemaerror)|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[TransactionResponse](#schematransactionresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
 |401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
 |403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
-|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Resource not found.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
 |409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
-|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal server error.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
+
+### Response Headers
+
+|Status|Header|Type|Format|Description|
+|---|---|---|---|---|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
 
 <aside class="warning">
 To perform this operation, you must be authenticated by means of one of the following methods:
-BasicAuth
+None
 </aside>
 
 ## GET returns a list of transactions for this merchant.
@@ -161,9 +181,9 @@ A filter can be supplied using a query string to limit the list to a date range,
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
 |merchantId|path|string|true|Id for the merchant originating the transaction.|
+|limit|query|integer|false|Maximum number of transactions to return.|
 |startingAfter|query|string|false|List only transactions that were initiated after this date.|
 |endingBefore|query|string|false|List only transactions that were initiated before this date.|
-|limit|query|string|false|Limit the number of transactions returned to this number.|
 |status|query|string|false|List only transactions with this status code.|
 
 > Example responses
@@ -171,36 +191,87 @@ A filter can be supplied using a query string to limit the list to a date range,
 > 200 Response
 
 ```json
-[
-  {
-    "transactionResourceURL": null
-  }
-]
+{
+  "responseBody": {
+    "success": true,
+    "token": "string",
+    "transactions": [
+      {
+        "id": "8519e81f",
+        "date": "8/30",
+        "name": "E. Bode",
+        "amount": "$3,425.00",
+        "status": "Initiated",
+        "loanStatus": "OFFER_CONVERTED",
+        "offerId": "ebd271c2-ebf1-4575-a56d-526256f9551a",
+        "offerStatus": "CONVERTED",
+        "loanPurpose": "string",
+        "serviceCompletedOn": "2019-08-30 07:00:00+0000",
+        "tilaAcceptedOn": "2019-08-30 15:26:37+0000",
+        "createdAt": 1567178434626,
+        "paymentId": "000000000000003#752fca11-3e7c-4b4e-91f3-629766be4422",
+        "paymentCreatedOn": "2019-09-03 07:00:00+0000",
+        "consumer": {
+          "fullName": "string",
+          "email": "string",
+          "phone": 15555555552,
+          "zip": 84101
+        },
+        "statusHistory": [
+          {
+            "date": "8/30",
+            "amount": "$3,425.00",
+            "status": "Initiated"
+          }
+        ]
+      }
+    ]
+  },
+  "statusCode": "string"
+}
 ```
 
 <h3 id="get-returns-a-list-of-transactions-for-this-merchant.-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|Inline|
-|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad request.|[Error](#schemaerror)|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[MerchantTransactionsResponse](#schemamerchanttransactionsresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
 |401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
 |403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
-|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Resource not found.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
 |409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
-|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal server error.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
 
-<h3 id="get-returns-a-list-of-transactions-for-this-merchant.-responseschema">Response Schema</h3>
+### Response Headers
 
-Status Code **200**
-
-|Name|Type|Required|Restrictions|Description|
+|Status|Header|Type|Format|Description|
 |---|---|---|---|---|
-|» transactionResourceURL|any|false|none|URL pointing to each applicable resource.|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
 
 <aside class="warning">
 To perform this operation, you must be authenticated by means of one of the following methods:
-BasicAuth
+None
 </aside>
 
 ## GET retrieves information, including the status, on a specific transaction.
@@ -221,22 +292,42 @@ BasicAuth
 
 ```json
 {
-  "status": "initiated",
-  "transactionAmount": "1000.00",
-  "mobileNumber": 1235554567,
-  "transactionPurpose": "landscape",
-  "firstName": "Clark",
-  "lastName": "Smith",
-  "email": "casmith@example.com",
-  "dob": -535420800000,
-  "ssn4": 3333,
-  "streetAddress": "123 Ashton Street",
-  "streetAddress2": "Suite 13",
-  "city": "Auburn",
-  "state": "CA",
-  "zip": 95602,
-  "annualIncomeBeforeTaxes": "950000.00",
-  "coborrowerMobileNumber": 5555556767
+  "responseBody": {
+    "success": true,
+    "token": "string",
+    "transactions": [
+      {
+        "id": "8519e81f",
+        "date": "8/30",
+        "name": "E. Bode",
+        "amount": "$3,425.00",
+        "status": "Initiated",
+        "loanStatus": "OFFER_CONVERTED",
+        "offerId": "ebd271c2-ebf1-4575-a56d-526256f9551a",
+        "offerStatus": "CONVERTED",
+        "loanPurpose": "string",
+        "serviceCompletedOn": "2019-08-30 07:00:00+0000",
+        "tilaAcceptedOn": "2019-08-30 15:26:37+0000",
+        "createdAt": 1567178434626,
+        "paymentId": "000000000000003#752fca11-3e7c-4b4e-91f3-629766be4422",
+        "paymentCreatedOn": "2019-09-03 07:00:00+0000",
+        "consumer": {
+          "fullName": "string",
+          "email": "string",
+          "phone": 15555555552,
+          "zip": 84101
+        },
+        "statusHistory": [
+          {
+            "date": "8/30",
+            "amount": "$3,425.00",
+            "status": "Initiated"
+          }
+        ]
+      }
+    ]
+  },
+  "statusCode": "string"
 }
 ```
 
@@ -244,230 +335,43 @@ BasicAuth
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[TransactionObject](#schematransactionobject)|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[MerchantTransactionsResponse](#schemamerchanttransactionsresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
+|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
+|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
+|409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
 
-<aside class="warning">
-To perform this operation, you must be authenticated by means of one of the following methods:
-BasicAuth
-</aside>
+### Response Headers
 
-## PATCH allows status update for transaction initiation and provides for full or partial refunds.
-
-> Code samples
-
-`PATCH /transactions/{transactionId}`
-
-Supported statuses for transactions:
-
-* Initiated: The transaction process has been started for a customer but has not yet proceeded through authorization.
-
-* Authorized: Wisetack has authorized the transactionn for this customer. The transaction is not complete until the status is set to 'settled.' An authorized transaction can either be 'settled' or 'canceled'. An authorized transaction will expire after 30 days if it has not been settled.
-
-* Settled: Once the transaction is settled, funds are sent to the merchant. A settled transaction can be either partially or completely refunded.
-
-* Refunded:  The full amount of the transaction has been refunded.
-
-* Expired: The transaction was not authorized or settled within the specified time limit. A transaction can never be removed from an expired state.
-
-* Declined: The transaction was declined.
-
-> Body parameter
-
-```json
-{
-  "merchantId": "string",
-  "onboardingDate": "string",
-  "transactionsEnabled": true,
-  "merchantSecretToken": null,
-  "optionalInformation": {
-    "companyDescription": null,
-    "companyURL": null,
-    "dba": null,
-    "companyEmail": null,
-    "annualRevenue": null,
-    "averageOrderValue": null,
-    "industry": null,
-    "dateEstablished": null,
-    "supportPhone": null,
-    "annualChargeBackAmount": null,
-    "annualRefundsAmount": null,
-    "otherServiceLinks": [
-      {
-        "serviceName": "string"
-      }
-    ],
-    "ownerInformation": [
-      {
-        "driversLicenseNumber": null,
-        "driversLicenseState": null,
-        "ownerDocuments": [
-          {
-            "documentType": null
-          }
-        ]
-      }
-    ]
-  },
-  "currentlyDue": {
-    "deadline": "string",
-    "companyEIN": null,
-    "companyLegalOperatingName": null,
-    "companyPhoneNumber": null,
-    "companyStreetAddress1": null,
-    "companyStreetAddress2": null,
-    "companyCity": null,
-    "companyStateCode": null,
-    "companyZip": null,
-    "companyType": "partnership",
-    "tosAcceptanceDate": null,
-    "tosAcceptanceIPAddress": null,
-    "ownerInformation": [
-      {
-        "isOwnerPrimary": null,
-        "ownerMobilePhoneNumber": null,
-        "ownerDOB": null,
-        "ownerFirstName": null,
-        "ownerLastName": null,
-        "ownerLast4ssn": null
-      }
-    ]
-  },
-  "eventuallyDue": {
-    "deadline": "string",
-    "companyEIN": null,
-    "companyLegalOperatingName": null,
-    "companyPhoneNumber": null,
-    "companyStreetAddress1": null,
-    "companyStreetAddress2": null,
-    "companyCity": null,
-    "companyStateCode": null,
-    "companyZip": null,
-    "companyType": "partnership",
-    "tosAcceptanceDate": null,
-    "tosAcceptanceIPAddress": null,
-    "ownerInformation": [
-      {
-        "isOwnerPrimary": null,
-        "ownerMobilePhoneNumber": null,
-        "ownerDOB": null,
-        "ownerFirstName": null,
-        "ownerLastName": null,
-        "ownerLast4ssn": null
-      }
-    ]
-  },
-  "pastDue": {
-    "deadline": "string",
-    "companyEIN": null,
-    "companyLegalOperatingName": null,
-    "companyPhoneNumber": null,
-    "companyStreetAddress1": null,
-    "companyStreetAddress2": null,
-    "companyCity": null,
-    "companyStateCode": null,
-    "companyZip": null,
-    "companyType": "partnership",
-    "tosAcceptanceDate": null,
-    "tosAcceptanceIPAddress": null,
-    "ownerInformation": [
-      {
-        "isOwnerPrimary": null,
-        "ownerMobilePhoneNumber": null,
-        "ownerDOB": null,
-        "ownerFirstName": null,
-        "ownerLastName": null,
-        "ownerLast4ssn": null
-      }
-    ]
-  },
-  "disabledReason": "string",
-  "merchantInformation": {
-    "companyEIN": "string",
-    "companyLegalOperatingName": "string",
-    "companyPhoneNumber": "string",
-    "companyStreetAddress1": "string",
-    "companyStreetAddress2": "string",
-    "companyCity": "string",
-    "companyStateCode": "string",
-    "companyZip": "string",
-    "companyType": "partnership",
-    "tosAcceptanceDate": "string",
-    "tosAcceptanceIPAddress": "string",
-    "commpanyDescription": "string",
-    "companyURL": "string",
-    "dba": "string",
-    "companyEmail": "string",
-    "annualRevenue": "string",
-    "averageOrderValue": "string",
-    "industry": "string",
-    "dateEstablished": "string",
-    "supportPhone": "string",
-    "annualChargeBackAmount": "string",
-    "annualRefundsAmount": "string",
-    "otherServiceLinks": [
-      {
-        "serviceName": null,
-        "serviceURL": null,
-        "serviceToken": null
-      }
-    ],
-    "ownerInformation": [
-      {
-        "ownerMobilePhoneNumber": "string",
-        "driversLicenseNumber": "string",
-        "driversLicenseState": "string",
-        "ownerDocuments": [
-          {
-            "documentType": "string"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-<h3 id="patch-allows-status-update-for-transaction-initiation-and-provides-for-full-or-partial-refunds.-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
+|Status|Header|Type|Format|Description|
 |---|---|---|---|---|
-|body|body|[MerchantObject](#schemamerchantobject)|false|none|
-|transactionId|path|string|true|UUID Id for the transaction. Acquired during the POST to create the transaction.|
-
-> Example responses
-
-> 200 Response
-
-```json
-{
-  "status": "initiated",
-  "transactionAmount": "1000.00",
-  "mobileNumber": 1235554567,
-  "transactionPurpose": "landscape",
-  "firstName": "Clark",
-  "lastName": "Smith",
-  "email": "casmith@example.com",
-  "dob": -535420800000,
-  "ssn4": 3333,
-  "streetAddress": "123 Ashton Street",
-  "streetAddress2": "Suite 13",
-  "city": "Auburn",
-  "state": "CA",
-  "zip": 95602,
-  "annualIncomeBeforeTaxes": "950000.00",
-  "coborrowerMobileNumber": 5555556767
-}
-```
-
-<h3 id="patch-allows-status-update-for-transaction-initiation-and-provides-for-full-or-partial-refunds.-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[TransactionObject](#schematransactionobject)|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
 
 <aside class="warning">
 To perform this operation, you must be authenticated by means of one of the following methods:
-BasicAuth
+None
 </aside>
 
 <h1 id="wisetack-api-paymentlink">PaymentLink</h1>
@@ -549,257 +453,44 @@ that customer, merchant, and line items. When the customer clicks the link, they
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[PaymentLinkObject](#schemapaymentlinkobject)|
-|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad request.|[Error](#schemaerror)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
 |401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
 |403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
-|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Resource not found.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
 |409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
-|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal server error.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
+
+### Response Headers
+
+|Status|Header|Type|Format|Description|
+|---|---|---|---|---|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
 
 <aside class="warning">
 To perform this operation, you must be authenticated by means of one of the following methods:
-BasicAuth
+None
 </aside>
 
 <h1 id="wisetack-api-merchants">Merchants</h1>
 
-The Merchant resource allows you to onboard merchants, to delete merchants from your system,
-to list all merchants, and to get information on individual merchants.
-
-There are two different types of data in the MerchantObject.
-
-* **Flag Fields**
-indicate which fields need to be collected from the merchant. These flag fields are in
-MerchantOptionalInformation and MerchantDataRequired schemas. Their presence indicates that they
-must be collected.
-
-* **Data Fields** are string fields where the data collected in response to the Flag Fields above
-can be sent back to the server. These fields are in the MerchantUpdateObject.
-
-Additionally, there are four different flag field sections. Where a flag field is found (if at all)
-indicates how the client should behave regarding that field.
-
-* **optionalInformation** indicates that this information has not been collected. It is not required
-but could be helpful in future dealings with this merchant.
-
-* **currentlyDue** are the fields the merchant must supply to transact.
-
-* **eventuallyDue** are the fields the merchant must supply to have the full range of
-capabilities they are eligible for.
-
-* **pastDue** are the fields the merchant must supply to continue or restore their transaction
-capabilities.
-
-## POST creates a merchant and returns a newly created merchant id.
-
-> Code samples
-
-`POST /merchants`
-
-POST creates a new merchant entry. To onboard a merchant, please see the Merchant PATCH operation.
-
-If there is already a unique merchant entry for this merchant, a 201 error is returned with a link to the resource.
-The state of the application verification process
-is indicated in three main sections: information currently due, due soon, and overdue.
-
-> Body parameter
-
-```json
-{
-  "merchantId": "string",
-  "onboardingDate": "string",
-  "transactionsEnabled": true,
-  "merchantSecretToken": null,
-  "optionalInformation": {
-    "companyDescription": null,
-    "companyURL": null,
-    "dba": null,
-    "companyEmail": null,
-    "annualRevenue": null,
-    "averageOrderValue": null,
-    "industry": null,
-    "dateEstablished": null,
-    "supportPhone": null,
-    "annualChargeBackAmount": null,
-    "annualRefundsAmount": null,
-    "otherServiceLinks": [
-      {
-        "serviceName": "string"
-      }
-    ],
-    "ownerInformation": [
-      {
-        "driversLicenseNumber": null,
-        "driversLicenseState": null,
-        "ownerDocuments": [
-          {
-            "documentType": null
-          }
-        ]
-      }
-    ]
-  },
-  "currentlyDue": {
-    "deadline": "string",
-    "companyEIN": null,
-    "companyLegalOperatingName": null,
-    "companyPhoneNumber": null,
-    "companyStreetAddress1": null,
-    "companyStreetAddress2": null,
-    "companyCity": null,
-    "companyStateCode": null,
-    "companyZip": null,
-    "companyType": "partnership",
-    "tosAcceptanceDate": null,
-    "tosAcceptanceIPAddress": null,
-    "ownerInformation": [
-      {
-        "isOwnerPrimary": null,
-        "ownerMobilePhoneNumber": null,
-        "ownerDOB": null,
-        "ownerFirstName": null,
-        "ownerLastName": null,
-        "ownerLast4ssn": null
-      }
-    ]
-  },
-  "eventuallyDue": {
-    "deadline": "string",
-    "companyEIN": null,
-    "companyLegalOperatingName": null,
-    "companyPhoneNumber": null,
-    "companyStreetAddress1": null,
-    "companyStreetAddress2": null,
-    "companyCity": null,
-    "companyStateCode": null,
-    "companyZip": null,
-    "companyType": "partnership",
-    "tosAcceptanceDate": null,
-    "tosAcceptanceIPAddress": null,
-    "ownerInformation": [
-      {
-        "isOwnerPrimary": null,
-        "ownerMobilePhoneNumber": null,
-        "ownerDOB": null,
-        "ownerFirstName": null,
-        "ownerLastName": null,
-        "ownerLast4ssn": null
-      }
-    ]
-  },
-  "pastDue": {
-    "deadline": "string",
-    "companyEIN": null,
-    "companyLegalOperatingName": null,
-    "companyPhoneNumber": null,
-    "companyStreetAddress1": null,
-    "companyStreetAddress2": null,
-    "companyCity": null,
-    "companyStateCode": null,
-    "companyZip": null,
-    "companyType": "partnership",
-    "tosAcceptanceDate": null,
-    "tosAcceptanceIPAddress": null,
-    "ownerInformation": [
-      {
-        "isOwnerPrimary": null,
-        "ownerMobilePhoneNumber": null,
-        "ownerDOB": null,
-        "ownerFirstName": null,
-        "ownerLastName": null,
-        "ownerLast4ssn": null
-      }
-    ]
-  },
-  "disabledReason": "string",
-  "merchantInformation": {
-    "companyEIN": "string",
-    "companyLegalOperatingName": "string",
-    "companyPhoneNumber": "string",
-    "companyStreetAddress1": "string",
-    "companyStreetAddress2": "string",
-    "companyCity": "string",
-    "companyStateCode": "string",
-    "companyZip": "string",
-    "companyType": "partnership",
-    "tosAcceptanceDate": "string",
-    "tosAcceptanceIPAddress": "string",
-    "commpanyDescription": "string",
-    "companyURL": "string",
-    "dba": "string",
-    "companyEmail": "string",
-    "annualRevenue": "string",
-    "averageOrderValue": "string",
-    "industry": "string",
-    "dateEstablished": "string",
-    "supportPhone": "string",
-    "annualChargeBackAmount": "string",
-    "annualRefundsAmount": "string",
-    "otherServiceLinks": [
-      {
-        "serviceName": null,
-        "serviceURL": null,
-        "serviceToken": null
-      }
-    ],
-    "ownerInformation": [
-      {
-        "ownerMobilePhoneNumber": "string",
-        "driversLicenseNumber": "string",
-        "driversLicenseState": "string",
-        "ownerDocuments": [
-          {
-            "documentType": "string"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-<h3 id="post-creates-a-merchant-and-returns-a-newly-created-merchant-id.-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|body|body|[MerchantObject](#schemamerchantobject)|false|none|
-
-> Example responses
-
-> 200 Response
-
-```json
-[
-  {
-    "merchantResourceURL": "string"
-  }
-]
-```
-
-<h3 id="post-creates-a-merchant-and-returns-a-newly-created-merchant-id.-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|Inline|
-|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad request.|[Error](#schemaerror)|
-|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
-|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
-|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Resource not found.|[Error](#schemaerror)|
-|409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
-|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal server error.|[Error](#schemaerror)|
-
-<h3 id="post-creates-a-merchant-and-returns-a-newly-created-merchant-id.-responseschema">Response Schema</h3>
-
-Status Code **200**
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|» merchantResourceURL|string|false|none|URL pointing to each applicable merchant resource.|
-
-<aside class="warning">
-To perform this operation, you must be authenticated by means of one of the following methods:
-BasicAuth
-</aside>
+The Merchant resource allows you to to list all merchants and to get information on individual merchants.
 
 ## GET retrieves a list of merchants.
 
@@ -813,9 +504,10 @@ Lists all merchants on your Wisetack account. You can filter this list based on 
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
+|limit|query|integer|false|Maximum number of merchants to return.|
 |startingAfter|query|string|false|List only merchants who initiated their onboard after this date.|
 |endingBefore|query|string|false|List only merchants who initiated their onboarding before this date.|
-|transactionsEnabled|query|string|false|Set to true or false.|
+|transactionsEnabled|query|string|false|Return for currently enabled merchants, true or false.|
 
 > Example responses
 
@@ -825,153 +517,7 @@ Lists all merchants on your Wisetack account. You can filter this list based on 
 {
   "merchantId": "string",
   "onboardingDate": "string",
-  "transactionsEnabled": true,
-  "merchantSecretToken": null,
-  "optionalInformation": {
-    "companyDescription": null,
-    "companyURL": null,
-    "dba": null,
-    "companyEmail": null,
-    "annualRevenue": null,
-    "averageOrderValue": null,
-    "industry": null,
-    "dateEstablished": null,
-    "supportPhone": null,
-    "annualChargeBackAmount": null,
-    "annualRefundsAmount": null,
-    "otherServiceLinks": [
-      {
-        "serviceName": "string"
-      }
-    ],
-    "ownerInformation": [
-      {
-        "driversLicenseNumber": null,
-        "driversLicenseState": null,
-        "ownerDocuments": [
-          {
-            "documentType": null
-          }
-        ]
-      }
-    ]
-  },
-  "currentlyDue": {
-    "deadline": "string",
-    "companyEIN": null,
-    "companyLegalOperatingName": null,
-    "companyPhoneNumber": null,
-    "companyStreetAddress1": null,
-    "companyStreetAddress2": null,
-    "companyCity": null,
-    "companyStateCode": null,
-    "companyZip": null,
-    "companyType": "partnership",
-    "tosAcceptanceDate": null,
-    "tosAcceptanceIPAddress": null,
-    "ownerInformation": [
-      {
-        "isOwnerPrimary": null,
-        "ownerMobilePhoneNumber": null,
-        "ownerDOB": null,
-        "ownerFirstName": null,
-        "ownerLastName": null,
-        "ownerLast4ssn": null
-      }
-    ]
-  },
-  "eventuallyDue": {
-    "deadline": "string",
-    "companyEIN": null,
-    "companyLegalOperatingName": null,
-    "companyPhoneNumber": null,
-    "companyStreetAddress1": null,
-    "companyStreetAddress2": null,
-    "companyCity": null,
-    "companyStateCode": null,
-    "companyZip": null,
-    "companyType": "partnership",
-    "tosAcceptanceDate": null,
-    "tosAcceptanceIPAddress": null,
-    "ownerInformation": [
-      {
-        "isOwnerPrimary": null,
-        "ownerMobilePhoneNumber": null,
-        "ownerDOB": null,
-        "ownerFirstName": null,
-        "ownerLastName": null,
-        "ownerLast4ssn": null
-      }
-    ]
-  },
-  "pastDue": {
-    "deadline": "string",
-    "companyEIN": null,
-    "companyLegalOperatingName": null,
-    "companyPhoneNumber": null,
-    "companyStreetAddress1": null,
-    "companyStreetAddress2": null,
-    "companyCity": null,
-    "companyStateCode": null,
-    "companyZip": null,
-    "companyType": "partnership",
-    "tosAcceptanceDate": null,
-    "tosAcceptanceIPAddress": null,
-    "ownerInformation": [
-      {
-        "isOwnerPrimary": null,
-        "ownerMobilePhoneNumber": null,
-        "ownerDOB": null,
-        "ownerFirstName": null,
-        "ownerLastName": null,
-        "ownerLast4ssn": null
-      }
-    ]
-  },
-  "disabledReason": "string",
-  "merchantInformation": {
-    "companyEIN": "string",
-    "companyLegalOperatingName": "string",
-    "companyPhoneNumber": "string",
-    "companyStreetAddress1": "string",
-    "companyStreetAddress2": "string",
-    "companyCity": "string",
-    "companyStateCode": "string",
-    "companyZip": "string",
-    "companyType": "partnership",
-    "tosAcceptanceDate": "string",
-    "tosAcceptanceIPAddress": "string",
-    "commpanyDescription": "string",
-    "companyURL": "string",
-    "dba": "string",
-    "companyEmail": "string",
-    "annualRevenue": "string",
-    "averageOrderValue": "string",
-    "industry": "string",
-    "dateEstablished": "string",
-    "supportPhone": "string",
-    "annualChargeBackAmount": "string",
-    "annualRefundsAmount": "string",
-    "otherServiceLinks": [
-      {
-        "serviceName": null,
-        "serviceURL": null,
-        "serviceToken": null
-      }
-    ],
-    "ownerInformation": [
-      {
-        "ownerMobilePhoneNumber": "string",
-        "driversLicenseNumber": "string",
-        "driversLicenseState": "string",
-        "ownerDocuments": [
-          {
-            "documentType": "string"
-          }
-        ]
-      }
-    ]
-  }
+  "transactionsEnabled": true
 }
 ```
 
@@ -979,17 +525,43 @@ Lists all merchants on your Wisetack account. You can filter this list based on 
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[MerchantObject](#schemamerchantobject)|
-|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad request.|[Error](#schemaerror)|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[MerchantGetResponse](#schemamerchantgetresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
 |401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
 |403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
-|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Resource not found.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
 |409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
-|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal server error.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
+
+### Response Headers
+
+|Status|Header|Type|Format|Description|
+|---|---|---|---|---|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
 
 <aside class="warning">
 To perform this operation, you must be authenticated by means of one of the following methods:
-BasicAuth
+None
 </aside>
 
 ## GET retrieves merchant information based on merchant id.
@@ -998,13 +570,11 @@ BasicAuth
 
 `GET /merchants/{merchantId}`
 
-Get a merchant's information.
-
 <h3 id="get-retrieves-merchant-information-based-on-merchant-id.-parameters">Parameters</h3>
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|merchantId|path|string|true|The merchant id as stored during merchant onboarding.|
+|merchantId|path|string|true|The previously determined merchant id.|
 
 > Example responses
 
@@ -1014,153 +584,7 @@ Get a merchant's information.
 {
   "merchantId": "string",
   "onboardingDate": "string",
-  "transactionsEnabled": true,
-  "merchantSecretToken": null,
-  "optionalInformation": {
-    "companyDescription": null,
-    "companyURL": null,
-    "dba": null,
-    "companyEmail": null,
-    "annualRevenue": null,
-    "averageOrderValue": null,
-    "industry": null,
-    "dateEstablished": null,
-    "supportPhone": null,
-    "annualChargeBackAmount": null,
-    "annualRefundsAmount": null,
-    "otherServiceLinks": [
-      {
-        "serviceName": "string"
-      }
-    ],
-    "ownerInformation": [
-      {
-        "driversLicenseNumber": null,
-        "driversLicenseState": null,
-        "ownerDocuments": [
-          {
-            "documentType": null
-          }
-        ]
-      }
-    ]
-  },
-  "currentlyDue": {
-    "deadline": "string",
-    "companyEIN": null,
-    "companyLegalOperatingName": null,
-    "companyPhoneNumber": null,
-    "companyStreetAddress1": null,
-    "companyStreetAddress2": null,
-    "companyCity": null,
-    "companyStateCode": null,
-    "companyZip": null,
-    "companyType": "partnership",
-    "tosAcceptanceDate": null,
-    "tosAcceptanceIPAddress": null,
-    "ownerInformation": [
-      {
-        "isOwnerPrimary": null,
-        "ownerMobilePhoneNumber": null,
-        "ownerDOB": null,
-        "ownerFirstName": null,
-        "ownerLastName": null,
-        "ownerLast4ssn": null
-      }
-    ]
-  },
-  "eventuallyDue": {
-    "deadline": "string",
-    "companyEIN": null,
-    "companyLegalOperatingName": null,
-    "companyPhoneNumber": null,
-    "companyStreetAddress1": null,
-    "companyStreetAddress2": null,
-    "companyCity": null,
-    "companyStateCode": null,
-    "companyZip": null,
-    "companyType": "partnership",
-    "tosAcceptanceDate": null,
-    "tosAcceptanceIPAddress": null,
-    "ownerInformation": [
-      {
-        "isOwnerPrimary": null,
-        "ownerMobilePhoneNumber": null,
-        "ownerDOB": null,
-        "ownerFirstName": null,
-        "ownerLastName": null,
-        "ownerLast4ssn": null
-      }
-    ]
-  },
-  "pastDue": {
-    "deadline": "string",
-    "companyEIN": null,
-    "companyLegalOperatingName": null,
-    "companyPhoneNumber": null,
-    "companyStreetAddress1": null,
-    "companyStreetAddress2": null,
-    "companyCity": null,
-    "companyStateCode": null,
-    "companyZip": null,
-    "companyType": "partnership",
-    "tosAcceptanceDate": null,
-    "tosAcceptanceIPAddress": null,
-    "ownerInformation": [
-      {
-        "isOwnerPrimary": null,
-        "ownerMobilePhoneNumber": null,
-        "ownerDOB": null,
-        "ownerFirstName": null,
-        "ownerLastName": null,
-        "ownerLast4ssn": null
-      }
-    ]
-  },
-  "disabledReason": "string",
-  "merchantInformation": {
-    "companyEIN": "string",
-    "companyLegalOperatingName": "string",
-    "companyPhoneNumber": "string",
-    "companyStreetAddress1": "string",
-    "companyStreetAddress2": "string",
-    "companyCity": "string",
-    "companyStateCode": "string",
-    "companyZip": "string",
-    "companyType": "partnership",
-    "tosAcceptanceDate": "string",
-    "tosAcceptanceIPAddress": "string",
-    "commpanyDescription": "string",
-    "companyURL": "string",
-    "dba": "string",
-    "companyEmail": "string",
-    "annualRevenue": "string",
-    "averageOrderValue": "string",
-    "industry": "string",
-    "dateEstablished": "string",
-    "supportPhone": "string",
-    "annualChargeBackAmount": "string",
-    "annualRefundsAmount": "string",
-    "otherServiceLinks": [
-      {
-        "serviceName": null,
-        "serviceURL": null,
-        "serviceToken": null
-      }
-    ],
-    "ownerInformation": [
-      {
-        "ownerMobilePhoneNumber": "string",
-        "driversLicenseNumber": "string",
-        "driversLicenseState": "string",
-        "ownerDocuments": [
-          {
-            "documentType": "string"
-          }
-        ]
-      }
-    ]
-  }
+  "transactionsEnabled": true
 }
 ```
 
@@ -1168,193 +592,318 @@ Get a merchant's information.
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[MerchantObject](#schemamerchantobject)|
-|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad request.|[Error](#schemaerror)|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[MerchantGetResponse](#schemamerchantgetresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
 |401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
 |403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
-|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Resource not found.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
 |409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
-|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal server error.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
+
+### Response Headers
+
+|Status|Header|Type|Format|Description|
+|---|---|---|---|---|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
 
 <aside class="warning">
 To perform this operation, you must be authenticated by means of one of the following methods:
-BasicAuth
+None
 </aside>
 
-## PATCH onboards a merchant and updates merchant information.
+<h1 id="wisetack-api-cors">CORS</h1>
+
+## CORS support
+
+> Code samples
+
+`OPTIONS /test/{paramInPath}`
+
+Enable CORS by returning correct headers
+
+<h3 id="cors-support-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|paraminheader|header|string|false|Parameter passed through header.|
+|paramInPath|path|string|true|Parameter passed through path.|
+|paramInQuery|query|string|false|Parameter passed in query.|
+|body|header|[testbody](#schematestbody)|true|Test Request.|
+
+<h3 id="cors-support-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Default responnse for CORS method|None|
+
+### Response Headers
+
+|Status|Header|Type|Format|Description|
+|---|---|---|---|---|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+None
+</aside>
+
+<h1 id="wisetack-api-internaluse">InternalUse</h1>
+
+## PATCH allows status update for transaction initiation and provides for full or partial refunds.
+
+> Code samples
+
+`PATCH /loanApplications/{loanApplicationId}`
+
+Supported statuses for transactions:
+
+* Initiated: The transaction process has been started for a customer but has not yet proceeded through authorization.
+
+* Authorized: Wisetack has authorized the transactionn for this customer. The transaction is not complete until the status is set to 'settled.' An authorized transaction can either be 'settled' or 'canceled'. An authorized transaction will expire after 30 days if it has not been settled.
+
+* Settled: Once the transaction is settled, funds are sent to the merchant. A settled transaction can be either partially or completely refunded.
+
+* Refunded:  The full amount of the transaction has been refunded.
+
+* Expired: The transaction was not authorized or settled within the specified time limit. A transaction can never be removed from an expired state.
+
+* Declined: The transaction was declined.
+
+> Body parameter
+
+```json
+{
+  "transactionAmount": 1000,
+  "mobileNumber": 1235554567,
+  "loanPurpose": "landscape",
+  "selectedFinancialProduct": "fully_amortizing_risk_based",
+  "firstName": "Clark",
+  "lastName": "Smith",
+  "email": "casmith@example.com",
+  "dob": -535420800000,
+  "ssn4": 3333,
+  "zip": 95602,
+  "annualIncomeBeforeTaxes": 120000,
+  "status": "initiated"
+}
+```
+
+<h3 id="patch-allows-status-update-for-transaction-initiation-and-provides-for-full-or-partial-refunds.-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|[LoanApplicationRequest](#schemaloanapplicationrequest)|true|none|
+|loanApplicationId|path|string|true|UUID Id for the transaction. Acquired during the POST to create the transaction.|
+|initToken|query|string|false|none|
+
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "loanApplicationId": "39f11e30-0b2c-499e-9180-0c2ed29ad11d",
+  "initToken": "12AB7",
+  "status": "OFFER_AVAILABLE"
+}
+```
+
+<h3 id="patch-allows-status-update-for-transaction-initiation-and-provides-for-full-or-partial-refunds.-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[LoanApplicationResponse](#schemaloanapplicationresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
+|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
+|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
+|409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
+
+### Response Headers
+
+|Status|Header|Type|Format|Description|
+|---|---|---|---|---|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+None
+</aside>
+
+## Creates a merchant and returns a newly created merchant id.
+
+> Code samples
+
+`POST /merchants`
+
+If there is a unique merchant entry, a 201 error is returned with a link to the resource.
+
+> Body parameter
+
+```json
+{
+  "merchantId": "string",
+  "businessName": "string",
+  "displayName": "string",
+  "email": "string",
+  "statementDescriptor": "string",
+  "businessTaxId": "string",
+  "addressInformation": "string",
+  "chargesEnabled": true,
+  "payoutsEnabled": true,
+  "payoutSchedule": "string",
+  "tos_acceptance": true,
+  "pricingTier": "string",
+  "borrowerInformations": [
+    {
+      "borrowerInformation": "string"
+    }
+  ]
+}
+```
+
+<h3 id="creates-a-merchant-and-returns-a-newly-created-merchant-id.-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|[Merchant](#schemamerchant)|true|none|
+|limit|query|integer|false|Maximum number of merchants to return.|
+|startingAfter|query|string|false|List only merchants who initiated their onboard after this date.|
+|endingBefore|query|string|false|List only merchants who initiated their onboarding before this date.|
+|transactionsEnabled|query|string|false|Return for currently enabled merchants, true or false.|
+
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "merchantResourceURL": "string"
+}
+```
+
+<h3 id="creates-a-merchant-and-returns-a-newly-created-merchant-id.-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[MerchantPostResponse](#schemamerchantpostresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
+|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
+|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
+|409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
+
+### Response Headers
+
+|Status|Header|Type|Format|Description|
+|---|---|---|---|---|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+None
+</aside>
+
+## Updates merchant information.
 
 > Code samples
 
 `PATCH /merchants/{merchantId}`
 
-The PATCH (update) is the merchant identification process. The application can request required information from the
-merchant and submit additional information using a PATCH request to the merchantId. Any additional required information
-is returned as a response to the PATCH. This process can continue until all required information is gathered.
-
-Please see the overview for Merchants for a more detailed explanation for this process.
-
 > Body parameter
 
 ```json
 {
   "merchantId": "string",
-  "onboardingDate": "string",
-  "transactionsEnabled": true,
-  "merchantSecretToken": null,
-  "optionalInformation": {
-    "companyDescription": null,
-    "companyURL": null,
-    "dba": null,
-    "companyEmail": null,
-    "annualRevenue": null,
-    "averageOrderValue": null,
-    "industry": null,
-    "dateEstablished": null,
-    "supportPhone": null,
-    "annualChargeBackAmount": null,
-    "annualRefundsAmount": null,
-    "otherServiceLinks": [
-      {
-        "serviceName": "string"
-      }
-    ],
-    "ownerInformation": [
-      {
-        "driversLicenseNumber": null,
-        "driversLicenseState": null,
-        "ownerDocuments": [
-          {
-            "documentType": null
-          }
-        ]
-      }
-    ]
-  },
-  "currentlyDue": {
-    "deadline": "string",
-    "companyEIN": null,
-    "companyLegalOperatingName": null,
-    "companyPhoneNumber": null,
-    "companyStreetAddress1": null,
-    "companyStreetAddress2": null,
-    "companyCity": null,
-    "companyStateCode": null,
-    "companyZip": null,
-    "companyType": "partnership",
-    "tosAcceptanceDate": null,
-    "tosAcceptanceIPAddress": null,
-    "ownerInformation": [
-      {
-        "isOwnerPrimary": null,
-        "ownerMobilePhoneNumber": null,
-        "ownerDOB": null,
-        "ownerFirstName": null,
-        "ownerLastName": null,
-        "ownerLast4ssn": null
-      }
-    ]
-  },
-  "eventuallyDue": {
-    "deadline": "string",
-    "companyEIN": null,
-    "companyLegalOperatingName": null,
-    "companyPhoneNumber": null,
-    "companyStreetAddress1": null,
-    "companyStreetAddress2": null,
-    "companyCity": null,
-    "companyStateCode": null,
-    "companyZip": null,
-    "companyType": "partnership",
-    "tosAcceptanceDate": null,
-    "tosAcceptanceIPAddress": null,
-    "ownerInformation": [
-      {
-        "isOwnerPrimary": null,
-        "ownerMobilePhoneNumber": null,
-        "ownerDOB": null,
-        "ownerFirstName": null,
-        "ownerLastName": null,
-        "ownerLast4ssn": null
-      }
-    ]
-  },
-  "pastDue": {
-    "deadline": "string",
-    "companyEIN": null,
-    "companyLegalOperatingName": null,
-    "companyPhoneNumber": null,
-    "companyStreetAddress1": null,
-    "companyStreetAddress2": null,
-    "companyCity": null,
-    "companyStateCode": null,
-    "companyZip": null,
-    "companyType": "partnership",
-    "tosAcceptanceDate": null,
-    "tosAcceptanceIPAddress": null,
-    "ownerInformation": [
-      {
-        "isOwnerPrimary": null,
-        "ownerMobilePhoneNumber": null,
-        "ownerDOB": null,
-        "ownerFirstName": null,
-        "ownerLastName": null,
-        "ownerLast4ssn": null
-      }
-    ]
-  },
-  "disabledReason": "string",
-  "merchantInformation": {
-    "companyEIN": "string",
-    "companyLegalOperatingName": "string",
-    "companyPhoneNumber": "string",
-    "companyStreetAddress1": "string",
-    "companyStreetAddress2": "string",
-    "companyCity": "string",
-    "companyStateCode": "string",
-    "companyZip": "string",
-    "companyType": "partnership",
-    "tosAcceptanceDate": "string",
-    "tosAcceptanceIPAddress": "string",
-    "commpanyDescription": "string",
-    "companyURL": "string",
-    "dba": "string",
-    "companyEmail": "string",
-    "annualRevenue": "string",
-    "averageOrderValue": "string",
-    "industry": "string",
-    "dateEstablished": "string",
-    "supportPhone": "string",
-    "annualChargeBackAmount": "string",
-    "annualRefundsAmount": "string",
-    "otherServiceLinks": [
-      {
-        "serviceName": null,
-        "serviceURL": null,
-        "serviceToken": null
-      }
-    ],
-    "ownerInformation": [
-      {
-        "ownerMobilePhoneNumber": "string",
-        "driversLicenseNumber": "string",
-        "driversLicenseState": "string",
-        "ownerDocuments": [
-          {
-            "documentType": "string"
-          }
-        ]
-      }
-    ]
-  }
+  "businessName": "string",
+  "displayName": "string",
+  "email": "string",
+  "statementDescriptor": "string",
+  "businessTaxId": "string",
+  "addressInformation": "string",
+  "chargesEnabled": true,
+  "payoutsEnabled": true,
+  "payoutSchedule": "string",
+  "tos_acceptance": true,
+  "pricingTier": "string",
+  "borrowerInformations": [
+    {
+      "borrowerInformation": "string"
+    }
+  ]
 }
 ```
 
-<h3 id="patch-onboards-a-merchant-and-updates-merchant-information.-parameters">Parameters</h3>
+<h3 id="updates-merchant-information.-parameters">Parameters</h3>
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|body|body|[MerchantObject](#schemamerchantobject)|false|none|
-|merchantId|path|string|true|The merchant id as stored during merchant onboarding.|
+|body|body|[Merchant](#schemamerchant)|true|none|
+|merchantId|path|string|true|The previously determined merchant id.|
 
 > Example responses
 
@@ -1362,182 +911,83 @@ Please see the overview for Merchants for a more detailed explanation for this p
 
 ```json
 {
-  "merchantId": "string",
-  "onboardingDate": "string",
-  "transactionsEnabled": true,
-  "merchantSecretToken": null,
-  "optionalInformation": {
-    "companyDescription": null,
-    "companyURL": null,
-    "dba": null,
-    "companyEmail": null,
-    "annualRevenue": null,
-    "averageOrderValue": null,
-    "industry": null,
-    "dateEstablished": null,
-    "supportPhone": null,
-    "annualChargeBackAmount": null,
-    "annualRefundsAmount": null,
-    "otherServiceLinks": [
+  "responseBody": {
+    "merchantId": "string",
+    "businessName": "string",
+    "displayName": "string",
+    "email": "string",
+    "statementDescriptor": "string",
+    "businessTaxId": "string",
+    "addressInformation": "string",
+    "chargesEnabled": true,
+    "payoutsEnabled": true,
+    "payoutSchedule": "string",
+    "tos_acceptance": true,
+    "pricingTier": "string",
+    "borrowerInformations": [
       {
-        "serviceName": "string"
-      }
-    ],
-    "ownerInformation": [
-      {
-        "driversLicenseNumber": null,
-        "driversLicenseState": null,
-        "ownerDocuments": [
-          {
-            "documentType": null
-          }
-        ]
+        "borrowerInformation": "string"
       }
     ]
   },
-  "currentlyDue": {
-    "deadline": "string",
-    "companyEIN": null,
-    "companyLegalOperatingName": null,
-    "companyPhoneNumber": null,
-    "companyStreetAddress1": null,
-    "companyStreetAddress2": null,
-    "companyCity": null,
-    "companyStateCode": null,
-    "companyZip": null,
-    "companyType": "partnership",
-    "tosAcceptanceDate": null,
-    "tosAcceptanceIPAddress": null,
-    "ownerInformation": [
-      {
-        "isOwnerPrimary": null,
-        "ownerMobilePhoneNumber": null,
-        "ownerDOB": null,
-        "ownerFirstName": null,
-        "ownerLastName": null,
-        "ownerLast4ssn": null
-      }
-    ]
-  },
-  "eventuallyDue": {
-    "deadline": "string",
-    "companyEIN": null,
-    "companyLegalOperatingName": null,
-    "companyPhoneNumber": null,
-    "companyStreetAddress1": null,
-    "companyStreetAddress2": null,
-    "companyCity": null,
-    "companyStateCode": null,
-    "companyZip": null,
-    "companyType": "partnership",
-    "tosAcceptanceDate": null,
-    "tosAcceptanceIPAddress": null,
-    "ownerInformation": [
-      {
-        "isOwnerPrimary": null,
-        "ownerMobilePhoneNumber": null,
-        "ownerDOB": null,
-        "ownerFirstName": null,
-        "ownerLastName": null,
-        "ownerLast4ssn": null
-      }
-    ]
-  },
-  "pastDue": {
-    "deadline": "string",
-    "companyEIN": null,
-    "companyLegalOperatingName": null,
-    "companyPhoneNumber": null,
-    "companyStreetAddress1": null,
-    "companyStreetAddress2": null,
-    "companyCity": null,
-    "companyStateCode": null,
-    "companyZip": null,
-    "companyType": "partnership",
-    "tosAcceptanceDate": null,
-    "tosAcceptanceIPAddress": null,
-    "ownerInformation": [
-      {
-        "isOwnerPrimary": null,
-        "ownerMobilePhoneNumber": null,
-        "ownerDOB": null,
-        "ownerFirstName": null,
-        "ownerLastName": null,
-        "ownerLast4ssn": null
-      }
-    ]
-  },
-  "disabledReason": "string",
-  "merchantInformation": {
-    "companyEIN": "string",
-    "companyLegalOperatingName": "string",
-    "companyPhoneNumber": "string",
-    "companyStreetAddress1": "string",
-    "companyStreetAddress2": "string",
-    "companyCity": "string",
-    "companyStateCode": "string",
-    "companyZip": "string",
-    "companyType": "partnership",
-    "tosAcceptanceDate": "string",
-    "tosAcceptanceIPAddress": "string",
-    "commpanyDescription": "string",
-    "companyURL": "string",
-    "dba": "string",
-    "companyEmail": "string",
-    "annualRevenue": "string",
-    "averageOrderValue": "string",
-    "industry": "string",
-    "dateEstablished": "string",
-    "supportPhone": "string",
-    "annualChargeBackAmount": "string",
-    "annualRefundsAmount": "string",
-    "otherServiceLinks": [
-      {
-        "serviceName": null,
-        "serviceURL": null,
-        "serviceToken": null
-      }
-    ],
-    "ownerInformation": [
-      {
-        "ownerMobilePhoneNumber": "string",
-        "driversLicenseNumber": "string",
-        "driversLicenseState": "string",
-        "ownerDocuments": [
-          {
-            "documentType": "string"
-          }
-        ]
-      }
-    ]
-  }
+  "statusCode": "string"
 }
 ```
 
-<h3 id="patch-onboards-a-merchant-and-updates-merchant-information.-responses">Responses</h3>
+<h3 id="updates-merchant-information.-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[MerchantObject](#schemamerchantobject)|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[MerchantPatchResponse](#schemamerchantpatchresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
+|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
+|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
+|409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
+
+### Response Headers
+
+|Status|Header|Type|Format|Description|
+|---|---|---|---|---|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
 
 <aside class="warning">
 To perform this operation, you must be authenticated by means of one of the following methods:
-BasicAuth
+None
 </aside>
 
-## DELETE removes a merchant from the system.
+## Deletes merchant based on merchant id.
 
 > Code samples
 
 `DELETE /merchants/{merchantId}`
 
-Remove this merchant from your system.
-
-<h3 id="delete-removes-a-merchant-from-the-system.-parameters">Parameters</h3>
+<h3 id="deletes-merchant-based-on-merchant-id.-parameters">Parameters</h3>
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|merchantId|path|string|true|The merchant id as stored during merchant onboarding.|
+|merchantId|path|string|true|The previously determined merchant id.|
 
 > Example responses
 
@@ -1545,68 +995,144 @@ Remove this merchant from your system.
 
 ```json
 {
-  "merchantId": "string",
-  "deleted": true
+  "responseBody": {
+    "merchantId": "string",
+    "deleted": true
+  },
+  "statusCode": "string"
 }
 ```
 
-<h3 id="delete-removes-a-merchant-from-the-system.-responses">Responses</h3>
+<h3 id="deletes-merchant-based-on-merchant-id.-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|Inline|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[MerchantDeleteResponse](#schemamerchantdeleteresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
+|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
+|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
+|409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
 
-<h3 id="delete-removes-a-merchant-from-the-system.-responseschema">Response Schema</h3>
+### Response Headers
 
-Status Code **200**
-
-|Name|Type|Required|Restrictions|Description|
+|Status|Header|Type|Format|Description|
 |---|---|---|---|---|
-|» merchantId|string|false|none|The id of the merchant deleted.|
-|» deleted|boolean|false|none|True if successful.|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
 
 <aside class="warning">
 To perform this operation, you must be authenticated by means of one of the following methods:
-BasicAuth
+None
 </aside>
 
-<h1 id="wisetack-api-users">Users</h1>
-
-The Users resource allows you to support multiple users, each with their own roles and privileges in the
-Wisetack system. This feature allows merchants to add and manage employees and other types
-of subusers.
-
-## POST creates a new user.
+## GET retrieves information, including the status, on a specific transaction.
 
 > Code samples
 
-`POST /merchant/{merchantId}/users`
+`GET /loanApplications/{loanApplicationId}`
 
-POST creates a new user based on the user's phone number. If the mobile phone number is already associated
-with the merchant then the user's already existing id is returned in the response.
+<h3 id="get-retrieves-information,-including-the-status,-on-a-specific-transaction.-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|loanApplicationId|path|string|true|UUID Id for the transaction. Acquired during the POST to create the transaction.|
+|initToken|query|string|false|none|
+
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "loanApplicationId": "39f11e30-0b2c-499e-9180-0c2ed29ad11d",
+  "initToken": "12AB7",
+  "status": "OFFER_AVAILABLE"
+}
+```
+
+<h3 id="get-retrieves-information,-including-the-status,-on-a-specific-transaction.-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[LoanApplicationResponse](#schemaloanapplicationresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
+|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
+|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
+|409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
+
+### Response Headers
+
+|Status|Header|Type|Format|Description|
+|---|---|---|---|---|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+None
+</aside>
+
+## Merchant log in with phone/email.
+
+> Code samples
+
+`POST /merchants/login`
 
 > Body parameter
 
 ```json
 {
-  "userId": "6f6c4bf4-ab58-4a1b-833e-0e665dc65400",
-  "firstName": "Hugh",
-  "lastName": "Cave",
-  "email": "hugh@akhouse.com",
-  "mobilePhone": 5556669999,
-  "userName": "hughb",
-  "password": "sample",
-  "role": "admin",
-  "group": "na"
+  "username": "string"
 }
 ```
 
-<h3 id="post-creates-a-new-user.-parameters">Parameters</h3>
+<h3 id="merchant-log-in-with-phone/email.-parameters">Parameters</h3>
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|body|body|[UserObject](#schemauserobject)|false|none|
-|merchantId|path|string|true|The merchant id as stored during merchant onboarding.|
+|body|body|[MerchantLoginRequest](#schemamerchantloginrequest)|true|none|
 
 > Example responses
 
@@ -1614,159 +1140,596 @@ with the merchant then the user's already existing id is returned in the respons
 
 ```json
 {
-  "userId": "6f6c4bf4-ab58-4a1b-833e-0e665dc65400",
-  "firstName": "Hugh",
-  "lastName": "Cave",
-  "email": "hugh@akhouse.com",
-  "mobilePhone": 5556669999,
-  "userName": "hughb",
-  "password": "sample",
-  "role": "admin",
-  "group": "na"
+  "responseBody": {
+    "success": true,
+    "message": "string",
+    "code": "string"
+  },
+  "statusCode": "string"
 }
 ```
 
-<h3 id="post-creates-a-new-user.-responses">Responses</h3>
+<h3 id="merchant-log-in-with-phone/email.-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[UserObject](#schemauserobject)|
-|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad request.|[Error](#schemaerror)|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[MerchantLoginResponse](#schemamerchantloginresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
 |401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
 |403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
-|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Resource not found.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
 |409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
-|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal server error.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
+
+### Response Headers
+
+|Status|Header|Type|Format|Description|
+|---|---|---|---|---|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
 
 <aside class="warning">
 To perform this operation, you must be authenticated by means of one of the following methods:
-BasicAuth
+None
 </aside>
 
-## GET retrieves a list of users.
+## Merchant auth with verification code.
 
 > Code samples
 
-`GET /merchant/{merchantId}/users`
+`POST /merchants/auth`
 
-List all users for the merchant with {merchantId}.
+> Body parameter
 
-<h3 id="get-retrieves-a-list-of-users.-parameters">Parameters</h3>
+```json
+{
+  "code": "string",
+  "username": "string",
+  "token": "string"
+}
+```
+
+<h3 id="merchant-auth-with-verification-code.-parameters">Parameters</h3>
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|merchantId|path|string|true|The merchant id as stored during merchant onboarding.|
+|body|body|[MerchantAuthRequest](#schemamerchantauthrequest)|true|none|
 
 > Example responses
 
 > 200 Response
 
 ```json
-[
-  {
-    "userResourceURL": null
-  }
-]
+{
+  "responseBody": {
+    "success": true,
+    "token": "string",
+    "merchant": {
+      "id": "string",
+      "name": "string"
+    },
+    "user": {
+      "userId": "string",
+      "merchantId": "string"
+    }
+  },
+  "statusCode": "string"
+}
 ```
 
-<h3 id="get-retrieves-a-list-of-users.-responses">Responses</h3>
+<h3 id="merchant-auth-with-verification-code.-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|Inline|
-|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad request.|[Error](#schemaerror)|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[MerchantAuthResponse](#schemamerchantauthresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
 |401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
 |403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
-|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Resource not found.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
 |409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
-|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal server error.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
 
-<h3 id="get-retrieves-a-list-of-users.-responseschema">Response Schema</h3>
+### Response Headers
 
-Status Code **200**
-
-|Name|Type|Required|Restrictions|Description|
+|Status|Header|Type|Format|Description|
 |---|---|---|---|---|
-|» userResourceURL|any|false|none|URL pointing to each applicable user resource.|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
 
 <aside class="warning">
 To perform this operation, you must be authenticated by means of one of the following methods:
-BasicAuth
+None
 </aside>
 
-## GET retrieves any available information for the user.
+## get__merchants_me
+
+> Code samples
+
+`GET /merchants/me`
+
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "responseBody": {
+    "success": true,
+    "token": "string",
+    "merchant": {
+      "id": "string",
+      "name": "string"
+    },
+    "user": {
+      "userId": "string",
+      "merchantId": "string"
+    }
+  },
+  "statusCode": "string"
+}
+```
+
+<h3 id="get__merchants_me-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[MerchantAuthResponse](#schemamerchantauthresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
+|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
+|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
+|409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
+
+### Response Headers
+
+|Status|Header|Type|Format|Description|
+|---|---|---|---|---|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+None
+</aside>
+
+## get__transactions
+
+> Code samples
+
+`GET /transactions`
+
+<h3 id="get__transactions-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|limit|query|integer|false|none|
+|startingAfter|query|string|false|none|
+|endingBefore|query|string|false|none|
+|status|query|string|false|none|
+
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "responseBody": {
+    "success": true,
+    "token": "string",
+    "transactions": [
+      {
+        "id": "8519e81f",
+        "date": "8/30",
+        "name": "E. Bode",
+        "amount": "$3,425.00",
+        "status": "Initiated",
+        "loanStatus": "OFFER_CONVERTED",
+        "offerId": "ebd271c2-ebf1-4575-a56d-526256f9551a",
+        "offerStatus": "CONVERTED",
+        "loanPurpose": "string",
+        "serviceCompletedOn": "2019-08-30 07:00:00+0000",
+        "tilaAcceptedOn": "2019-08-30 15:26:37+0000",
+        "createdAt": 1567178434626,
+        "paymentId": "000000000000003#752fca11-3e7c-4b4e-91f3-629766be4422",
+        "paymentCreatedOn": "2019-09-03 07:00:00+0000",
+        "consumer": {
+          "fullName": "string",
+          "email": "string",
+          "phone": 15555555552,
+          "zip": 84101
+        },
+        "statusHistory": [
+          {
+            "date": "8/30",
+            "amount": "$3,425.00",
+            "status": "Initiated"
+          }
+        ]
+      }
+    ]
+  },
+  "statusCode": "string"
+}
+```
+
+<h3 id="get__transactions-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[MerchantTransactionsResponse](#schemamerchanttransactionsresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
+|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
+|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
+|409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
+
+### Response Headers
+
+|Status|Header|Type|Format|Description|
+|---|---|---|---|---|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+None
+</aside>
+
+## Create merchant user.
+
+> Code samples
+
+`POST /merchants/{merchantId}/users`
+
+> Body parameter
+
+```json
+{}
+```
+
+<h3 id="create-merchant-user.-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|[MerchantUser](#schemamerchantuser)|true|none|
+|merchantId|path|string|true|none|
+
+> Example responses
+
+> 200 Response
+
+```json
+{}
+```
+
+<h3 id="create-merchant-user.-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[MerchantUserPostResponse](#schemamerchantuserpostresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
+|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
+|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
+|409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
+
+### Response Headers
+
+|Status|Header|Type|Format|Description|
+|---|---|---|---|---|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+None
+</aside>
+
+## Returns merchant users.
+
+> Code samples
+
+`GET /merchants/{merchantId}/users`
+
+<h3 id="returns-merchant-users.-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|merchantId|path|string|true|none|
+
+> Example responses
+
+> 200 Response
+
+```json
+{}
+```
+
+<h3 id="returns-merchant-users.-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[MerchantUserGetResponse](#schemamerchantusergetresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
+|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
+|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
+|409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
+
+### Response Headers
+
+|Status|Header|Type|Format|Description|
+|---|---|---|---|---|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+None
+</aside>
+
+## Returns merchant users list.
+
+> Code samples
+
+`GET /users`
+
+<h3 id="returns-merchant-users-list.-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|limit|query|integer|false|none|
+
+> Example responses
+
+> 200 Response
+
+```json
+{}
+```
+
+<h3 id="returns-merchant-users-list.-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[MerchantUserGetResponse](#schemamerchantusergetresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
+|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
+|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
+|409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
+
+### Response Headers
+
+|Status|Header|Type|Format|Description|
+|---|---|---|---|---|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+None
+</aside>
+
+## Retrieves merchant user information based on merchant user id.
 
 > Code samples
 
 `GET /users/{userId}`
 
-Get any available information for the user.
-
-<h3 id="get-retrieves-any-available-information-for-the-user.-parameters">Parameters</h3>
+<h3 id="retrieves-merchant-user-information-based-on-merchant-user-id.-parameters">Parameters</h3>
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|userId|path|string|true|The unique UUID representing this user.|
+|userId|path|string|true|The previously determined merchant user id.|
 
 > Example responses
 
 > 200 Response
 
 ```json
-{
-  "userId": "6f6c4bf4-ab58-4a1b-833e-0e665dc65400",
-  "firstName": "Hugh",
-  "lastName": "Cave",
-  "email": "hugh@akhouse.com",
-  "mobilePhone": 5556669999,
-  "userName": "hughb",
-  "password": "sample",
-  "role": "admin",
-  "group": "na"
-}
+{}
 ```
 
-<h3 id="get-retrieves-any-available-information-for-the-user.-responses">Responses</h3>
+<h3 id="retrieves-merchant-user-information-based-on-merchant-user-id.-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[UserObject](#schemauserobject)|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[MerchantUserGetResponse](#schemamerchantusergetresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
+|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
+|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
+|409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
+
+### Response Headers
+
+|Status|Header|Type|Format|Description|
+|---|---|---|---|---|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
 
 <aside class="warning">
 To perform this operation, you must be authenticated by means of one of the following methods:
-BasicAuth
+None
 </aside>
 
-## PUT updates the information for an existing user.
+## Updates merchant user information.
 
 > Code samples
 
-`PUT /users/{userId}`
-
-Update the information for an existing user.
+`PATCH /users/{userId}`
 
 > Body parameter
 
 ```json
-{
-  "userId": "6f6c4bf4-ab58-4a1b-833e-0e665dc65400",
-  "firstName": "Hugh",
-  "lastName": "Cave",
-  "email": "hugh@akhouse.com",
-  "mobilePhone": 5556669999,
-  "userName": "hughb",
-  "password": "sample",
-  "role": "admin",
-  "group": "na"
-}
+{}
 ```
 
-<h3 id="put-updates-the-information-for-an-existing-user.-parameters">Parameters</h3>
+<h3 id="updates-merchant-user-information.-parameters">Parameters</h3>
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|body|body|[UserObject](#schemauserobject)|false|none|
-|userId|path|string|true|The unique UUID representing this user.|
+|body|body|[MerchantUser](#schemamerchantuser)|true|none|
+|userId|path|string|true|The previously determined merchant user id.|
 
 > Example responses
 
@@ -1774,48 +1737,128 @@ Update the information for an existing user.
 
 ```json
 {
-  "userId": "6f6c4bf4-ab58-4a1b-833e-0e665dc65400",
-  "firstName": "Hugh",
-  "lastName": "Cave",
-  "email": "hugh@akhouse.com",
-  "mobilePhone": 5556669999,
-  "userName": "hughb",
-  "password": "sample",
-  "role": "admin",
-  "group": "na"
+  "responseBody": {},
+  "statusCode": "string"
 }
 ```
 
-<h3 id="put-updates-the-information-for-an-existing-user.-responses">Responses</h3>
+<h3 id="updates-merchant-user-information.-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[UserObject](#schemauserobject)|
-|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad request.|[Error](#schemaerror)|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[MerchantUserPatchResponse](#schemamerchantuserpatchresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
 |401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
 |403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
-|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Resource not found.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
 |409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
-|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal server error.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
+
+### Response Headers
+
+|Status|Header|Type|Format|Description|
+|---|---|---|---|---|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
 
 <aside class="warning">
 To perform this operation, you must be authenticated by means of one of the following methods:
-BasicAuth
+None
 </aside>
 
-## DELETE removes a user.
+## Deletes merchant user based on merchant user id.
 
 > Code samples
 
 `DELETE /users/{userId}`
 
-Permanently deletes a user from the system.
-
-<h3 id="delete-removes-a-user.-parameters">Parameters</h3>
+<h3 id="deletes-merchant-user-based-on-merchant-user-id.-parameters">Parameters</h3>
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|userId|path|string|true|The unique UUID representing this user.|
+|userId|path|string|true|The previously determined merchant user id.|
+
+> Example responses
+
+> 200 Response
+
+```json
+{}
+```
+
+<h3 id="deletes-merchant-user-based-on-merchant-user-id.-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[MerchantUserDeleteResponse](#schemamerchantuserdeleteresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
+|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
+|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
+|409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
+
+### Response Headers
+
+|Status|Header|Type|Format|Description|
+|---|---|---|---|---|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+None
+</aside>
+
+## Get a list of the loan offers for this consumer.
+
+> Code samples
+
+`GET /loanApplications/{loanApplicationId}/offers`
+
+<h3 id="get-a-list-of-the-loan-offers-for-this-consumer.-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|loanApplicationId|path|string|true|none|
 
 > Example responses
 
@@ -1823,267 +1866,988 @@ Permanently deletes a user from the system.
 
 ```json
 {
-  "userId": "string",
-  "deleted": true
+  "loanApplicationId": "string",
+  "loanOfferDetailsList": [
+    {
+      "id": "string",
+      "loanAmount": "string",
+      "loanTermMonths": 0,
+      "interestRate": 0,
+      "monthlyPayment": 0,
+      "numberOfPayments": 0,
+      "firstPaymentDue": "string",
+      "totalInterest": 0,
+      "totalPayments": 0,
+      "totalFinancialCharges": 0,
+      "status": "string",
+      "truthInLending": "string",
+      "loanAgreement": "string",
+      "creditScoreDisclosure": "string"
+    }
+  ],
+  "loanAdversActionsList": [
+    {
+      "rank": "string",
+      "text": "string"
+    }
+  ]
 }
 ```
 
-<h3 id="delete-removes-a-user.-responses">Responses</h3>
+<h3 id="get-a-list-of-the-loan-offers-for-this-consumer.-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|Inline|
-|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad request.|[Error](#schemaerror)|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[LoanOfferResponse](#schemaloanofferresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
 |401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
 |403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
-|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Resource not found.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
 |409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
-|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal server error.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
 
-<h3 id="delete-removes-a-user.-responseschema">Response Schema</h3>
+### Response Headers
 
-Status Code **200**
-
-|Name|Type|Required|Restrictions|Description|
+|Status|Header|Type|Format|Description|
 |---|---|---|---|---|
-|» userId|string|false|none|The id of the user deleted.|
-|» deleted|boolean|false|none|True if successful.|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
 
 <aside class="warning">
 To perform this operation, you must be authenticated by means of one of the following methods:
-BasicAuth
+None
 </aside>
 
-<h1 id="wisetack-api-webhooks">Webhooks</h1>
-
-## POST subscribes to all Wisetack callbacks.
+## Get the details for this individual loan offer.
 
 > Code samples
 
-`POST /subscribe`
-
-Wisetack provides callbacks to let you know when the status of a transaction has changed. Each time
-the status of a loan application changes, Wisetack will send a request to this URL. The request contains
-the new status, the loan application id, and a secret key provided to you by Wisetack. You should only accept
-incoming status changes after verifying the secret key. When your webhook is called, it will receive
-a StatusUpdateRequest. Please see the StatusUpdateRequest in the Schema section below.
-
-Statuses:
-
-* **Initiated:**  You sent a transaction to your customer but they have not submitted an application.
-
-* **Authorized:**  We approved the application but the customer has not accepted the loan documents.
-
-* **Declined:** We were unable to approved the application.
-
-* **Confirmed:** The customer has accepted the loan documents and confirmed the purchase.
-
-* **Settled:** We've sent the funds to your bank account.
-
-* **Refunded:** The customer requested and received a refund.
+`GET /loanApplications/{loanApplicationId}/offers/{loanOfferId}`
 
 > Body parameter
 
 ```json
 {
-  "callbackURL": "https://wisetack.yourcompany.com/callback",
-  "event": "transaction-status",
-  "secretKey": "c58459b9-5acc-4d8b-b6a5-4e3cd39fff9c"
+  "status": "SELECTED"
 }
 ```
 
-<h3 id="post-subscribes-to-all-wisetack-callbacks.-parameters">Parameters</h3>
+<h3 id="get-the-details-for-this-individual-loan-offer.-parameters">Parameters</h3>
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|body|body|[SubscribeObject](#schemasubscribeobject)|true|none|
+|body|body|[LoanOfferRequest](#schemaloanofferrequest)|false|none|
+|loanApplicationId|path|string|true|none|
+|loanOfferId|path|string|true|none|
+|provideTruthInLendingDocument|query|string|false|none|
 
 > Example responses
 
-> 400 Response
+> 200 Response
 
 ```json
 {
-  "message": "string",
-  "type": "string",
-  "request-id": "string"
+  "loanApplicationId": "string",
+  "loanOfferDetailsList": [
+    {
+      "id": "string",
+      "loanAmount": "string",
+      "loanTermMonths": 0,
+      "interestRate": 0,
+      "monthlyPayment": 0,
+      "numberOfPayments": 0,
+      "firstPaymentDue": "string",
+      "totalInterest": 0,
+      "totalPayments": 0,
+      "totalFinancialCharges": 0,
+      "status": "string",
+      "truthInLending": "string",
+      "loanAgreement": "string",
+      "creditScoreDisclosure": "string"
+    }
+  ],
+  "loanAdversActionsList": [
+    {
+      "rank": "string",
+      "text": "string"
+    }
+  ]
 }
 ```
 
-<h3 id="post-subscribes-to-all-wisetack-callbacks.-responses">Responses</h3>
+<h3 id="get-the-details-for-this-individual-loan-offer.-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|201|[Created](https://tools.ietf.org/html/rfc7231#section-6.3.2)|Webhook created.|None|
-|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad request.|[Error](#schemaerror)|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[LoanOfferResponse](#schemaloanofferresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
 |401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
 |403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
-|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Resource not found.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
 |409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
-|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal server error.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
+
+### Response Headers
+
+|Status|Header|Type|Format|Description|
+|---|---|---|---|---|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
 
 <aside class="warning">
 To perform this operation, you must be authenticated by means of one of the following methods:
-BasicAuth
+None
+</aside>
+
+## Update the loan offer to indicate that it was the selected offer.
+
+> Code samples
+
+`PATCH /loanApplications/{loanApplicationId}/offers/{loanOfferId}`
+
+> Body parameter
+
+```json
+{
+  "status": "SELECTED"
+}
+```
+
+<h3 id="update-the-loan-offer-to-indicate-that-it-was-the-selected-offer.-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|[LoanOfferRequest](#schemaloanofferrequest)|true|none|
+|loanApplicationId|path|string|true|none|
+|loanOfferId|path|string|true|none|
+|provideTruthInLendingDocument|query|string|false|none|
+
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "loanApplicationId": "string",
+  "loanOfferDetailsList": [
+    {
+      "id": "string",
+      "loanAmount": "string",
+      "loanTermMonths": 0,
+      "interestRate": 0,
+      "monthlyPayment": 0,
+      "numberOfPayments": 0,
+      "firstPaymentDue": "string",
+      "totalInterest": 0,
+      "totalPayments": 0,
+      "totalFinancialCharges": 0,
+      "status": "string",
+      "truthInLending": "string",
+      "loanAgreement": "string",
+      "creditScoreDisclosure": "string"
+    }
+  ],
+  "loanAdversActionsList": [
+    {
+      "rank": "string",
+      "text": "string"
+    }
+  ]
+}
+```
+
+<h3 id="update-the-loan-offer-to-indicate-that-it-was-the-selected-offer.-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[LoanOfferResponse](#schemaloanofferresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
+|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
+|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
+|409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
+
+### Response Headers
+
+|Status|Header|Type|Format|Description|
+|---|---|---|---|---|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+None
+</aside>
+
+## Creates a new payment account and associates it with the loan application.
+
+> Code samples
+
+`POST /loanApplications/{loanApplicationId}/paymentAccounts`
+
+> Body parameter
+
+```json
+{
+  "plaidToken": "access-sandbox-5cd6e1b1-1b5b-459d-9284-366e2da89755"
+}
+```
+
+<h3 id="creates-a-new-payment-account-and-associates-it-with-the-loan-application.-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|[PaymentAccountRequest](#schemapaymentaccountrequest)|true|none|
+|loanApplicationId|path|string|true|none|
+
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "status": "plaidTokenAccepted"
+}
+```
+
+<h3 id="creates-a-new-payment-account-and-associates-it-with-the-loan-application.-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Ok|[PaymentAccountResponse](#schemapaymentaccountresponse)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request.|[Error](#schemaerror)|
+|401|[Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1)|Unauthorized.|[Error](#schemaerror)|
+|403|[Forbidden](https://tools.ietf.org/html/rfc7231#section-6.5.3)|Forbidden.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Not Found.|[Error](#schemaerror)|
+|409|[Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8)|Conflict.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Internal Server Error.|[Error](#schemaerror)|
+
+### Response Headers
+
+|Status|Header|Type|Format|Description|
+|---|---|---|---|---|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+|400|Access-Control-Allow-Headers|undefined||none|
+|400|Access-Control-Allow-Methods|undefined||none|
+|400|Access-Control-Allow-Origin|undefined||none|
+|401|Access-Control-Allow-Headers|undefined||none|
+|401|Access-Control-Allow-Methods|undefined||none|
+|401|Access-Control-Allow-Origin|undefined||none|
+|403|Access-Control-Allow-Headers|undefined||none|
+|403|Access-Control-Allow-Methods|undefined||none|
+|403|Access-Control-Allow-Origin|undefined||none|
+|404|Access-Control-Allow-Headers|undefined||none|
+|404|Access-Control-Allow-Methods|undefined||none|
+|404|Access-Control-Allow-Origin|undefined||none|
+|409|Access-Control-Allow-Headers|undefined||none|
+|409|Access-Control-Allow-Methods|undefined||none|
+|409|Access-Control-Allow-Origin|undefined||none|
+|500|Access-Control-Allow-Headers|undefined||none|
+|500|Access-Control-Allow-Methods|undefined||none|
+|500|Access-Control-Allow-Origin|undefined||none|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+None
+</aside>
+
+## Checks if the region is healthy.
+
+> Code samples
+
+`GET /healthcheck`
+
+Health check endpoint.
+
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
+<h3 id="checks-if-the-region-is-healthy.-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Test response|[HealthCheckResponse](#schemahealthcheckresponse)|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+None
+</aside>
+
+## Returns the request parameters.
+
+> Code samples
+
+`POST /test/{paramInPath}`
+
+Test endpoint.
+
+<h3 id="returns-the-request-parameters.-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|paraminheader|header|string|false|Parameter passed through header.|
+|paramInPath|path|string|true|Parameter passed through path.|
+|paramInQuery|query|string|false|Parameter passed in query.|
+|body|header|[testbody](#schematestbody)|true|Test Request.|
+
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "message": "string"
+}
+```
+
+<h3 id="returns-the-request-parameters.-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Test response|[testresponse](#schematestresponse)|
+
+### Response Headers
+
+|Status|Header|Type|Format|Description|
+|---|---|---|---|---|
+|200|Access-Control-Allow-Headers|undefined||none|
+|200|Access-Control-Allow-Methods|undefined||none|
+|200|Access-Control-Allow-Origin|undefined||none|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+None
 </aside>
 
 # Schemas
 
-<h2 id="tocSmerchantobject">MerchantObject</h2>
+<h2 id="tocStestbody">testbody</h2>
 
-<a id="schemamerchantobject"></a>
+<a id="schematestbody"></a>
+
+```json
+{
+  "paramInBody": "string"
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|paramInBody|string|true|none|none|
+
+<h2 id="tocStestresponse">testresponse</h2>
+
+<a id="schematestresponse"></a>
+
+```json
+{
+  "message": "string"
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|message|string|true|none|none|
+
+<h2 id="tocShealthcheckresponse">HealthCheckResponse</h2>
+
+<a id="schemahealthcheckresponse"></a>
+
+```json
+{
+  "message": "string"
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|message|string|true|none|none|
+
+<h2 id="tocSmerchant">Merchant</h2>
+
+<a id="schemamerchant"></a>
+
+```json
+{
+  "merchantId": "string",
+  "businessName": "string",
+  "displayName": "string",
+  "email": "string",
+  "statementDescriptor": "string",
+  "businessTaxId": "string",
+  "addressInformation": "string",
+  "chargesEnabled": true,
+  "payoutsEnabled": true,
+  "payoutSchedule": "string",
+  "tos_acceptance": true,
+  "pricingTier": "string",
+  "borrowerInformations": [
+    {
+      "borrowerInformation": "string"
+    }
+  ]
+}
+
+```
+
+*Merchant information.*
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|merchantId|string|false|none|none|
+|businessName|string|false|none|none|
+|displayName|string|false|none|none|
+|email|string|false|none|none|
+|statementDescriptor|string|false|none|none|
+|businessTaxId|string|false|none|none|
+|addressInformation|string|false|none|none|
+|chargesEnabled|boolean|false|none|none|
+|payoutsEnabled|boolean|false|none|none|
+|payoutSchedule|string|false|none|none|
+|tos_acceptance|boolean|false|none|none|
+|pricingTier|string|false|none|none|
+|borrowerInformations|[object]|false|none|none|
+|» borrowerInformation|string|false|none|none|
+
+<h2 id="tocStransactionrequest">TransactionRequest</h2>
+
+<a id="schematransactionrequest"></a>
+
+```json
+{
+  "transactionAmount": "string",
+  "mobileNumber": "string",
+  "loanPurpose": "string",
+  "serviceCompletedOn": "string",
+  "callBackURL": "string",
+  "selectedFinancialProduct": "string",
+  "firstName": "string",
+  "lastName": "string",
+  "email": "string",
+  "dob": "string",
+  "ssn4": "string",
+  "ssn": "string",
+  "streetAddress1": "string",
+  "streetAddress2": "string",
+  "city": "string",
+  "stateCode": "string",
+  "zip": "string",
+  "authPin": "string",
+  "employer": "string",
+  "annualIncomeBeforeTaxes": "string",
+  "coborrowerMobileNumber": "string",
+  "transactionLineItems": [
+    {
+      "productDescription": "labor",
+      "SKU": "none",
+      "pricePerUnit": "50000.00",
+      "tax": "na",
+      "discount": "5000.00",
+      "totalAmount": "55000.00"
+    }
+  ]
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|transactionAmount|string|false|none|Required for POST. Includes two decimal points but no dollar symbol.|
+|mobileNumber|string|false|none|Required for POST. International phone numbers are supported. No formatted should be included. Just the digits.|
+|loanPurpose|string|false|none|Required for POST. Currently this is freeform but will be enumerated in database in the future.|
+|serviceCompletedOn|string|false|none|Required by POST. The date when the merchant completes the service.|
+|callBackURL|string|false|none|Optional. URL to call on status change of transaction. See StatusUpdateRequest in the schema.|
+|selectedFinancialProduct|string|false|none|The merchant can have one or more financial products from which to choose for each transaction.|
+|firstName|string|false|none|none|
+|lastName|string|false|none|none|
+|email|string|false|none|none|
+|dob|string|false|none|Format is YYYY-MM-DD. Please use the whole format as shown below in the example.|
+|ssn4|string|false|none|none|
+|ssn|string|false|none|none|
+|streetAddress1|string|false|none|none|
+|streetAddress2|string|false|none|none|
+|city|string|false|none|none|
+|stateCode|string|false|none|none|
+|zip|string|false|none|Zip code can be either the full nine digits (nnnnn-mmmm) or just the five digit delivery area.|
+|authPin|string|false|none|none|
+|employer|string|false|none|none|
+|annualIncomeBeforeTaxes|string|false|none|Includes the decimal point but no dollar sign.|
+|coborrowerMobileNumber|string|false|none|Coborrower mobile number. International phone numbers are supported. No formatted should be included. Just the digits.|
+|transactionLineItems|[[LoanApplicationLineItems](#schemaloanapplicationlineitems)]|false|none|none|
+
+<h2 id="tocStransactionresponse">TransactionResponse</h2>
+
+<a id="schematransactionresponse"></a>
+
+```json
+{
+  "loanApplicationId": "39f11e30-0b2c-499e-9180-0c2ed29ad11d"
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|loanApplicationId|string|false|none|Unique UUID for transaction.|
+
+<h2 id="tocSloanapplicationrequest">LoanApplicationRequest</h2>
+
+<a id="schemaloanapplicationrequest"></a>
+
+```json
+{
+  "transactionAmount": 1000,
+  "mobileNumber": 1235554567,
+  "loanPurpose": "landscape",
+  "selectedFinancialProduct": "fully_amortizing_risk_based",
+  "firstName": "Clark",
+  "lastName": "Smith",
+  "email": "casmith@example.com",
+  "dob": -535420800000,
+  "ssn4": 3333,
+  "zip": 95602,
+  "annualIncomeBeforeTaxes": 120000,
+  "status": "initiated"
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|transactionAmount|string|false|none|Required for POST. Includes two decimal points but no dollar symbol.|
+|mobileNumber|string|false|none|Required for POST. International phone numbers are supported. No formatted should be included. Just the digits.|
+|loanPurpose|string|false|none|Required for POST. Currently this is freeform but will be enumerated in database in the future.|
+|serviceCompletedOn|string|false|none|Required by POST. The date when the merchant completes the service.|
+|callBackURL|string|false|none|Optional. URL to call on status change of transaction. See StatusUpdateRequest in the schema.|
+|selectedFinancialProduct|string|false|none|The merchant can have one or more financial products from which to choose for each transaction.|
+|firstName|string|false|none|none|
+|lastName|string|false|none|none|
+|email|string|false|none|none|
+|dob|string|false|none|Format is YYYY-MM-DD. Please use the whole format as shown below in the example.|
+|ssn4|string|false|none|none|
+|ssn|string|false|none|none|
+|streetAddress1|string|false|none|none|
+|streetAddress2|string|false|none|none|
+|city|string|false|none|none|
+|stateCode|string|false|none|none|
+|zip|string|false|none|Zip code can be either the full nine digits (nnnnn-mmmm) or just the five digit delivery area.|
+|authPin|string|false|none|none|
+|employer|string|false|none|none|
+|annualIncomeBeforeTaxes|string|false|none|Includes the decimal point but no dollar sign.|
+|coborrowerMobileNumber|string|false|none|Coborrower mobile number. International phone numbers are supported. No formatted should be included. Just the digits.|
+|escalateAuthentication|boolean|false|none|Set to true if the borrower should be challenged to enter a pin.|
+|termsOfServiceAccepted|boolean|false|none|Set to true if the borrower accepted the terms of service agreement.|
+|electronicDisclosuresAccepted|boolean|false|none|Set to true if the borrower accepted the electronic disclosure.|
+|privacyPolicyAccepted|boolean|false|none|Set to true if the borrower accepted privacy policy.|
+|transactionLineItems|[[LoanApplicationLineItems](#schemaloanapplicationlineitems)]|false|none|none|
+
+<h2 id="tocSloanapplicationresponse">LoanApplicationResponse</h2>
+
+<a id="schemaloanapplicationresponse"></a>
+
+```json
+{
+  "loanApplicationId": "39f11e30-0b2c-499e-9180-0c2ed29ad11d",
+  "initToken": "12AB7",
+  "status": "OFFER_AVAILABLE"
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|loanApplicationId|string|false|none|Unique UUID for transaction.|
+|initToken|string|false|none|Internal use only.|
+|status|string|false|none|See supported values in LoanApplicationStatus class.|
+|selectedLoanOfferId|string|false|none|none|
+|selectedLoanOfferStatus|string|false|none|See supported values in LoanOfferStatus class.|
+|dataInquiryList|[any]|false|none|See supported values in the LoanApplicationDataInquiry class.|
+
+<h2 id="tocSloanofferrequest">LoanOfferRequest</h2>
+
+<a id="schemaloanofferrequest"></a>
+
+```json
+{
+  "status": "SELECTED"
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|provideTruthInLendingDocument|boolean|false|none|Indicates if TILA should be included in the response.|
+|provideLoanAgreementDocument|boolean|false|none|Indicates if Loan Agreement should be included in the response.|
+|provideCreditScoreDocument|boolean|false|none|Indicates if Credit Score Disclosure should be included in the response.|
+|status|string|false|none|See LoanOfferStatus class for supported values.|
+|truthInLendingDisclosureAccepted|boolean|false|none|Set to true if the borrower accepted the Truth In Lending disclosure.|
+|loanAgreementAccepted|boolean|false|none|Set to true if the borrower accepted the loan agreement.|
+|creditScoreDisclosureAccepted|boolean|false|none|Set to true if the borrower accepted the credit score disclosure.|
+
+<h2 id="tocSloanofferresponse">LoanOfferResponse</h2>
+
+<a id="schemaloanofferresponse"></a>
+
+```json
+{
+  "loanApplicationId": "string",
+  "loanOfferDetailsList": [
+    {
+      "id": "string",
+      "loanAmount": "string",
+      "loanTermMonths": 0,
+      "interestRate": 0,
+      "monthlyPayment": 0,
+      "numberOfPayments": 0,
+      "firstPaymentDue": "string",
+      "totalInterest": 0,
+      "totalPayments": 0,
+      "totalFinancialCharges": 0,
+      "status": "string",
+      "truthInLending": "string",
+      "loanAgreement": "string",
+      "creditScoreDisclosure": "string"
+    }
+  ],
+  "loanAdversActionsList": [
+    {
+      "rank": "string",
+      "text": "string"
+    }
+  ]
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|loanApplicationId|string|false|none|none|
+|loanOfferDetailsList|[[LoanOfferDetails](#schemaloanofferdetails)]|false|none|none|
+|loanAdversActionsList|[[LoanAdverseActions](#schemaloanadverseactions)]|false|none|none|
+
+<h2 id="tocSloanadverseactions">LoanAdverseActions</h2>
+
+<a id="schemaloanadverseactions"></a>
+
+```json
+{
+  "rank": "string",
+  "text": "string"
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|rank|string|false|none|none|
+|text|string|false|none|none|
+
+<h2 id="tocSloanofferdetails">LoanOfferDetails</h2>
+
+<a id="schemaloanofferdetails"></a>
+
+```json
+{
+  "id": "string",
+  "loanAmount": "string",
+  "loanTermMonths": 0,
+  "interestRate": 0,
+  "monthlyPayment": 0,
+  "numberOfPayments": 0,
+  "firstPaymentDue": "string",
+  "totalInterest": 0,
+  "totalPayments": 0,
+  "totalFinancialCharges": 0,
+  "status": "string",
+  "truthInLending": "string",
+  "loanAgreement": "string",
+  "creditScoreDisclosure": "string"
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|string|false|none|none|
+|loanAmount|string|false|none|none|
+|loanTermMonths|integer|false|none|none|
+|interestRate|number|false|none|none|
+|monthlyPayment|number|false|none|none|
+|numberOfPayments|integer|false|none|none|
+|firstPaymentDue|string|false|none|none|
+|totalInterest|number|false|none|none|
+|totalPayments|number|false|none|none|
+|totalFinancialCharges|number|false|none|none|
+|status|string|false|none|See LoanOfferStatus calss for supported values.|
+|truthInLending|string|false|none|none|
+|loanAgreement|string|false|none|none|
+|creditScoreDisclosure|string|false|none|none|
+
+<h2 id="tocSpaymentaccountrequest">PaymentAccountRequest</h2>
+
+<a id="schemapaymentaccountrequest"></a>
+
+```json
+{
+  "plaidToken": "access-sandbox-5cd6e1b1-1b5b-459d-9284-366e2da89755"
+}
+
+```
+
+*Account to associate with a loan.*
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|plaidToken|string|false|none|Plaid token gathered from user interaction with embedded Plaid sign in. If no account is attached, send 'notAttached' as token value.|
+|paymentAuthorizationAccepted|boolean|false|none|Set to true if the borrower enabled bank payments by linking a bank account.|
+
+<h2 id="tocSpaymentaccountresponse">PaymentAccountResponse</h2>
+
+<a id="schemapaymentaccountresponse"></a>
+
+```json
+{
+  "status": "plaidTokenAccepted"
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|status|string|false|none|none|
+
+<h2 id="tocSmerchantpostresponse">MerchantPostResponse</h2>
+
+<a id="schemamerchantpostresponse"></a>
+
+```json
+{
+  "merchantResourceURL": "string"
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|merchantResourceURL|string|false|none|none|
+
+<h2 id="tocSmerchantloginrequest">MerchantLoginRequest</h2>
+
+<a id="schemamerchantloginrequest"></a>
+
+```json
+{
+  "username": "string"
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|username|string|true|none|merchant user email or phone number|
+
+<h2 id="tocSmerchantloginresponse">MerchantLoginResponse</h2>
+
+<a id="schemamerchantloginresponse"></a>
+
+```json
+{
+  "responseBody": {
+    "success": true,
+    "message": "string",
+    "code": "string"
+  },
+  "statusCode": "string"
+}
+
+```
+
+*this response returned if no errors found, in case of error see 'Error' schema*
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|responseBody|object|false|none|none|
+|» success|boolean|false|none|result of login, should be true|
+|» message|string|false|none|message on login, in case of successful login should be 'Verification code sent!'|
+|» code|string|false|none|merchant user verification code (returned only if test phone/email specified in request)|
+|statusCode|string|false|none|response status code, should be 200 if case of success login|
+
+<h2 id="tocSmerchantauthrequest">MerchantAuthRequest</h2>
+
+<a id="schemamerchantauthrequest"></a>
+
+```json
+{
+  "code": "string",
+  "username": "string",
+  "token": "string"
+}
+
+```
+
+*this request used for merchant user authentication if code specified and for JWT token refresh if 'token' parameter specified*
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|code|string|false|none|merchant user verification code, sent previously to user in SMS or email|
+|username|string|false|none|merchant user email or phone number, required parameter in case of authentication, but not for JWT token refresh|
+|token|string|false|none|merchant user JWT to refresh (code should not be specified in the case of token refresh)|
+
+<h2 id="tocSmerchantauthresponse">MerchantAuthResponse</h2>
+
+<a id="schemamerchantauthresponse"></a>
+
+```json
+{
+  "responseBody": {
+    "success": true,
+    "token": "string",
+    "merchant": {
+      "id": "string",
+      "name": "string"
+    },
+    "user": {
+      "userId": "string",
+      "merchantId": "string"
+    }
+  },
+  "statusCode": "string"
+}
+
+```
+
+*this response returned if no errors found, in case of error see 'Error' schema*
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|responseBody|object|false|none|none|
+|» success|boolean|false|none|result of auth, should be true|
+|» token|string|false|none|JWT token to be used in further merchant user requests|
+|» merchant|object|false|none|merchant data, this property will not be returned in case of token refresh|
+|»» id|string|false|none|merchant ID|
+|»» name|string|false|none|merchant name|
+|» user|object|false|none|user data, this property will not be returned in case of token refresh|
+|»» userId|string|false|none|merchant user ID|
+|»» merchantId|string|false|none|merchant ID|
+|» statusCode|string|false|none|response status code, should be 200 in case of success auth|
+
+<h2 id="tocSmerchantgetresponse">MerchantGetResponse</h2>
+
+<a id="schemamerchantgetresponse"></a>
 
 ```json
 {
   "merchantId": "string",
   "onboardingDate": "string",
-  "transactionsEnabled": true,
-  "merchantSecretToken": null,
-  "optionalInformation": {
-    "companyDescription": null,
-    "companyURL": null,
-    "dba": null,
-    "companyEmail": null,
-    "annualRevenue": null,
-    "averageOrderValue": null,
-    "industry": null,
-    "dateEstablished": null,
-    "supportPhone": null,
-    "annualChargeBackAmount": null,
-    "annualRefundsAmount": null,
-    "otherServiceLinks": [
-      {
-        "serviceName": "string"
-      }
-    ],
-    "ownerInformation": [
-      {
-        "driversLicenseNumber": null,
-        "driversLicenseState": null,
-        "ownerDocuments": [
-          {
-            "documentType": null
-          }
-        ]
-      }
-    ]
-  },
-  "currentlyDue": {
-    "deadline": "string",
-    "companyEIN": null,
-    "companyLegalOperatingName": null,
-    "companyPhoneNumber": null,
-    "companyStreetAddress1": null,
-    "companyStreetAddress2": null,
-    "companyCity": null,
-    "companyStateCode": null,
-    "companyZip": null,
-    "companyType": "partnership",
-    "tosAcceptanceDate": null,
-    "tosAcceptanceIPAddress": null,
-    "ownerInformation": [
-      {
-        "isOwnerPrimary": null,
-        "ownerMobilePhoneNumber": null,
-        "ownerDOB": null,
-        "ownerFirstName": null,
-        "ownerLastName": null,
-        "ownerLast4ssn": null
-      }
-    ]
-  },
-  "eventuallyDue": {
-    "deadline": "string",
-    "companyEIN": null,
-    "companyLegalOperatingName": null,
-    "companyPhoneNumber": null,
-    "companyStreetAddress1": null,
-    "companyStreetAddress2": null,
-    "companyCity": null,
-    "companyStateCode": null,
-    "companyZip": null,
-    "companyType": "partnership",
-    "tosAcceptanceDate": null,
-    "tosAcceptanceIPAddress": null,
-    "ownerInformation": [
-      {
-        "isOwnerPrimary": null,
-        "ownerMobilePhoneNumber": null,
-        "ownerDOB": null,
-        "ownerFirstName": null,
-        "ownerLastName": null,
-        "ownerLast4ssn": null
-      }
-    ]
-  },
-  "pastDue": {
-    "deadline": "string",
-    "companyEIN": null,
-    "companyLegalOperatingName": null,
-    "companyPhoneNumber": null,
-    "companyStreetAddress1": null,
-    "companyStreetAddress2": null,
-    "companyCity": null,
-    "companyStateCode": null,
-    "companyZip": null,
-    "companyType": "partnership",
-    "tosAcceptanceDate": null,
-    "tosAcceptanceIPAddress": null,
-    "ownerInformation": [
-      {
-        "isOwnerPrimary": null,
-        "ownerMobilePhoneNumber": null,
-        "ownerDOB": null,
-        "ownerFirstName": null,
-        "ownerLastName": null,
-        "ownerLast4ssn": null
-      }
-    ]
-  },
-  "disabledReason": "string",
-  "merchantInformation": {
-    "companyEIN": "string",
-    "companyLegalOperatingName": "string",
-    "companyPhoneNumber": "string",
-    "companyStreetAddress1": "string",
-    "companyStreetAddress2": "string",
-    "companyCity": "string",
-    "companyStateCode": "string",
-    "companyZip": "string",
-    "companyType": "partnership",
-    "tosAcceptanceDate": "string",
-    "tosAcceptanceIPAddress": "string",
-    "commpanyDescription": "string",
-    "companyURL": "string",
-    "dba": "string",
-    "companyEmail": "string",
-    "annualRevenue": "string",
-    "averageOrderValue": "string",
-    "industry": "string",
-    "dateEstablished": "string",
-    "supportPhone": "string",
-    "annualChargeBackAmount": "string",
-    "annualRefundsAmount": "string",
-    "otherServiceLinks": [
-      {
-        "serviceName": null,
-        "serviceURL": null,
-        "serviceToken": null
-      }
-    ],
-    "ownerInformation": [
-      {
-        "ownerMobilePhoneNumber": "string",
-        "driversLicenseNumber": "string",
-        "driversLicenseState": "string",
-        "ownerDocuments": [
-          {
-            "documentType": "string"
-          }
-        ]
-      }
-    ]
-  }
+  "transactionsEnabled": true
 }
 
 ```
@@ -2095,47 +2859,33 @@ BasicAuth
 |merchantId|string|false|none|A UUID unique to the newly created merchant.|
 |onboardingDate|string|false|none|Date this merchant was initially onboarded in YYYY-MM-DD format.|
 |transactionsEnabled|boolean|false|none|Has this merchant been fully onboarded and are now able to initiate transactions.|
-|merchantSecretToken|any|false|none|An token used for authenticiation from the partner's backend to the Wisetack backend.|
-|optionalInformation|[MerchantOptionalInformation](#schemamerchantoptionalinformation)|false|none|none|
-|currentlyDue|[MerchantDataRequired](#schemamerchantdatarequired)|false|none|none|
-|eventuallyDue|[MerchantDataRequired](#schemamerchantdatarequired)|false|none|none|
-|pastDue|[MerchantDataRequired](#schemamerchantdatarequired)|false|none|none|
-|disabledReason|string|false|none|If the merchant has been disabled and cannot initiate further transactions, that information is listed here.|
-|merchantInformation|[MerchantUpdateObject](#schemamerchantupdateobject)|false|none|none|
 
-<h2 id="tocSmerchantoptionalinformation">MerchantOptionalInformation</h2>
+<h2 id="tocSmerchantpatchresponse">MerchantPatchResponse</h2>
 
-<a id="schemamerchantoptionalinformation"></a>
+<a id="schemamerchantpatchresponse"></a>
 
 ```json
 {
-  "companyDescription": null,
-  "companyURL": null,
-  "dba": null,
-  "companyEmail": null,
-  "annualRevenue": null,
-  "averageOrderValue": null,
-  "industry": null,
-  "dateEstablished": null,
-  "supportPhone": null,
-  "annualChargeBackAmount": null,
-  "annualRefundsAmount": null,
-  "otherServiceLinks": [
-    {
-      "serviceName": "string"
-    }
-  ],
-  "ownerInformation": [
-    {
-      "driversLicenseNumber": null,
-      "driversLicenseState": null,
-      "ownerDocuments": [
-        {
-          "documentType": null
-        }
-      ]
-    }
-  ]
+  "responseBody": {
+    "merchantId": "string",
+    "businessName": "string",
+    "displayName": "string",
+    "email": "string",
+    "statementDescriptor": "string",
+    "businessTaxId": "string",
+    "addressInformation": "string",
+    "chargesEnabled": true,
+    "payoutsEnabled": true,
+    "payoutSchedule": "string",
+    "tos_acceptance": true,
+    "pricingTier": "string",
+    "borrowerInformations": [
+      {
+        "borrowerInformation": "string"
+      }
+    ]
+  },
+  "statusCode": "string"
 }
 
 ```
@@ -2144,53 +2894,20 @@ BasicAuth
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
-|companyDescription|any|false|none|Freeform description of the business.|
-|companyURL|any|false|none|The main url for the business.|
-|dba|any|false|none|Any doing-business-as names that would apply.|
-|companyEmail|any|false|none|Email address for main contact at the company.|
-|annualRevenue|any|false|none|Total annual revenue for the business. Includes two decimal points but no dollar symbol.|
-|averageOrderValue|any|false|none|The typical order value for this business. Includes two decimal points but no dollar symbol.|
-|industry|any|false|none|A list of industries will be provided and this field will be validated.|
-|dateEstablished|any|false|none|The date the company was started in YYYY-MM-DD format.|
-|supportPhone|any|false|none|Business phone number for customer support.|
-|annualChargeBackAmount|any|false|none|Total amount of chargebacks for the prior year.|
-|annualRefundsAmount|any|false|none|Total amount of refunds for the prior year.|
-|otherServiceLinks|[object]|false|none|Future feature. This section will request access to external services, such as Quicken, to facilitate onboarding.|
-|» serviceName|string|false|none|The name of the company providing the service. Quicken, for example.|
-|ownerInformation|[object]|false|none|Optional information for each owner.|
-|» driversLicenseNumber|any|false|none|Driver's license number.|
-|» driversLicenseState|any|false|none|State where driver's license was issued.|
-|» ownerDocuments|[object]|false|none|Scanned in documents to supplement and verify information.|
-|»» documentType|any|false|none|Enum describing type of document requested or required.|
+|responseBody|[Merchant](#schemamerchant)|false|none|Merchant information.|
+|statusCode|string|false|none|response status code, should be 200 in case of success|
 
-<h2 id="tocSmerchantdatarequired">MerchantDataRequired</h2>
+<h2 id="tocSmerchantdeleteresponse">MerchantDeleteResponse</h2>
 
-<a id="schemamerchantdatarequired"></a>
+<a id="schemamerchantdeleteresponse"></a>
 
 ```json
 {
-  "deadline": "string",
-  "companyEIN": null,
-  "companyLegalOperatingName": null,
-  "companyPhoneNumber": null,
-  "companyStreetAddress1": null,
-  "companyStreetAddress2": null,
-  "companyCity": null,
-  "companyStateCode": null,
-  "companyZip": null,
-  "companyType": "partnership",
-  "tosAcceptanceDate": null,
-  "tosAcceptanceIPAddress": null,
-  "ownerInformation": [
-    {
-      "isOwnerPrimary": null,
-      "ownerMobilePhoneNumber": null,
-      "ownerDOB": null,
-      "ownerFirstName": null,
-      "ownerLastName": null,
-      "ownerLast4ssn": null
-    }
-  ]
+  "responseBody": {
+    "merchantId": "string",
+    "deleted": true
+  },
+  "statusCode": "string"
 }
 
 ```
@@ -2199,129 +2916,191 @@ BasicAuth
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
-|deadline|string|false|none|The date information is the section is due in YYYY-MM-DD format.|
-|companyEIN|any|false|none|The company's Employer Identification Number.|
-|companyLegalOperatingName|any|false|none|The official name of the company as listed with the tax authority.|
-|companyPhoneNumber|any|false|none|Main contact number for the company.|
-|companyStreetAddress1|any|false|none|Address of the business.|
-|companyStreetAddress2|any|false|none|Address of the business.|
-|companyCity|any|false|none|City of the business.|
-|companyStateCode|any|false|none|Two-character code for the state in which the business is based.|
-|companyZip|any|false|none|Zip code for business location. Zip code can be either the full nine digits (nnnnn-mmmm) or just the five digit delivery area.|
-|companyType|any|false|none|A list of business types will be provided and this field will be validated.|
-|tosAcceptanceDate|any|false|none|Date the terms of service were accepted. Format is YYYY-MM-DD.|
-|tosAcceptanceIPAddress|any|false|none|IP address used when terms of service were accepted.|
-|ownerInformation|[object]|false|none|Required information for each owner.|
-|» isOwnerPrimary|any|false|none|Indicates whether this owner is the primary business owner.|
-|» ownerMobilePhoneNumber|any|false|none|Cell phone number of the company owner.|
-|» ownerDOB|any|false|none|Date-of-birth of the company owner. Format is YYYY-MM-DD.|
-|» ownerFirstName|any|false|none|First name of the owner.|
-|» ownerLastName|any|false|none|Last name of the owner.|
-|» ownerLast4ssn|any|false|none|Social security number of the owner.|
+|responseBody|object|false|none|none|
+|» merchantId|string|false|none|none|
+|» deleted|boolean|false|none|none|
+|statusCode|string|false|none|response status code, should be 200 in case of success|
+
+<h2 id="tocSmerchantuser">MerchantUser</h2>
+
+<a id="schemamerchantuser"></a>
+
+```json
+{}
+
+```
+
+### Properties
+
+*None*
+
+<h2 id="tocSmerchantuserpostresponse">MerchantUserPostResponse</h2>
+
+<a id="schemamerchantuserpostresponse"></a>
+
+```json
+{}
+
+```
+
+### Properties
+
+*None*
+
+<h2 id="tocSmerchantuserpatchresponse">MerchantUserPatchResponse</h2>
+
+<a id="schemamerchantuserpatchresponse"></a>
+
+```json
+{
+  "responseBody": {},
+  "statusCode": "string"
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|responseBody|[MerchantUser](#schemamerchantuser)|false|none|none|
+|statusCode|string|false|none|response status code, should be 200 in case of success|
+
+<h2 id="tocSmerchantusergetresponse">MerchantUserGetResponse</h2>
+
+<a id="schemamerchantusergetresponse"></a>
+
+```json
+{}
+
+```
+
+### Properties
+
+*None*
+
+<h2 id="tocSmerchantuserdeleteresponse">MerchantUserDeleteResponse</h2>
+
+<a id="schemamerchantuserdeleteresponse"></a>
+
+```json
+{}
+
+```
+
+### Properties
+
+*None*
+
+<h2 id="tocStransactionstatus">TransactionStatus</h2>
+
+<a id="schematransactionstatus"></a>
+
+```json
+"Initiated"
+
+```
+
+*transaction status to display in merchant UI*
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|*anonymous*|string|false|none|transaction status to display in merchant UI|
 
 #### Enumerated Values
 
 |Property|Value|
 |---|---|
-|companyType|partnership|
-|companyType|LLC|
-|companyType|corporation|
+|*anonymous*|Initiated|
+|*anonymous*|Loan confirmed|
+|*anonymous*|Authorized|
+|*anonymous*|Expired|
+|*anonymous*|Rejected|
+|*anonymous*|Declined|
+|*anonymous*|Settled|
 
-<h2 id="tocSmerchantupdateobject">MerchantUpdateObject</h2>
+<h2 id="tocSmerchanttransactionsresponse">MerchantTransactionsResponse</h2>
 
-<a id="schemamerchantupdateobject"></a>
+<a id="schemamerchanttransactionsresponse"></a>
 
 ```json
 {
-  "companyEIN": "string",
-  "companyLegalOperatingName": "string",
-  "companyPhoneNumber": "string",
-  "companyStreetAddress1": "string",
-  "companyStreetAddress2": "string",
-  "companyCity": "string",
-  "companyStateCode": "string",
-  "companyZip": "string",
-  "companyType": "partnership",
-  "tosAcceptanceDate": "string",
-  "tosAcceptanceIPAddress": "string",
-  "commpanyDescription": "string",
-  "companyURL": "string",
-  "dba": "string",
-  "companyEmail": "string",
-  "annualRevenue": "string",
-  "averageOrderValue": "string",
-  "industry": "string",
-  "dateEstablished": "string",
-  "supportPhone": "string",
-  "annualChargeBackAmount": "string",
-  "annualRefundsAmount": "string",
-  "otherServiceLinks": [
-    {
-      "serviceName": null,
-      "serviceURL": null,
-      "serviceToken": null
-    }
-  ],
-  "ownerInformation": [
-    {
-      "ownerMobilePhoneNumber": "string",
-      "driversLicenseNumber": "string",
-      "driversLicenseState": "string",
-      "ownerDocuments": [
-        {
-          "documentType": "string"
-        }
-      ]
-    }
-  ]
+  "responseBody": {
+    "success": true,
+    "token": "string",
+    "transactions": [
+      {
+        "id": "8519e81f",
+        "date": "8/30",
+        "name": "E. Bode",
+        "amount": "$3,425.00",
+        "status": "Initiated",
+        "loanStatus": "OFFER_CONVERTED",
+        "offerId": "ebd271c2-ebf1-4575-a56d-526256f9551a",
+        "offerStatus": "CONVERTED",
+        "loanPurpose": "string",
+        "serviceCompletedOn": "2019-08-30 07:00:00+0000",
+        "tilaAcceptedOn": "2019-08-30 15:26:37+0000",
+        "createdAt": 1567178434626,
+        "paymentId": "000000000000003#752fca11-3e7c-4b4e-91f3-629766be4422",
+        "paymentCreatedOn": "2019-09-03 07:00:00+0000",
+        "consumer": {
+          "fullName": "string",
+          "email": "string",
+          "phone": 15555555552,
+          "zip": 84101
+        },
+        "statusHistory": [
+          {
+            "date": "8/30",
+            "amount": "$3,425.00",
+            "status": "Initiated"
+          }
+        ]
+      }
+    ]
+  },
+  "statusCode": "string"
 }
 
 ```
+
+*this response returned if no errors found, in case of error see 'Error' schema*
 
 ### Properties
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
-|companyEIN|string|false|none|The company's Employer Identification Number.|
-|companyLegalOperatingName|string|false|none|The official name of the company as listed with the tax authority.|
-|companyPhoneNumber|string|false|none|Main contact number for the company.|
-|companyStreetAddress1|string|false|none|Address of the business.|
-|companyStreetAddress2|string|false|none|Address of the business.|
-|companyCity|string|false|none|City of the business.|
-|companyStateCode|string|false|none|Two-character code for the state in which the business is based.|
-|companyZip|string|false|none|Zip code for business location. Zip code can be either the full nine digits (nnnnn-mmmm) or just the five digit delivery area.|
-|companyType|any|false|none|A list of business types will be provided and this field will be validated.|
-|tosAcceptanceDate|string|false|none|Date terms of service were accepted. Format is YYYY-MM-DD.|
-|tosAcceptanceIPAddress|string|false|none|IP address used when terms of service were accepted.|
-|commpanyDescription|string|false|none|Freeform description of the business.|
-|companyURL|string|false|none|The main url for the business.|
-|dba|string|false|none|Any doing-business-as names that would apply.|
-|companyEmail|string|false|none|Email address for main contact at the company.|
-|annualRevenue|string|false|none|Total annual revenue for the business. Includes two decimal points but no dollar symbol.|
-|averageOrderValue|string|false|none|The typical order value for this business. Includes two decimal points but no dollar symbol.|
-|industry|string|false|none|A list of industries will be provided and this field will be validated.|
-|dateEstablished|string|false|none|The date the company was started in YYYY-MM-DD format.|
-|supportPhone|string|false|none|Business phone number for customer support.|
-|annualChargeBackAmount|string|false|none|Total amount of chargebacks for the prior year.|
-|annualRefundsAmount|string|false|none|Total amount of refunds for the prior year.|
-|otherServiceLinks|[object]|false|none|Future feature. This section will allow other services, such as Quicken, to facilitate onboarding.|
-|» serviceName|any|false|none|The name of the company providing the service. Quicken, for example.|
-|» serviceURL|any|false|none|The url for the support page for the service.|
-|» serviceToken|any|false|none|Customer token needed to access the service.|
-|ownerInformation|[object]|false|none|Optional information for each owner.|
-|» ownerMobilePhoneNumber|string|false|none|The cell phone number of the merchant.|
-|» driversLicenseNumber|string|false|none|Driver's license number.|
-|» driversLicenseState|string|false|none|State where driver's license was issued.|
-|» ownerDocuments|[object]|false|none|Scanned in documents to supplement and verify information.|
-|»» documentType|string|false|none|Enum describing type of document requested or required.|
-
-#### Enumerated Values
-
-|Property|Value|
-|---|---|
-|companyType|partnership|
-|companyType|LLC|
-|companyType|corporation|
+|responseBody|object|false|none|none|
+|» success|boolean|false|none|result of request, should be true|
+|» token|string|false|none|refreshed JWT token to be used in further merchant user requests|
+|» transactions|[object]|false|none|none|
+|»» id|string|false|none|loan application short id|
+|»» date|string|false|none|transaction date|
+|»» name|string|false|none|consumer shorten name|
+|»» amount|string|false|none|transaction amount|
+|»» status|[TransactionStatus](#schematransactionstatus)|false|none|transaction status to display in merchant UI|
+|»» loanStatus|string|false|none|loan internal status|
+|»» offerId|string|false|none|selected loan offer ID|
+|»» offerStatus|string|false|none|selected loan offer internal status|
+|»» loanPurpose|string|false|none|loan purpose|
+|»» serviceCompletedOn|string(date-time)|false|none|none|
+|»» tilaAcceptedOn|string(date-time)|false|none|none|
+|»» createdAt|integer|false|none|unix timestamp when transaction created|
+|»» paymentId|string|false|none|payment ID|
+|»» paymentCreatedOn|string(date-time)|false|none|payment creation date|
+|»» consumer|object|false|none|none|
+|»»» fullName|string|false|none|consumer full name|
+|»»» email|string|false|none|consumer email|
+|»»» phone|string|false|none|consumer phone|
+|»»» zip|string|false|none|consumer zip|
+|»» statusHistory|[object]|false|none|none|
+|»»» date|string|false|none|status set date|
+|»»» amount|string|false|none|transaction amount|
+|»»» status|[TransactionStatus](#schematransactionstatus)|false|none|transaction status to display in merchant UI|
+|»» statusCode|string|false|none|response status code, should be 200 in case of success|
 
 <h2 id="tocSpaymentlinkobject">PaymentLinkObject</h2>
 
@@ -2371,101 +3150,11 @@ BasicAuth
 |employer|string|false|none|optional|
 |annualIncomeBeforeTaxes|string|false|none|Optional. Includes the decimal point but no dollar sign.|
 |coborrowerMobileNumber|string|false|none|Optional. Coborrower mobile number. International phone numbers are supported. No formatted should be included. Just the digits.|
-|transactionLineItems|[[PaymentLinkLineItems](#schemapaymentlinklineitems)]|false|none|none|
+|transactionLineItems|[[LoanApplicationLineItems](#schemaloanapplicationlineitems)]|false|none|none|
 
-<h2 id="tocSpaymentlinklineitems">PaymentLinkLineItems</h2>
+<h2 id="tocSloanapplicationlineitems">LoanApplicationLineItems</h2>
 
-<a id="schemapaymentlinklineitems"></a>
-
-```json
-{
-  "productDescription": "labor",
-  "SKU": "none",
-  "pricePerUnit": "50000.00",
-  "tax": "na",
-  "discount": "5000.00",
-  "totalAmount": "55000.00"
-}
-
-```
-
-### Properties
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|productDescription|string|false|none|none|
-|SKU|string|false|none|none|
-|pricePerUnit|string|false|none|Includes the decimal point but no dollar sign.|
-|tax|string|false|none|Includes the decimal point but no dollar sign.|
-|discount|string|false|none|Includes the decimal point but no dollar sign.|
-|totalAmount|string|false|none|Includes the decimal point but no dollar sign.|
-|photo|string|false|none|To be fixed to use media attachment later.|
-
-<h2 id="tocStransactionobject">TransactionObject</h2>
-
-<a id="schematransactionobject"></a>
-
-```json
-{
-  "status": "initiated",
-  "transactionAmount": "1000.00",
-  "mobileNumber": 1235554567,
-  "transactionPurpose": "landscape",
-  "firstName": "Clark",
-  "lastName": "Smith",
-  "email": "casmith@example.com",
-  "dob": -535420800000,
-  "ssn4": 3333,
-  "streetAddress": "123 Ashton Street",
-  "streetAddress2": "Suite 13",
-  "city": "Auburn",
-  "state": "CA",
-  "zip": 95602,
-  "annualIncomeBeforeTaxes": "950000.00",
-  "coborrowerMobileNumber": 5555556767
-}
-
-```
-
-### Properties
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|status|string|false|none|Indicates the current state of the transaction: initiated, authorized, settled, refunded, expired, or decined.|
-|transactionAmount|string|false|none|Required for POST. Includes two decimal points but no dollar symbol.|
-|mobileNumber|string|false|none|Required for POST. International phone numbers are supported. No formatted should be included. Just the digits.|
-|transactionPurpose|string|false|none|Required for POST. Currently this is freeform but will be enumerated in database in the future.|
-|firstName|string|false|none|optional|
-|lastName|string|false|none|optional|
-|email|string|false|none|optional|
-|dob|string|false|none|Optional. Format is YYYY-MM-DD. Please use the whole format as shown below in the example.|
-|ssn4|string|false|none|Optional.|
-|ssn|string|false|none|optional|
-|streetAddress1|string|false|none|optional|
-|streetAddress2|string|false|none|optional|
-|city|string|false|none|optional|
-|stateCode|string|false|none|optional|
-|zip|string|false|none|Optional. Zip code can be either the full nine digits (nnnnn-mmmm) or just the five digit delivery area.|
-|employer|string|false|none|optional|
-|annualIncomeBeforeTaxes|string|false|none|Optional. Includes the decimal point but no dollar sign.|
-|coborrowerMobileNumber|string|false|none|Optional. Coborrower mobile number. International phone numbers are supported. No formatted should be included. Just the digits.|
-|transactionLineItems|[[TransactionLineItems](#schematransactionlineitems)]|false|none|none|
-
-#### Enumerated Values
-
-|Property|Value|
-|---|---|
-|status|initiated|
-|status|authorized|
-|status|confirmed|
-|status|settled|
-|status|refunded|
-|status|expired|
-|status|declined|
-
-<h2 id="tocStransactionlineitems">TransactionLineItems</h2>
-
-<a id="schematransactionlineitems"></a>
+<a id="schemaloanapplicationlineitems"></a>
 
 ```json
 {
@@ -2490,68 +3179,6 @@ BasicAuth
 |discount|string|false|none|Includes the decimal point but no dollar sign.|
 |totalAmount|string|false|none|Includes the decimal point but no dollar sign.|
 |photo|string|false|none|To be fixed to use media attachment later.|
-
-<h2 id="tocSuserobject">UserObject</h2>
-
-<a id="schemauserobject"></a>
-
-```json
-{
-  "userId": "6f6c4bf4-ab58-4a1b-833e-0e665dc65400",
-  "firstName": "Hugh",
-  "lastName": "Cave",
-  "email": "hugh@akhouse.com",
-  "mobilePhone": 5556669999,
-  "userName": "hughb",
-  "password": "sample",
-  "role": "admin",
-  "group": "na"
-}
-
-```
-
-### Properties
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|userId|string|false|none|UUID uniquely identifying the user.|
-|firstName|string|false|none|The first name of the user.|
-|lastName|string|false|none|The last name of the user.|
-|email|string|false|none|Email address of the user.|
-|mobilePhone|string|false|none|The user's cell phone number.|
-|userName|string|false|none|A log in name for the user.|
-|password|string|false|none|SHA-256 encrypted string representing the password.|
-|role|string|false|none|Role for user.|
-|group|string|false|none|Users can be assigned to a group and will inherit the rights and privileges assigned to that group.|
-
-#### Enumerated Values
-
-|Property|Value|
-|---|---|
-|role|admin|
-|role|employee|
-|role|reviewer|
-
-<h2 id="tocSsubscribeobject">SubscribeObject</h2>
-
-<a id="schemasubscribeobject"></a>
-
-```json
-{
-  "callbackURL": "https://wisetack.yourcompany.com/callback",
-  "event": "transaction-status",
-  "secretKey": "c58459b9-5acc-4d8b-b6a5-4e3cd39fff9c"
-}
-
-```
-
-### Properties
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|callbackURL|string(uri)|false|none|The URL on your system for Wisetack to call when the request event triggers.|
-|event|string|false|none|The event you want to subscribe to. Presently only 'transaction-status' is available.|
-|secretKey|string|false|none|This value will be sent to you each time Wisetack calls your endpoint. You must must verify this value is in the request for security purposes.|
 
 <h2 id="tocSstatusupdaterequest">StatusUpdateRequest</h2>
 
@@ -2562,8 +3189,11 @@ BasicAuth
   "transactionId": "string",
   "changedStatus": "initiated",
   "date": "string",
-  "loanAmountRequested": "string",
+  "requestedLoanAmount": "string",
   "approvedLoanAmount": "string",
+  "settledLoanAmount": "string",
+  "refundAmount": "string",
+  "maximumAmount": "string",
   "consumer": {
     "fullName": "string",
     "email": "string",
@@ -2585,8 +3215,11 @@ BasicAuth
 |transactionId|string|false|none|UUID uniquely identifying the transaction with changed status.|
 |changedStatus|string|false|none|The new status of this loan application.|
 |date|string|false|none|Date that status changed.|
-|loanAmountRequested|string|false|none|The original loan amount requested by the customer.|
+|requestedLoanAmount|string|false|none|The original loan amount requested by the customer.|
 |approvedLoanAmount|string|false|none|The loan amount approved for this user by Wisetack. Might be lower than originalLoanAmount in the event of a counter offer.|
+|settledLoanAmount|string|false|none|Future. The loan amount that was paid to the merchant after the work was completed.|
+|refundAmount|string|false|none|The amount, if any, that was refunded to the customer.|
+|maximumAmount|string|false|none|Future. The largest transaction amount that can be offered to this consumer.|
 |consumer|object|false|none|none|
 |» fullName|string|false|none|Customer's first and last name.|
 |» email|string|false|none|Customer's email.|

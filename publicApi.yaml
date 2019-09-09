@@ -1,4 +1,5 @@
 openapi: 3.0.1
+
 info:
   title: Wisetack API
   version: "1.1.1"
@@ -15,8 +16,6 @@ info:
 
     * **Merchants** allows enabling merchants to offer financing as a payment option, listing existing merchants based on
     date and status filters, getting information on a merchant, and removing merchants from the system.
-
-    * **Users** Each merchant can have multiple users for the Wisetack system. The Users resource allows adding and managing users and their roles and privileges in the system.
 
     ## Authentication
     Wisetack uses HTTP Basic Authentication with both an application token and a secret key. When you initially create
@@ -48,41 +47,18 @@ tags:
       or payment flow. This link will initiate a transaction that is session specific for that invoice.
   - name: Merchants
     description: |
-      The Merchant resource allows you to onboard merchants, to delete merchants from your system,
-      to list all merchants, and to get information on individual merchants.
-
-      There are two different types of data in the MerchantObject.
-
-      * **Flag Fields**
-      indicate which fields need to be collected from the merchant. These flag fields are in
-      MerchantOptionalInformation and MerchantDataRequired schemas. Their presence indicates that they
-      must be collected.
-
-      * **Data Fields** are string fields where the data collected in response to the Flag Fields above
-      can be sent back to the server. These fields are in the MerchantUpdateObject.
-
-      Additionally, there are four different flag field sections. Where a flag field is found (if at all)
-      indicates how the client should behave regarding that field.
-
-      * **optionalInformation** indicates that this information has not been collected. It is not required
-      but could be helpful in future dealings with this merchant.
-
-      * **currentlyDue** are the fields the merchant must supply to transact.
-
-      * **eventuallyDue** are the fields the merchant must supply to have the full range of
-      capabilities they are eligible for.
-
-      * **pastDue** are the fields the merchant must supply to continue or restore their transaction
-      capabilities.
-
-  - name: Users
-    description: |
-      The Users resource allows you to support multiple users, each with their own roles and privileges in the
-      Wisetack system. This feature allows merchants to add and manage employees and other types
-      of subusers.
-
+      The Merchant resource allows you to to list all merchants and to get information on individual merchants.
 
 # Reusable code snippets are all below this line.
+
+x-cors-headers: &corsHeaders
+  method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-IO-Blackbox'"
+  method.response.header.Access-Control-Allow-Methods: "'GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE, PATCH'"
+  method.response.header.Access-Control-Allow-Origin: "'*'"
+
+x-api-response-parameters: &apiResponseParameters
+  responseParameters:
+    <<: *corsHeaders
 
 x-cors-options: &corsOptions
   options:
@@ -100,66 +76,48 @@ x-cors-options: &corsOptions
       responses:
         "default":
           statusCode: "200"
-          responseParameters:
-            method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-IO-Blackbox'"
-            method.response.header.Access-Control-Allow-Methods: "'GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE, PATCH'"
-            method.response.header.Access-Control-Allow-Origin: "'*'"
+          <<: *apiResponseParameters
     responses:
       '200':
-        description: Default responnse for CORS method
-        headers:
-          Access-Control-Allow-Headers:
-            content:
-              application/json:
-                schema:
-                  type: "string"
-          Access-Control-Allow-Methods:
-            content:
-              application/json:
-                schema:
-                  type: "string"
-          Access-Control-Allow-Origin:
-            content:
-              application/json:
-                schema:
-                  type: "string"
+        $ref: '#/components/responses/CORSResponse'
 
 x-api-request-template: &apiRequestTemplate
   application/json: '#set($allParams = $input.params()) {"apiContext":{"apiId":"$context.apiId", "method":"$context.httpMethod", "sourceIp":"$context.identity.sourceIp", "userAgent":"$context.identity.userAgent", "path":"$context.path", "protocol":"$context.protocol", "requestId":"$context.requestId", "stage":"$context.stage"}, #foreach($type in $allParams.keySet()) #set($params = $allParams.get($type)) "$type" : { "parameterMap" : { #foreach($paramName in $params.keySet()) "$paramName" : "$util.escapeJavaScript($params.get($paramName))" #if($foreach.hasNext), #end #end}}, #end "body" : $input.json(''$'')}'
 
-x-api-standard-setup: &apiStandardSetup
-  passthroughBehavior: when_no_match
+x-api-response-template: &apiResponseTemplate
+  application/json: "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n{\n  \"type\" : \"$errorMessageObj.errorType\",\n  \"message\" : \"$errorMessageObj.message\",\n  \"request-id\" : \"$errorMessageObj.requestId\"\n}"
+
+x-api-error-response: &apiErrorResponse
+  <<: *apiResponseParameters
+  responseTemplates:
+    <<: *apiResponseTemplate
+
+x-api-setup-with-standard-errors: &apiSetupStdErrs
   httpMethod: POST
   requestTemplates:
     <<: *apiRequestTemplate
   responses:
     default:
       statusCode: '200'
-      responseParameters:
-        method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-IO-Blackbox'"
-        method.response.header.Access-Control-Allow-Methods: "'*'"
-        method.response.header.Access-Control-Allow-Origin: "'*'"
-  type: aws
-
-x-api-setup-with-standard-errors: &apiSetupStdErrs
-  httpMethod: POST
-  requestTemplates:
-    application/json: '#set($allParams = $input.params()) {"apiContext":{"apiId":"$context.apiId", "method":"$context.httpMethod", "sourceIp":"$context.identity.sourceIp", "userAgent":"$context.identity.userAgent", "path":"$context.path", "protocol":"$context.protocol", "requestId":"$context.requestId", "stage":"$context.stage"}, #foreach($type in $allParams.keySet()) #set($params = $allParams.get($type)) "$type" : { "parameterMap" : { #foreach($paramName in $params.keySet()) "$paramName" : "$util.escapeJavaScript($params.get($paramName))" #if($foreach.hasNext), #end #end}}, #end "body" : $input.json(''$'')}'
-  responses:
-    default:
-      statusCode: '200'
-      responseParameters:
-        method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-IO-Blackbox'"
-        method.response.header.Access-Control-Allow-Methods: "'*'"
-        method.response.header.Access-Control-Allow-Origin: "'*'"
-    ".*httpStatus\\\":404.*":
-      statusCode: '404'
-      responseTemplates:
-        application/json: "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ($bodyObj = $util.parseJson($input.body))\n{\n  \"type\" : \"$errorMessageObj.errorType\",\n  \"message\" : \"$errorMessageObj.message\",\n  \"request-id\" : \"$errorMessageObj.requestId\"\n}"
+      <<: *apiResponseParameters
     ".*httpStatus\\\":400.*":
       statusCode: '400'
-      responseTemplates:
-        application/json: "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ($bodyObj = $util.parseJson($input.body))\n{\n  \"type\" : \"$errorMessageObj.errorType\",\n  \"message\" : \"$errorMessageObj.message\",\n  \"request-id\" : \"$errorMessageObj.requestId\"\n}"
+      <<: *apiErrorResponse
+    ".*httpStatus\\\":401.*":
+      statusCode: '401'
+      <<: *apiErrorResponse
+    ".*httpStatus\\\":403.*":
+      statusCode: '403'
+      <<: *apiErrorResponse
+    ".*httpStatus\\\":404.*":
+      statusCode: '404'
+      <<: *apiErrorResponse
+    ".*httpStatus\\\":409.*":
+      statusCode: '409'
+      <<: *apiErrorResponse
+    ".*httpStatus\\\":500.*":
+      statusCode: '500'
+      <<: *apiErrorResponse
   type: aws
 
 x-standard-headers: &stdHeaders
@@ -171,52 +129,46 @@ x-standard-headers: &stdHeaders
     Access-Control-Allow-Origin:
       $ref: '#/components/headers/accessControl'
 
+x-standard-error-response: &stdErrResponse
+  <<: *stdHeaders
+  content:
+    application/json:
+      schema:
+        $ref:  '#/components/schemas/Error'
+
 x-standard-error-responses: &stdErrResponses
-  '404':
-    description: Resource not found.
-    content:
-      application/json:
-        schema:
-          $ref:  '#/components/schemas/Error'
   '400':
-    description: Bad request.
-    content:
-      application/json:
-        schema:
-          $ref:  '#/components/schemas/Error'
-  '403':
-    description: Forbidden.
-    content:
-      application/json:
-        schema:
-          $ref:  '#/components/schemas/Error'
+    description: Bad Request.
+    <<: *stdErrResponse
   '401':
     description: Unauthorized.
-    content:
-      application/json:
-        schema:
-          $ref:  '#/components/schemas/Error'
+    <<: *stdErrResponse
+  '403':
+    description: Forbidden.
+    <<: *stdErrResponse
+  '404':
+    description: Not Found.
+    <<: *stdErrResponse
   '409':
     description: Conflict.
-    content:
-      application/json:
-        schema:
-          $ref:  '#/components/schemas/Error'
+    <<: *stdErrResponse
   '500':
-    description: Internal server error.
-    content:
-      application/json:
-        schema:
-          $ref:  '#/components/schemas/Error'
-
+    description: Internal Server Error.
+    <<: *stdErrResponse
 
 # End of reusable code snippets
 
 paths:
-
-  /merchant/{merchantId}/transactions:
+  /merchants/{merchantId}/transactions:
     summary: Initiates a transaction process.
     description: The Transaction resource initiates a transcation and manages the flow of authorization, settlement, and refunds.
+    parameters:
+      - in: path
+        name: merchantId
+        schema:
+          type: string
+        required: true
+    <<: *corsOptions
     post:
       summary: POST initiates a transaction process.
       description: |
@@ -227,36 +179,37 @@ paths:
         well as other optional data described in the TransactionObject. These are optional. We recommend including as much information as possible as the data helps create a better user experience, allows better transaction reporting and reconciliation for the business and customer.
         The following values are required for the POST:
 
-        * status must be set to 'initiated'.
-
         * a United States domestic mobile phone number is required.
 
         * a transaction amount is required.
 
         * a transaction purpose is required.
 
+        * the date on which the service is to be completed is required.
+
       tags:
         - Transactions
-      parameters:
-        - name: merchantId
-          in: path
-          description: Id for the merchant originating the transaction.
-          required: true
-          schema:
-            type: string
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TransactionObject'
+              $ref: '#/components/schemas/TransactionRequest'
+        required: true
       responses:
         '200':
           description: Ok
+          <<: *stdHeaders
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TransactionObject'
+                $ref: '#/components/schemas/TransactionResponse'
         <<: *stdErrResponses
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-LoanApplicationLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
+
+  /merchant/{merchantId}/transactions:
     get:
       summary: GET returns a list of transactions for this merchant.
       description: |
@@ -265,55 +218,61 @@ paths:
       tags:
         - Transactions
       parameters:
-        - name: merchantId
-          in: path
+        - in: path
+          name: merchantId
           description: Id for the merchant originating the transaction.
           required: true
           schema:
             type: string
-        - name: startingAfter
-          in: query
+        - in: query
+          name: limit
+          description: Maximum number of transactions to return.
+          schema:
+            type: integer
+          required: false
+        - in: query
+          name: startingAfter
           description: List only transactions that were initiated after this date.
           schema:
             type: string
-        - name: endingBefore
-          in: query
+          required: false
+        - in: query
+          name: endingBefore
           description: List only transactions that were initiated before this date.
           schema:
             type: string
-        - name: limit
-          in: query
-          description: Limit the number of transactions returned to this number.
-          schema:
-            type: string
-        - name: status
-          in: query
+          required: false
+        - in: query
+          name: status
           description: List only transactions with this status code.
           schema:
             type: string
+          required: false
+      <<: *corsOptions
       responses:
         '200':
           description: Ok
+          <<: *stdHeaders
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    transactionResourceURL:
-                      description: URL pointing to each applicable resource.
+                $ref: '#/components/schemas/MerchantTransactionsResponse'
         <<: *stdErrResponses
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-LoanQueryByMerchantIdLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
 
   /transactions/{transactionId}:
-    description: Tracks the progress of and allows updating of the transaction.
+    description: Get merchant transactions by transaction ID
     parameters:
-      - name: transactionId
-        in: path
+      - in: path
+        name: transactionId
         description: UUID Id for the transaction. Acquired during the POST to create the transaction.
-        required: true
         schema:
           type: string
+        required: true
+    <<: *corsOptions
     get:
       summary: GET retrieves information, including the status, on a specific transaction.
       tags:
@@ -321,14 +280,20 @@ paths:
       responses:
         '200':
           description: Ok
+          <<: *stdHeaders
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TransactionObject'
+                $ref: '#/components/schemas/MerchantTransactionsResponse'
+        <<: *stdErrResponses
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-LoanQueryByMerchantTransactionLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
     patch:
       summary:  PATCH allows status update for transaction initiation and provides for full or partial refunds.
       tags:
-        - Transactions
+        - InternalUse
       description: |
         Supported statuses for transactions:
 
@@ -343,147 +308,25 @@ paths:
         * Expired: The transaction was not authorized or settled within the specified time limit. A transaction can never be removed from an expired state.
 
         * Declined: The transaction was declined.
-
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MerchantObject'
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TransactionObject'
-
-  /merchants:
-    description: Resource for merchant onboarding and management.
-    post:
-      summary: POST creates a merchant and returns a newly created merchant id.
-      description: |
-        POST creates a new merchant entry. To onboard a merchant, please see the Merchant PATCH operation.
-
-        If there is already a unique merchant entry for this merchant, a 201 error is returned with a link to the resource.
-        The state of the application verification process
-        is indicated in three main sections: information currently due, due soon, and overdue.
-      tags:
-        - Merchants
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MerchantObject'
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    merchantResourceURL:
-                      description: URL pointing to each applicable merchant resource.
-                      type: string
-        <<: *stdErrResponses
-    get:
-      summary: GET retrieves a list of merchants.
-      description: |
-        Lists all merchants on your Wisetack account. You can filter this list based on date and if their transaction initiation has or has not been enabled.
-      tags:
-        - Merchants
-      parameters:
-        - name: startingAfter
-          in: query
-          description: List only merchants who initiated their onboard after this date.
-          schema:
-            type: string
-        - name: endingBefore
-          in: query
-          description: List only merchants who initiated their onboarding before this date.
-          schema:
-            type: string
-        - name: transactionsEnabled
-          in: query
-          description: Set to true or false.
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MerchantObject'
-        <<: *stdErrResponses
-
-  /merchants/{merchantId}:
-    description: Resource for handling merchant onboarding and management.
-    parameters:
-      - name: merchantId
-        in: path
-        description: The merchant id as stored during merchant onboarding.
+              $ref: '#/components/schemas/LoanApplicationRequest'
         required: true
-        schema:
-          type: string
-    get:
-      summary: GET retrieves merchant information based on merchant id.
-      description: |
-        Get a merchant's information.
-      tags:
-        - Merchants
       responses:
         '200':
           description: Ok
+          <<: *stdHeaders
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MerchantObject'
+                $ref: '#/components/schemas/LoanApplicationResponse'
         <<: *stdErrResponses
-    patch:
-      summary: PATCH onboards a merchant and updates merchant information.
-      description: |
-        The PATCH (update) is the merchant identification process. The application can request required information from the
-        merchant and submit additional information using a PATCH request to the merchantId. Any additional required information
-        is returned as a response to the PATCH. This process can continue until all required information is gathered.
-
-        Please see the overview for Merchants for a more detailed explanation for this process.
-      tags:
-        - Merchants
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MerchantObject'
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MerchantObject'
-    delete:
-      summary: DELETE removes a merchant from the system.
-      description: |
-        Remove this merchant from your system.
-      tags:
-        - Merchants
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  merchantId:
-                    description: The id of the merchant deleted.
-                    type: string
-                  deleted:
-                    description: True if successful.
-                    type: boolean
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-LoanApplicationLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
 
   /merchant/{merchantId}/paymentLink:
     summary: Provides a link that can be embedded in an invoice.
@@ -523,169 +366,1153 @@ paths:
                 $ref: '#/components/schemas/PaymentLinkObject'
         <<: *stdErrResponses
 
-  /merchant/{merchantId}/users:
-    description: Merchants will have employees (users) who will use the merchant account. Each of these users can offer POS financing.
+  /merchants:
+    description: Resource for listing merchant onboarding and management.
+    parameters:
+      - in: query
+        name: limit
+        description: Maximum number of merchants to return.
+        schema:
+          type: integer
+        required: false
+      - in: query
+        name: startingAfter
+        description: List only merchants who initiated their onboard after this date.
+        schema:
+          type: string
+        required: false
+      - in: query
+        name: endingBefore
+        description: List only merchants who initiated their onboarding before this date.
+        schema:
+          type: string
+        required: false
+      - in: query
+        name: transactionsEnabled
+        description: Return for currently enabled merchants, true or false.
+        schema:
+          type: string
+        required: false
+    <<: *corsOptions
+    get:
+      summary: GET retrieves a list of merchants.
+      description: |
+        Lists all merchants on your Wisetack account. You can filter this list based on date and if their transaction initiation has or has not been enabled.
+      tags:
+        - Merchants
+      responses:
+        '200':
+          description: Ok
+          <<: *stdHeaders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantGetResponse'
+        <<: *stdErrResponses
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-MerchantGetLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
+    post:
+      summary: Creates a merchant and returns a newly created merchant id.
+      description: If there is a unique merchant entry, a 201 error is returned with a link to the resource.
+      tags:
+        - InternalUse
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Merchant'
+        required: true
+      responses:
+        '200':
+          description: Ok
+          <<: *stdHeaders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantPostResponse'
+        <<: *stdErrResponses
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-MerchantPostLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
+
+  /merchants/{merchantId}:
+    description: Resource for handling merchant onboarding and management.
     parameters:
       - name: merchantId
         in: path
-        description: The merchant id as stored during merchant onboarding.
+        description: The previously determined merchant id.
         required: true
         schema:
           type: string
-    post:
-      summary: POST creates a new user.
-      description: |
-        POST creates a new user based on the user's phone number. If the mobile phone number is already associated
-        with the merchant then the user's already existing id is returned in the response.
+    <<: *corsOptions
+    get:
+      summary: GET retrieves merchant information based on merchant id.
       tags:
-        - Users
+        - Merchants
+      responses:
+        '200':
+          description: Ok
+          <<: *stdHeaders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantGetResponse'
+        <<: *stdErrResponses
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-MerchantGetLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
+    patch:
+      summary: Updates merchant information.
+      tags:
+        - InternalUse
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserObject'
+              $ref: '#/components/schemas/Merchant'
+        required: true
       responses:
         '200':
           description: Ok
+          <<: *stdHeaders
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserObject'
+                $ref: '#/components/schemas/MerchantPatchResponse'
         <<: *stdErrResponses
-    get:
-      summary: GET retrieves a list of users.
-      description: |
-        List all users for the merchant with {merchantId}.
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-MerchantPatchLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
+    delete:
+      summary: Deletes merchant based on merchant id.
       tags:
-        - Users
+        - InternalUse
       responses:
         '200':
           description: Ok
+          <<: *stdHeaders
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    userResourceURL:
-                      description: URL pointing to each applicable user resource.
+                $ref: '#/components/schemas/MerchantDeleteResponse'
         <<: *stdErrResponses
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-MerchantDeleteLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
+
+
+
+
+
+
+  /loanApplications/{loanApplicationId}:
+    description: CRUD operations on a loan application including adding information and pushing loan through approval.
+    parameters:
+      - in: path
+        name: loanApplicationId
+        description: UUID Id for the transaction. Acquired during the POST to create the transaction.
+        schema:
+          type: string
+        required: true
+      - in: query
+        name: initToken
+        schema:
+          type: string
+        required: false
+    <<: *corsOptions
+    get:
+      summary: GET retrieves information, including the status, on a specific transaction.
+      tags:
+        - InternalUse
+      responses:
+        '200':
+          description: Ok
+          <<: *stdHeaders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoanApplicationResponse'
+        <<: *stdErrResponses
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-LoanApplicationLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
+    patch:
+      summary:  PATCH allows status update for transaction initiation and provides for full or partial refunds.
+      tags:
+        - InternalUse
+      description: |
+        Supported statuses for transactions:
+
+        * Initiated: The transaction process has been started for a customer but has not yet proceeded through authorization.
+
+        * Authorized: Wisetack has authorized the transactionn for this customer. The transaction is not complete until the status is set to 'settled.' An authorized transaction can either be 'settled' or 'canceled'. An authorized transaction will expire after 30 days if it has not been settled.
+
+        * Settled: Once the transaction is settled, funds are sent to the merchant. A settled transaction can be either partially or completely refunded.
+
+        * Refunded:  The full amount of the transaction has been refunded.
+
+        * Expired: The transaction was not authorized or settled within the specified time limit. A transaction can never be removed from an expired state.
+
+        * Declined: The transaction was declined.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoanApplicationRequest'
+        required: true
+      responses:
+        '200':
+          description: Ok
+          <<: *stdHeaders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoanApplicationResponse'
+        <<: *stdErrResponses
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-LoanApplicationLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
+
+
+
+
+  /merchants/login:
+    description: Merchant user login.
+    <<: *corsOptions
+    post:
+      summary: Merchant log in with phone/email.
+      tags:
+        - InternalUse
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MerchantLoginRequest'
+        required: true
+      responses:
+        '200':
+          description: Ok
+          <<: *stdHeaders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantLoginResponse'
+        <<: *stdErrResponses
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-MerchantLoginLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
+
+  /merchants/auth:
+    description: Merchant user authentification.
+    <<: *corsOptions
+    post:
+      summary: Merchant auth with verification code.
+      tags:
+        - InternalUse
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MerchantAuthRequest'
+        required: true
+      responses:
+        '200':
+          description: Ok
+          <<: *stdHeaders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantAuthResponse'
+        <<: *stdErrResponses
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-MerchantAuthLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
+
+  /merchants/me:
+    description: Get merchant user by token (token will be refreshed).
+    <<: *corsOptions
+    get:
+      tags:
+        - InternalUse
+      responses:
+        '200':
+          description: Ok
+          <<: *stdHeaders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantAuthResponse'
+        <<: *stdErrResponses
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-MerchantAuthLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
+
+  /transactions:
+    description: Get merchant transactions by token
+    parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+      - in: query
+        name: startingAfter
+        schema:
+          type: string
+        required: false
+      - in: query
+        name: endingBefore
+        schema:
+          type: string
+        required: false
+      - in: query
+        name: status
+        schema:
+          type: string
+        required: false
+    <<: *corsOptions
+    get:
+      tags:
+        - InternalUse
+      responses:
+        '200':
+          description: Ok
+          <<: *stdHeaders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantTransactionsResponse'
+        <<: *stdErrResponses
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-LoanQueryByMerchantIdLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
+
+
+
+
+
+
+
+  /merchants/{merchantId}/users:
+    description: Create a new merchant user. Returns a user ID.
+    parameters:
+      - in: path
+        name: merchantId
+        schema:
+          type: string
+        required: true
+    <<: *corsOptions
+    post:
+      summary: Create merchant user.
+      tags:
+        - InternalUse
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MerchantUser'
+        required: true
+      responses:
+        '200':
+          description: Ok
+          <<: *stdHeaders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantUserPostResponse'
+        <<: *stdErrResponses
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-MerchantUserPostLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
+    get:
+      summary: Returns merchant users.
+      tags:
+        - InternalUse
+      responses:
+        '200':
+          description: Ok
+          <<: *stdHeaders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantUserGetResponse'
+        <<: *stdErrResponses
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-MerchantUserGetLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
+
+  /users:
+    description: Resource for listing merchant users.
+    parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+    <<: *corsOptions
+    get:
+      summary: Returns merchant users list.
+      tags:
+        - InternalUse
+      responses:
+        '200':
+          description: Ok
+          <<: *stdHeaders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantUserGetResponse'
+        <<: *stdErrResponses
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-MerchantUserGetLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
 
   /users/{userId}:
+    description: Resource for handling merchant users.
     parameters:
       - name: userId
         in: path
-        description: The unique UUID representing this user.
+        description: The previously determined merchant user id.
         required: true
         schema:
           type: string
+    <<: *corsOptions
     get:
-      summary: GET retrieves any available information for the user.
-      description: Get any available information for the user.
+      summary: Retrieves merchant user information based on merchant user id.
       tags:
-        - Users
+        - InternalUse
       responses:
         '200':
           description: Ok
+          <<: *stdHeaders
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserObject'
-    put:
-      summary: PUT updates the information for an existing user.
-      description: Update the information for an existing user.
+                $ref: '#/components/schemas/MerchantUserGetResponse'
+        <<: *stdErrResponses
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-MerchantUserGetLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
+    patch:
+      summary: Updates merchant user information.
       tags:
-        - Users
+        - InternalUse
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserObject'
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserObject'
-        <<: *stdErrResponses
-    delete:
-      summary: DELETE removes a user.
-      description: Permanently deletes a user from the system.
-      tags:
-        - Users
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  userId:
-                    description: The id of the user deleted.
-                    type: string
-                  deleted:
-                    description: True if successful.
-                    type: boolean
-        <<: *stdErrResponses
-
-  /subscribe:
-    post:
-      summary: POST subscribes to all Wisetack callbacks.
-      description: |
-        Wisetack provides callbacks to let you know when the status of a transaction has changed. Each time
-        the status of a loan application changes, Wisetack will send a request to this URL. The request contains
-        the new status, the loan application id, and a secret key provided to you by Wisetack. You should only accept
-        incoming status changes after verifying the secret key. When your webhook is called, it will receive
-        a StatusUpdateRequest. Please see the StatusUpdateRequest in the Schema section below.
-
-        Statuses:
-
-        * **Initiated:**  You sent a transaction to your customer but they have not submitted an application.
-
-        * **Authorized:**  We approved the application but the customer has not accepted the loan documents.
-
-        * **Declined:** We were unable to approved the application.
-
-        * **Confirmed:** The customer has accepted the loan documents and confirmed the purchase.
-
-        * **Settled:** We've sent the funds to your bank account.
-
-        * **Refunded:** The customer requested and received a refund.
-
-      tags:
-        - Webhooks
-      requestBody:
+              $ref: '#/components/schemas/MerchantUser'
         required: true
+      responses:
+        '200':
+          description: Ok
+          <<: *stdHeaders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantUserPatchResponse'
+        <<: *stdErrResponses
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-MerchantUserPatchLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
+    delete:
+      summary: Deletes merchant user based on merchant user id.
+      tags:
+        - InternalUse
+      responses:
+        '200':
+          description: Ok
+          <<: *stdHeaders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantUserDeleteResponse'
+        <<: *stdErrResponses
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-MerchantUserDeleteLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
+
+
+
+
+  /loanApplications/{loanApplicationId}/offers:
+    description: The offers that are avaiable for this loan
+    parameters:
+      - in: path
+        name: loanApplicationId
+        schema:
+          type: string
+        required: true
+    <<: *corsOptions
+    get:
+      summary: Get a list of the loan offers for this consumer.
+      tags:
+        - InternalUse
+      responses:
+        '200':
+          description: Ok
+          <<: *stdHeaders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoanOfferResponse'
+        <<: *stdErrResponses
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-LoanOfferLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
+
+  /loanApplications/{loanApplicationId}/offers/{loanOfferId}:
+    description: Details for this individual loan offer.
+    parameters:
+      - in: path
+        name: loanApplicationId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: loanOfferId
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: provideTruthInLendingDocument
+        schema:
+          type: string
+        required: false
+    <<: *corsOptions
+    get:
+      summary: Get the details for this individual loan offer.
+      tags:
+        - InternalUse
+      requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SubscribeObject'
+              $ref: '#/components/schemas/LoanOfferRequest'
+        required: false
       responses:
-        '201':
-          description: Webhook created.
+        '200':
+          description: Ok
+          <<: *stdHeaders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoanOfferResponse'
         <<: *stdErrResponses
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-LoanOfferLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
 
+    patch:
+      summary: Update the loan offer to indicate that it was the selected offer.
+      tags:
+        - InternalUse
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoanOfferRequest'
+        required: true
+      responses:
+        '200':
+          description: Ok
+          <<: *stdHeaders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoanOfferResponse'
+        <<: *stdErrResponses
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-LoanOfferLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
+
+  /loanApplications/{loanApplicationId}/paymentAccounts:
+    description: A payment accound associated with a loan application.
+    parameters:
+      - in: path
+        name: loanApplicationId
+        schema:
+          type: string
+        required: true
+    <<: *corsOptions
+    post:
+      summary: Creates a new payment account and associates it with the loan application.
+      tags:
+        - InternalUse
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentAccountRequest'
+        required: true
+      responses:
+        '200':
+          description: Ok
+          <<: *stdHeaders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentAccountResponse'
+        <<: *stdErrResponses
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-PaymentAccountLambda}'
+        credentials: '${api-role-arn}'
+        <<: *apiSetupStdErrs
+
+  /healthcheck:
+    get:
+      summary: Checks if the region is healthy.
+      description: Health check endpoint.
+      tags:
+        - InternalUse
+      responses:
+        '200':
+          description: Test response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-HealthCheckLambda}'
+        credentials: '${api-role-arn}'
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        requestTemplates:
+          <<: *apiRequestTemplate
+        responses:
+          default:
+            statusCode: '200'
+        type: aws
+
+  /test/{paramInPath}:
+    parameters:
+      - name: paraminheader
+        in: header
+        description: Parameter passed through header.
+        required: false
+        schema:
+          type: string
+      - name: paramInPath
+        in: path
+        description: Parameter passed through path.
+        required: true
+        schema:
+          type: string
+      - name: paramInQuery
+        in: query
+        description: Parameter passed in query.
+        required: false
+        schema:
+          type: string
+      - name: body
+        in: header
+        required: true
+        description: Test Request.
+        schema:
+          $ref: '#/components/schemas/testbody'
+    <<: *corsOptions
+    post:
+      summary: Returns the request parameters.
+      description: Test endpoint.
+      tags:
+        - InternalUse
+      responses:
+        '200':
+          description: Test response
+          headers:
+            Access-Control-Allow-Headers:
+              $ref: '#/components/headers/accessControl'
+            Access-Control-Allow-Methods:
+              $ref: '#/components/headers/accessControl'
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/accessControl'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/testresponse'
+      x-amazon-apigateway-integration:
+        uri: '${lambda-arn-InfrastructureTestLambda}'
+        credentials: '${api-role-arn}'
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        requestTemplates:
+          <<: *apiRequestTemplate
+        responses:
+          default:
+            statusCode: '200'
+            <<: *apiResponseParameters
+        type: aws
 
 components:
-  securitySchemes:
-    BasicAuth:
-      type: http
-      scheme: basic
-
 
   headers:
     accessControl:
       content:
         application/json:
-          schema:
-            type: "string"
+         schema:
+          type: "string"
+
+  responses:
+    CORSResponse:
+      description: Default responnse for CORS method
+      headers:
+        Access-Control-Allow-Headers:
+          content:
+            application/json:
+              schema:
+                type: "string"
+        Access-Control-Allow-Methods:
+          content:
+            application/json:
+              schema:
+                type: "string"
+        Access-Control-Allow-Origin:
+          content:
+            application/json:
+              schema:
+                type: "string"
 
   schemas:
+    testbody:
+      type: object
+      required:
+        - paramInBody
+      properties:
+        paramInBody:
+          type: string
+    testresponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
 
-    MerchantObject:
+    HealthCheckResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+
+    Merchant:
+      description: Merchant information.
+      properties:
+        merchantId:
+          type: string
+        businessName:
+          type: string
+        displayName:
+          type: string
+        email:
+          type: string
+        statementDescriptor:
+          type: string
+        businessTaxId:
+          type: string
+        addressInformation:
+          type: string
+        chargesEnabled:
+          type: boolean
+        payoutsEnabled:
+          type: boolean
+        payoutSchedule:
+          type: string
+        tos_acceptance:
+          type: boolean
+        pricingTier:
+          type: string
+        borrowerInformations:
+          type: array
+          items:
+            type: object
+            properties:
+              borrowerInformation:
+               type: string
+
+    TransactionRequest:
+      properties:
+        transactionAmount:
+          type: string
+          description: Required for POST. Includes two decimal points but no dollar symbol.
+        mobileNumber:
+          type: string
+          description: Required for POST. International phone numbers are supported. No formatted should be included. Just the digits.
+        loanPurpose:
+          type: string
+          description: Required for POST. Currently this is freeform but will be enumerated in database in the future.
+        serviceCompletedOn:
+          type: string
+          description: Required by POST. The date when the merchant completes the service.
+        callBackURL:
+          type: string
+          description: Optional. URL to call on status change of transaction. See StatusUpdateRequest in the schema.
+        selectedFinancialProduct:
+          type: string
+          description: The merchant can have one or more financial products from which to choose for each transaction.
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        dob:
+          type: string
+          description: Format is YYYY-MM-DD. Please use the whole format as shown below in the example.
+        ssn4:
+          type: string
+        ssn:
+          type: string
+        streetAddress1:
+          type: string
+        streetAddress2:
+          type: string
+        city:
+          type: string
+        stateCode:
+          type: string
+        zip:
+          type: string
+          description: Zip code can be either the full nine digits (nnnnn-mmmm) or just the five digit delivery area.
+        authPin:
+          type: string
+        employer:
+          type: string
+        annualIncomeBeforeTaxes:
+          type: string
+          description: Includes the decimal point but no dollar sign.
+        coborrowerMobileNumber:
+          type: string
+          description: Coborrower mobile number. International phone numbers are supported. No formatted should be included. Just the digits.
+        transactionLineItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/LoanApplicationLineItems'
+
+    TransactionResponse:
+      properties:
+        loanApplicationId:
+          description: Unique UUID for transaction.
+          type: string
+      example:
+        loanApplicationId: 39f11e30-0b2c-499e-9180-0c2ed29ad11d
+
+    LoanApplicationRequest:
+      properties:
+        transactionAmount:
+          type: string
+          description: Required for POST. Includes two decimal points but no dollar symbol.
+        mobileNumber:
+          type: string
+          description: Required for POST. International phone numbers are supported. No formatted should be included. Just the digits.
+        loanPurpose:
+          type: string
+          description: Required for POST. Currently this is freeform but will be enumerated in database in the future.
+        serviceCompletedOn:
+          type: string
+          description: Required by POST. The date when the merchant completes the service.
+        callBackURL:
+          type: string
+          description: Optional. URL to call on status change of transaction. See StatusUpdateRequest in the schema.
+        selectedFinancialProduct:
+          type: string
+          description: The merchant can have one or more financial products from which to choose for each transaction.
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        dob:
+          type: string
+          description: Format is YYYY-MM-DD. Please use the whole format as shown below in the example.
+        ssn4:
+          type: string
+        ssn:
+          type: string
+        streetAddress1:
+          type: string
+        streetAddress2:
+          type: string
+        city:
+          type: string
+        stateCode:
+          type: string
+        zip:
+          type: string
+          description: Zip code can be either the full nine digits (nnnnn-mmmm) or just the five digit delivery area.
+        authPin:
+          type: string
+        employer:
+          type: string
+        annualIncomeBeforeTaxes:
+          type: string
+          description: Includes the decimal point but no dollar sign.
+        coborrowerMobileNumber:
+          type: string
+          description: Coborrower mobile number. International phone numbers are supported. No formatted should be included. Just the digits.
+        escalateAuthentication:
+          type: boolean
+          description: Set to true if the borrower should be challenged to enter a pin.
+        termsOfServiceAccepted:
+          type: boolean
+          description: Set to true if the borrower accepted the terms of service agreement.
+        electronicDisclosuresAccepted:
+          type: boolean
+          description: Set to true if the borrower accepted the electronic disclosure.
+        privacyPolicyAccepted:
+          type: boolean
+          description: Set to true if the borrower accepted privacy policy.
+        transactionLineItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/LoanApplicationLineItems'
+
+      example:
+        transactionAmount: 1000.00
+        mobileNumber: 1235554567
+        loanPurpose: landscape
+        selectedFinancialProduct: fully_amortizing_risk_based
+        firstName: Clark
+        lastName: Smith
+        email: casmith@example.com
+        dob: 1953-01-13
+        ssn4: 3333
+        zip: 95602
+        annualIncomeBeforeTaxes: 120000.00
+        status: initiated
+
+    LoanApplicationResponse:
+      properties:
+        loanApplicationId:
+          description: Unique UUID for transaction.
+          type: string
+        initToken:
+          description: Internal use only.
+          type: string
+        status:
+          type: string
+          description: See supported values in LoanApplicationStatus class.
+        selectedLoanOfferId:
+          type: string
+        selectedLoanOfferStatus:
+          type: string
+          description: See supported values in LoanOfferStatus class.
+        dataInquiryList:
+          type: array
+          items: string
+          description: See supported values in the LoanApplicationDataInquiry class.
+      example:
+        loanApplicationId: 39f11e30-0b2c-499e-9180-0c2ed29ad11d
+        initToken: 12AB7
+        status: OFFER_AVAILABLE
+
+
+    LoanOfferRequest:
+      properties:
+        provideTruthInLendingDocument:
+          description: Indicates if TILA should be included in the response.
+          type: boolean
+        provideLoanAgreementDocument:
+          description: Indicates if Loan Agreement should be included in the response.
+          type: boolean
+        provideCreditScoreDocument:
+          description: Indicates if Credit Score Disclosure should be included in the response.
+          type: boolean
+        status:
+          description: See LoanOfferStatus class for supported values.
+          type: string
+        truthInLendingDisclosureAccepted:
+          description: Set to true if the borrower accepted the Truth In Lending disclosure.
+          type: boolean
+        loanAgreementAccepted:
+          description: Set to true if the borrower accepted the loan agreement.
+          type: boolean
+        creditScoreDisclosureAccepted:
+          description: Set to true if the borrower accepted the credit score disclosure.
+          type: boolean
+      example:
+        status: SELECTED
+
+    LoanOfferResponse:
+      properties:
+        loanApplicationId:
+          type: string
+        loanOfferDetailsList:
+          type: array
+          items:
+            $ref: '#/components/schemas/LoanOfferDetails'
+        loanAdversActionsList:
+          type: array
+          items:
+            $ref: '#/components/schemas/LoanAdverseActions'
+
+    LoanAdverseActions:
+      properties:
+        rank:
+          type: string
+        text:
+          type: string
+
+    LoanOfferDetails:
+      properties:
+        id:
+          type: string
+        loanAmount:
+          type: string
+        loanTermMonths:
+          type: integer
+        interestRate:
+          type: number
+        monthlyPayment:
+          type: number
+        numberOfPayments:
+          type: integer
+        firstPaymentDue:
+          type: string
+        totalInterest:
+          type: number
+        totalPayments:
+          type: number
+        totalFinancialCharges:
+          type: number
+        status:
+          description: See LoanOfferStatus calss for supported values.
+          type: string
+        truthInLending:
+          type: string
+        loanAgreement:
+          type: string
+        creditScoreDisclosure:
+          type: string
+
+    PaymentAccountRequest:
+      description: Account to associate with a loan.
+      properties:
+        plaidToken:
+          description: Plaid token gathered from user interaction with embedded Plaid sign in. If no account is attached, send 'notAttached' as token value.
+          type: string
+        paymentAuthorizationAccepted:
+          description: Set to true if the borrower enabled bank payments by linking a bank account.
+          type: boolean
+      example:
+        plaidToken: access-sandbox-5cd6e1b1-1b5b-459d-9284-366e2da89755
+
+    PaymentAccountResponse:
+      properties:
+        status:
+          type: string
+      example:
+        status: plaidTokenAccepted
+
+    MerchantPostResponse:
+      properties:
+        merchantResourceURL:
+          type: string
+
+    MerchantLoginRequest:
+      type: object
+      required:
+        - username
+      properties:
+        username:
+          description: merchant user email or phone number
+          type: string
+
+    MerchantLoginResponse:
+      description: this response returned if no errors found, in case of error see 'Error' schema
+      type: object
+      properties:
+        responseBody:
+          type: object
+          properties:
+            success:
+              description: result of login, should be true
+              type: boolean
+            message:
+              description: message on login, in case of successful login should be 'Verification code sent!'
+              type: string
+            code:
+              description: merchant user verification code (returned only if test phone/email specified in request)
+              type: string
+        statusCode:
+          description: response status code, should be 200 if case of success login
+          type: string
+
+    MerchantAuthRequest:
+      description: this request used for merchant user authentication if code specified and for JWT token refresh if 'token' parameter specified
+      type: object
+      properties:
+        code:
+          description: merchant user verification code, sent previously to user in SMS or email
+          type: string
+        username:
+          description: merchant user email or phone number, required parameter in case of authentication, but not for JWT token refresh
+          type: string
+        token:
+          description: merchant user JWT to refresh (code should not be specified in the case of token refresh)
+          type: string
+
+    MerchantAuthResponse:
+      description: this response returned if no errors found, in case of error see 'Error' schema
+      type: object
+      properties:
+        responseBody:
+          type: object
+          properties:
+            success:
+              description: result of auth, should be true
+              type: boolean
+            token:
+              description: JWT token to be used in further merchant user requests
+              type: string
+            merchant:
+              description: merchant data, this property will not be returned in case of token refresh
+              type: object
+              properties:
+                id:
+                  description: merchant ID
+                  type: string
+                name:
+                  description: merchant name
+                  type: string
+            user:
+              description: user data, this property will not be returned in case of token refresh
+              type: object
+              properties:
+                userId:
+                  description: merchant user ID
+                  type: string
+                merchantId:
+                  description: merchant ID
+                  type: string
+        statusCode:
+          description: response status code, should be 200 in case of success auth
+          type: string
+
+    MerchantGetResponse:
       properties:
         merchantId:
           description: A UUID unique to the newly created merchant.
@@ -696,234 +1523,170 @@ components:
         transactionsEnabled:
           description: Has this merchant been fully onboarded and are now able to initiate transactions.
           type: boolean
-        merchantSecretToken:
-          description: An token used for authenticiation from the partner's backend to the Wisetack backend.
-        optionalInformation:
-          $ref: '#/components/schemas/MerchantOptionalInformation'
-        currentlyDue:
-          $ref: '#/components/schemas/MerchantDataRequired'
-        eventuallyDue:
-          $ref: '#/components/schemas/MerchantDataRequired'
-        pastDue:
-          $ref: '#/components/schemas/MerchantDataRequired'
-        disabledReason:
-          description: If the merchant has been disabled and cannot initiate further transactions, that information is listed here.
-          type: string
-        merchantInformation:
-          $ref: '#/components/schemas/MerchantUpdateObject'
 
-    MerchantOptionalInformation:
+    MerchantPatchResponse:
+      type: object
       properties:
-        companyDescription:
-          description: Freeform description of the business.
-        companyURL:
-          description: The main url for the business.
-        dba:
-          description: Any doing-business-as names that would apply.
-        companyEmail:
-          description: Email address for main contact at the company.
-        annualRevenue:
-          description: Total annual revenue for the business. Includes two decimal points but no dollar symbol.
-        averageOrderValue:
-          description: The typical order value for this business. Includes two decimal points but no dollar symbol.
-        industry:
-          description: A list of industries will be provided and this field will be validated.
-        dateEstablished:
-          description: The date the company was started in YYYY-MM-DD format.
-        supportPhone:
-          description: Business phone number for customer support.
-        annualChargeBackAmount:
-          description: Total amount of chargebacks for the prior year.
-        annualRefundsAmount:
-          description: Total amount of refunds for the prior year.
-        otherServiceLinks:
-          description: |
-            Future feature. This section will request access to external services, such as Quicken, to facilitate onboarding.
-          type: array
-          items:
-            type: object
-            properties:
-              serviceName:
-                description: The name of the company providing the service. Quicken, for example.
-                type: string
-        ownerInformation:
-          description: Optional information for each owner.
-          type: array
-          items:
-            type: object
-            properties:
-              driversLicenseNumber:
-                description: Driver's license number.
-              driversLicenseState:
-                description: State where driver's license was issued.
-              ownerDocuments:
-                description: Scanned in documents to supplement and verify information.
-                type: array
-                items:
-                  type: object
-                  properties:
-                    documentType:
-                      description: Enum describing type of document requested or required.
+        responseBody:
+          $ref: '#/components/schemas/Merchant'
+        statusCode:
+          description: response status code, should be 200 in case of success
+          type: string
 
-    MerchantDataRequired:
+    MerchantDeleteResponse:
+      type: object
       properties:
-        deadline:
+        responseBody:
+          type: object
+          properties:
+            merchantId:
+              type: string
+            deleted:
+              type: boolean
+        statusCode:
+          description: response status code, should be 200 in case of success
           type: string
-          description: The date information is the section is due in YYYY-MM-DD format.
-        companyEIN:
-          description: The company's Employer Identification Number.
-        companyLegalOperatingName:
-          description: The official name of the company as listed with the tax authority.
-        companyPhoneNumber:
-          description: Main contact number for the company.
-        companyStreetAddress1:
-          description: Address of the business.
-        companyStreetAddress2:
-          description: Address of the business.
-        companyCity:
-          description: City of the business.
-        companyStateCode:
-          description: Two-character code for the state in which the business is based.
-        companyZip:
-          description: Zip code for business location. Zip code can be either the full nine digits (nnnnn-mmmm) or just the five digit delivery area.
-        companyType:
-          description: A list of business types will be provided and this field will be validated.
-          enum:
-            - partnership
-            - LLC
-            - corporation
-        tosAcceptanceDate:
-          description: Date the terms of service were accepted. Format is YYYY-MM-DD.
-        tosAcceptanceIPAddress:
-          description: IP address used when terms of service were accepted.
 
-        ownerInformation:
-          description: Required information for each owner.
-          type: array
-          items:
-            type: object
-            properties:
-              isOwnerPrimary:
-                description: Indicates whether this owner is the primary business owner.
-              ownerMobilePhoneNumber:
-                description: Cell phone number of the company owner.
-              ownerDOB:
-                description: Date-of-birth of the company owner. Format is YYYY-MM-DD.
-              ownerFirstName:
-                description: First name of the owner.
-              ownerLastName:
-                description: Last name of the owner.
-              ownerLast4ssn:
-                description: Social security number of the owner.
+    MerchantUser:
+      type: object
 
-    MerchantUpdateObject:
+    MerchantUserPostResponse:
+      type: object
+
+    MerchantUserPatchResponse:
+      type: object
       properties:
-        companyEIN:
-          description: The company's Employer Identification Number.
+        responseBody:
+          $ref: '#/components/schemas/MerchantUser'
+        statusCode:
+          description: response status code, should be 200 in case of success
           type: string
-        companyLegalOperatingName:
-          description: The official name of the company as listed with the tax authority.
+
+    MerchantUserGetResponse:
+      type: object
+
+    MerchantUserDeleteResponse:
+      type: object
+
+    TransactionStatus:
+      description: transaction status to display in merchant UI
+      type: string
+      enum:
+        - Initiated
+        - Loan confirmed
+        - Authorized
+        - Expired
+        - Rejected
+        - Declined
+        - Settled
+
+    MerchantTransactionsResponse:
+      description: this response returned if no errors found, in case of error see 'Error' schema
+      type: object
+      properties:
+        responseBody:
+          type: object
+          properties:
+            success:
+              description: result of request, should be true
+              type: boolean
+            token:
+              description: refreshed JWT token to be used in further merchant user requests
+              type: string
+            transactions:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    description: loan application short id
+                    type: string
+                    example: 8519e81f
+                  date:
+                    description: transaction date
+                    type: string
+                    example: 8/30
+                  name:
+                    description: consumer shorten name
+                    type: string
+                    example: E. Bode
+                  amount:
+                    description: transaction amount
+                    type: string
+                    example: $3,425.00
+                  status:
+                    $ref: '#/components/schemas/TransactionStatus'
+                  loanStatus:
+                    description: loan internal status
+                    type: string
+                    example: OFFER_CONVERTED
+                  offerId:
+                    description: selected loan offer ID
+                    type: string
+                    example: ebd271c2-ebf1-4575-a56d-526256f9551a
+                  offerStatus:
+                    description: selected loan offer internal status
+                    type: string
+                    example: CONVERTED
+                  loanPurpose:
+                    description: loan purpose
+                    type: string
+                  serviceCompletedOn:
+                    type: string
+                    format: date-time
+                    example: 2019-08-30 07:00:00+0000
+                  tilaAcceptedOn:
+                    type: string
+                    format: date-time
+                    example: 2019-08-30 15:26:37+0000
+                  createdAt:
+                    description: unix timestamp when transaction created
+                    type: integer
+                    example: 1567178434626
+                  paymentId:
+                    description: payment ID
+                    type: string
+                    example: 000000000000003#752fca11-3e7c-4b4e-91f3-629766be4422
+                  paymentCreatedOn:
+                    description: payment creation date
+                    type: string
+                    format: date-time
+                    example: 2019-09-03 07:00:00+0000
+                  consumer:
+                    type: object
+                    properties:
+                      fullName:
+                        description: consumer full name
+                        type: string
+                      email:
+                        description: consumer email
+                        type: string
+                      phone:
+                        description: consumer phone
+                        type: string
+                        example: +15555555552
+                      zip:
+                        description: consumer zip
+                        type: string
+                        example: 84101
+                  statusHistory:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          description: status set date
+                          type: string
+                          example: 8/30
+                        amount:
+                          description: transaction amount
+                          type: string
+                          example: $3,425.00
+                        status:
+                          $ref: '#/components/schemas/TransactionStatus'
+        statusCode:
+          description: response status code, should be 200 in case of success
           type: string
-        companyPhoneNumber:
-          description: Main contact number for the company.
-          type: string
-        companyStreetAddress1:
-          description: Address of the business.
-          type: string
-        companyStreetAddress2:
-          description: Address of the business.
-          type: string
-        companyCity:
-          description: City of the business.
-          type: string
-        companyStateCode:
-          description: Two-character code for the state in which the business is based.
-          type: string
-        companyZip:
-          description: Zip code for business location. Zip code can be either the full nine digits (nnnnn-mmmm) or just the five digit delivery area.
-          type: string
-        companyType:
-          description: A list of business types will be provided and this field will be validated.
-          enum:
-            - partnership
-            - LLC
-            - corporation
-        tosAcceptanceDate:
-          description: Date terms of service were accepted. Format is YYYY-MM-DD.
-          type: string
-        tosAcceptanceIPAddress:
-          description: IP address used when terms of service were accepted.
-          type: string
-        commpanyDescription:
-          description: Freeform description of the business.
-          type: string
-        companyURL:
-          description: The main url for the business.
-          type: string
-        dba:
-          description: Any doing-business-as names that would apply.
-          type: string
-        companyEmail:
-          description: Email address for main contact at the company.
-          type: string
-        annualRevenue:
-          description: Total annual revenue for the business. Includes two decimal points but no dollar symbol.
-          type: string
-        averageOrderValue:
-          description: The typical order value for this business. Includes two decimal points but no dollar symbol.
-          type: string
-        industry:
-          description: A list of industries will be provided and this field will be validated.
-          type: string
-        dateEstablished:
-          description: The date the company was started in YYYY-MM-DD format.
-          type: string
-        supportPhone:
-          description: Business phone number for customer support.
-          type: string
-        annualChargeBackAmount:
-          description: Total amount of chargebacks for the prior year.
-          type: string
-        annualRefundsAmount:
-          description: Total amount of refunds for the prior year.
-          type: string
-        otherServiceLinks:
-          description: |
-            Future feature. This section will allow other services, such as Quicken, to facilitate onboarding.
-          type: array
-          items:
-            type: object
-            properties:
-              serviceName:
-                description: The name of the company providing the service. Quicken, for example.
-              serviceURL:
-                description: The url for the support page for the service.
-              serviceToken:
-                description: Customer token needed to access the service.
-        ownerInformation:
-          description: Optional information for each owner.
-          type: array
-          items:
-            type: object
-            properties:
-              ownerMobilePhoneNumber:
-                description: The cell phone number of the merchant.
-                type: string
-              driversLicenseNumber:
-                description: Driver's license number.
-                type: string
-              driversLicenseState:
-                description: State where driver's license was issued.
-                type: string
-              ownerDocuments:
-                description: Scanned in documents to supplement and verify information.
-                type: array
-                items:
-                  type: object
-                  properties:
-                    documentType:
-                      description: Enum describing type of document requested or required.
-                      type: string
 
     PaymentLinkObject:
       properties:
@@ -985,7 +1748,7 @@ components:
         transactionLineItems:
           type: array
           items:
-            $ref: '#/components/schemas/PaymentLinkLineItems'
+            $ref: '#/components/schemas/LoanApplicationLineItems'
       example:
         paymentLink: http://business.wisetack.us/loanApplicationId=80349125-3b0c-4fd6-b2ef-568a4844321d
         transactionAmount: '1000.00'
@@ -1004,8 +1767,7 @@ components:
         annualIncomeBeforeTaxes: '950000.00'
         coborrowerMobileNumber: 5555556767
 
-
-    PaymentLinkLineItems:
+    LoanApplicationLineItems:
       properties:
         productDescription:
           type: string
@@ -1033,179 +1795,6 @@ components:
         tax: na
         discount: '5000.00'
         totalAmount: '55000.00'
-
-    TransactionObject:
-      properties:
-        status:
-          description: 'Indicates the current state of the transaction: initiated, authorized, settled, refunded, expired, or decined.'
-          type: string
-          enum: [initiated, authorized, confirmed, settled, refunded, expired, declined]
-        transactionAmount:
-          type: string
-          description: Required for POST. Includes two decimal points but no dollar symbol.
-        mobileNumber:
-          type: string
-          description: Required for POST. International phone numbers are supported. No formatted should be included. Just the digits.
-        transactionPurpose:
-          type: string
-          description: Required for POST. Currently this is freeform but will be enumerated in database in the future.
-        firstName:
-          type: string
-          description: optional
-        lastName:
-          type: string
-          description: optional
-        email:
-          type: string
-          description: optional
-        dob:
-          type: string
-          description: Optional. Format is YYYY-MM-DD. Please use the whole format as shown below in the example.
-        ssn4:
-          type: string
-          description: Optional.
-        ssn:
-          type: string
-          description: optional
-        streetAddress1:
-          type: string
-          description: optional
-        streetAddress2:
-          type: string
-          description: optional
-        city:
-          type: string
-          description: optional
-        stateCode:
-          type: string
-          description: optional
-        zip:
-          type: string
-          description: Optional. Zip code can be either the full nine digits (nnnnn-mmmm) or just the five digit delivery area.
-        employer:
-          type: string
-          description: optional
-        annualIncomeBeforeTaxes:
-          type: string
-          description: Optional. Includes the decimal point but no dollar sign.
-        coborrowerMobileNumber:
-          type: string
-          description: Optional. Coborrower mobile number. International phone numbers are supported. No formatted should be included. Just the digits.
-        transactionLineItems:
-          type: array
-          items:
-            $ref: '#/components/schemas/TransactionLineItems'
-      example:
-        status: initiated
-        transactionAmount: '1000.00'
-        mobileNumber: 1235554567
-        transactionPurpose: landscape
-        firstName: Clark
-        lastName: Smith
-        email: casmith@example.com
-        dob: 1953-01-13
-        ssn4: 3333
-        streetAddress: 123 Ashton Street
-        streetAddress2: Suite 13
-        city: Auburn
-        state: CA
-        zip: 95602
-        annualIncomeBeforeTaxes: '950000.00'
-        coborrowerMobileNumber: 5555556767
-
-
-    TransactionLineItems:
-      properties:
-        productDescription:
-          type: string
-        SKU:
-          type: string
-        pricePerUnit:
-          type: string
-          description: Includes the decimal point but no dollar sign.
-        tax:
-          type: string
-          description: Includes the decimal point but no dollar sign.
-        discount:
-          type: string
-          description: Includes the decimal point but no dollar sign.
-        totalAmount:
-          type: string
-          description: Includes the decimal point but no dollar sign.
-        photo:
-          type: string
-          description: To be fixed to use media attachment later.
-      example:
-        productDescription: labor
-        SKU: none
-        pricePerUnit: '50000.00'
-        tax: na
-        discount: '5000.00'
-        totalAmount: '55000.00'
-
-    UserObject:
-      properties:
-        userId:
-          description: UUID uniquely identifying the user.
-          type: string
-        firstName:
-          description: The first name of the user.
-          type: string
-        lastName:
-          description: The last name of the user.
-          type: string
-        email:
-          description: Email address of the user.
-          type: string
-        mobilePhone:
-          description: The user's cell phone number.
-          type: string
-        userName:
-          description: A log in name for the user.
-          type: string
-        password:
-          description: SHA-256 encrypted string representing the password.
-          type: string
-        role:
-          description: Role for user.
-          type: string
-          enum:
-            - admin
-            - employee
-            - reviewer
-        group:
-          description: Users can be assigned to a group and will inherit the rights and privileges assigned to that group.
-          type: string
-      example:
-        userId: 6f6c4bf4-ab58-4a1b-833e-0e665dc65400
-        firstName: Hugh
-        lastName: Cave
-        email: hugh@akhouse.com
-        mobilePhone: 5556669999
-        userName: hughb
-        password: sample
-        role: admin
-        group: na
-
-    SubscribeObject:
-      properties:
-        callbackURL:
-          description: The URL on your system for Wisetack to call when the request event triggers.
-          type: string
-          required: true
-          format: uri
-          example: https://wisetack.yourcompany.com/callback
-        event:
-           description: The event you want to subscribe to. Presently only 'transaction-status' is available.
-           type: string
-           required: true
-           example: transaction-status
-        secretKey:
-           type: string
-           required: true
-           description: This value will be sent to you each time Wisetack calls your endpoint. You must
-              must verify this value is in the request for security purposes.
-           example: c58459b9-5acc-4d8b-b6a5-4e3cd39fff9c
 
     StatusUpdateRequest:
       properties:
@@ -1226,12 +1815,21 @@ components:
         date:
           description: Date that status changed.
           type: string
-        loanAmountRequested:
+        requestedLoanAmount:
           description: The original loan amount requested by the customer.
           type: string
         approvedLoanAmount:
           description: The loan amount approved for this user by Wisetack. Might be lower than originalLoanAmount
             in the event of a counter offer.
+          type: string
+        settledLoanAmount:
+          description: Future. The loan amount that was paid to the merchant after the work was completed.
+          type: string
+        refundAmount:
+          description: The amount, if any, that was refunded to the customer.
+          type: string
+        maximumAmount:
+          description: Future. The largest transaction amount that can be offered to this consumer.
           type: string
         consumer:
           type: object
@@ -1261,7 +1859,6 @@ components:
           description: The date the transaction was initiated.
           type: string
 
-
     Error:
       type: object
       properties:
@@ -1271,3 +1868,10 @@ components:
           type: string
         request-id:
           type: string
+
+
+
+
+
+
+

@@ -3,7 +3,7 @@
 
 echo "Copying publicApi.yaml to current directory."
 
-cp ../wisetack-new/aws/src/main/resources/api.yaml publicApi.yaml
+cp ../wisetack-new/aws/src/main/resources/publicApi.yaml publicApi.yaml
 
 echo "Creating json file from yaml."
 
@@ -11,7 +11,7 @@ java -jar xyaml2json.jar publicApi.yaml publicApi.json
 
 echo "Create markdown for Slate."
 
-widdershins --search false --language_tabs 'curl:Curl' --summary publicApi.json -o index.html.md
+widdershins --search false --language_tabs 'curl:Curl' 'ruby:Ruby' --summary publicApi.json -o index.html.md
 
 echo "Markdown created."
 
